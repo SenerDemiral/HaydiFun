@@ -1,0 +1,103 @@
+﻿@using System.ComponentModel.DataAnnotations
+@inject ISnackbar Snackbar
+@inject IDataAccess db
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">Tanıtıcı olmak istiyorum</MudText>
+        <MudDivider />
+    </TitleContent>
+    <DialogContent>
+        <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+            <DataAnnotationsValidator />
+            <MudTextField Label="İsim" AutoFocus="true"
+                          HelperText="Ad Soyad"
+                          @bind-Value="model.Name"
+                          For="@(() => model.Name)" />
+            <MudTextField Label="Email" Class="mt-3"
+                          @bind-Value="model.eMail"
+                          For="@(() => model.eMail)" />
+            <MudTextField Label="Tel" Class="mt-3"
+                          @bind-Value="model.mTel"
+                          For="@(() => model.mTel)"
+                          Mask="@mTelMask"
+                          HelperText="@mTelMask.Mask" />
+            <br />
+            <MudButton ButtonType="ButtonType.Submit"
+                       Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       Class="ml-auto">
+                Register
+            </MudButton>
+            <MudButton OnClick="Cancel">Cancel</MudButton>
+        </EditForm>
+    </DialogContent>
+    <DialogActions>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+    public bool success { get; set; } = false;
+
+    private RegisterModel model { get; set; } = new();
+    public PatternMask mTelMask = new PatternMask("(###) ### ## ##")
+        {
+            MaskChars = new[] { new MaskChar('#', @"[0-9]") },
+            Placeholder = '_',
+            CleanDelimiters = true,
+        };
+
+    private async Task OnValidSubmit(EditContext context)
+    {
+        success = true;
+        StateHasChanged();
+
+        ReturnModel rtrn = new();
+        rtrn = await db.StoreProcAsync<ReturnModel, RegisterModel>("TT_NEW(@Name, @eMail, @mTel)", model);
+
+        if (rtrn.Rsp == 0)
+        {
+            Snackbar.Add(rtrn.Msg, Severity.Success, config =>
+                {
+                    config.RequireInteraction = true;
+                    config.ShowCloseIcon = true;
+                });
+
+            MudDialog?.Close(DialogResult.Ok(true));
+        }
+        else
+        {
+            Snackbar.Add(rtrn.Msg, Severity.Warning);
+        }
+    }
+
+    private void Cancel()
+    {
+        Snackbar.Add("İşlem iptal edildi", Severity.Warning);
+        MudDialog?.Cancel();
+    }
+
+    private class RegisterModel
+    {
+        [Required(ErrorMessage = "Bu alan zorunludur")]
+        [StringLength(40, ErrorMessage = "Max 40")]
+        public string Name { get; set; }
+
+        [Required(ErrorMessage = "Bu alan zorunludur")]
+        [EmailAddress(ErrorMessage = "Hata")]
+        [StringLength(40, ErrorMessage = "Max 40")]
+        public string eMail { get; set; }
+
+        [Required(ErrorMessage = "Bu alan zorunludur")]
+        [Phone]
+        [StringLength(20, ErrorMessage = "Hatali", MinimumLength = 10)]
+        public string mTel { get; set; }
+    }
+
+    private class ReturnModel
+    {
+        public int Rsp { get; set; }
+        public string Msg { get; set; }
+    }
+}

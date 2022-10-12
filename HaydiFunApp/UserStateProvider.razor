@@ -1,0 +1,108 @@
+﻿@inject ProtectedLocalStorage PLS
+@inject UsrHub UsrHub
+@inject DataHub DataHub
+@inject IDataAccess db
+@inject NavigationManager NavigationManager
+@implements IDisposable
+
+@if (isLoaded)
+{
+  <CascadingValue Value="@this">
+    @ChildContent
+  </CascadingValue>
+}
+else
+{
+  <p>Loading...</p>
+}
+
+@code {
+  [Parameter]
+  public RenderFragment? ChildContent { get; set; }
+
+  private bool isLoaded;
+
+  public int UsrId = 0;
+  public int UsrRefId = 0;
+  public string? Usr = "?";
+  public string? UsrTyp = "?";
+
+  protected override async Task OnInitializedAsync()
+  {
+    try
+    {
+      var toto = await PLS.GetAsync<int>(Constants.BrowserUsrIdKey);
+      if (toto.Success)
+        UsrId = toto.Value;
+    }
+    catch (Exception)
+    {
+      UsrId = 0;
+      await PLS.SetAsync(Constants.BrowserUsrIdKey, UsrId);
+    }
+    finally
+    {
+      if (UsrId != 0)
+      {
+        var rtrn = await db.StoreProcAsync<dynamic, dynamic>("Usr_Enter(@UsrId)", new { UsrId = UsrId });
+
+        if (rtrn.STU == 0)
+        {
+          UsrId = rtrn.UTID;
+          UsrTyp = rtrn.TYP;
+          UsrRefId = rtrn.REFID;
+          Usr = rtrn.NN;
+
+          UsrHub.UsrAdd(UsrId, Usr);
+          //GoHome(); Ozellikle yok
+        }
+      }
+      isLoaded = true;
+    }
+  }
+
+  private void GoHome()
+  {
+    switch (UsrTyp)
+    {
+      case "A": NavigationManager.NavigateTo("adm/home"); break;
+      case "M": NavigationManager.NavigateTo("mgz/home"); break;
+      case "T": NavigationManager.NavigateTo("tnt/home"); break;
+      default: NavigationManager.NavigateTo("/"); break;
+    }
+  }
+
+  public async Task Logout()
+  {
+    UsrHub.UsrRemove(UsrId);
+
+    db.StoreProc<dynamic, dynamic>("Usr_Logout(@UTid)", new { UTid = UsrId });
+    UsrId = 0;
+    UsrTyp = "?";
+    UsrRefId = 0;
+    Usr = "";
+    await PLS.SetAsync(Constants.BrowserUsrIdKey, UsrId);
+    //NavigationManager.NavigateTo("");
+    GoHome();
+    StateHasChanged();
+  }
+
+  public async Task LoginOk(int usrId, string usrTyp, int usrRefId, string usr)
+  {
+    UsrId = usrId;
+    UsrTyp = usrTyp;
+    UsrRefId = usrRefId;
+    Usr = usr;
+    await PLS.SetAsync(Constants.BrowserUsrIdKey, UsrId);
+    //OnUsrChanged();
+    UsrHub.UsrAdd(UsrId, Usr);
+    GoHome();
+    StateHasChanged();
+  }
+
+  public void Dispose()
+  {
+    UsrHub.UsrRemove(UsrId);
+  }
+
+}
