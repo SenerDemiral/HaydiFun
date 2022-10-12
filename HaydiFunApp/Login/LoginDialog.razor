@@ -57,11 +57,11 @@
     // SP input params db de tanimlandigi sirasiyla gelmeli.
     var rtrn = await db.StoreProcAsync<OutputModel, InputModel>("Usr_Login(@LgnNme, @LgnPwd)", Model);
 
-    if (rtrn.Stu == 0)
+    if (rtrn.Stu == "A")
     {
       Snackbar.Add(rtrn.Msg, Severity.Success);
       MudDialog?.Close();
-      await USP!.LoginOk(rtrn.UTid, rtrn.Typ!, rtrn.RefId, rtrn.NN);
+      await USP!.LoginOk(rtrn.UTid, rtrn.Typ!, rtrn.Usr);
     }
     else
     {
@@ -82,11 +82,10 @@
 
   private sealed class OutputModel
   {
-    public int Stu { get; set; }
+    public string Stu { get; set; }
     public int UTid { get; set; }
+    public string? Usr { get; set; }
     public string? Typ { get; set; }
-    public int RefId { get; set; }
-    public string? NN { get; set; }
     public string? Msg { get; set; }
   }
 }

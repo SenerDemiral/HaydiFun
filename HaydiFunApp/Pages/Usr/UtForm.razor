@@ -1,0 +1,152 @@
+﻿@page "/usr/ut"
+@using System.ComponentModel.DataAnnotations
+@inject IWebHostEnvironment env
+
+@inject NavigationManager NavigationManager
+@inject IDataAccess db
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+<PageTitle>Üye Profili</PageTitle>
+
+<div class="mud-theme-dark">
+  <MudText Align="Align.Center" Typo="Typo.body2">@USP.Usr</MudText>
+</div>
+
+<EditForm Model="model" OnValidSubmit="OnValidSubmit">
+  <DataAnnotationsValidator />
+  <MudTextField Label="Ad"
+                @bind-Value="model.Name"
+                For="@(() => model.Name)" />
+  <MudTextField Label="Email" Class="mt-3"
+                @bind-Value="model.MailAdr"
+                For="@(() => model.MailAdr)" />
+  <MudTextField Label="Tel" Class="mt-3"
+                @bind-Value="model.Tel"
+                For="@(() => model.Tel)"
+                Mask="@TelMask"
+                HelperText="@TelMask.Mask" />
+  <MudTextField Label="Info" Lines="4"
+                @bind-Value="model.Info"
+                For="@(() => model.Info)" />
+
+  @*<img src="/uploads/sener.webp?height=200&quality=50" />*@
+  @*<div class="d-flex justify-center gap-4 ">*@
+  <MudImage Src="@($"uploads/{model.ImgUrl}?width=100")" Elevation="25" Class="rounded-lg" @onclick="Upload" Style="cursor: pointer;" />
+  @*</div>*@
+
+  @if (isEditable)
+  {
+    <div class="d-flex align-center gap-4 ">
+      <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Kaydet</MudButton>
+      <MudButton OnClick="Cancel">Iptal</MudButton>
+    </div>
+  }
+</EditForm>
+
+@code {
+  [CascadingParameter] private UserStateProvider? USP { get; set; }
+
+  private UT model { get; set; } = new();
+  private bool success { get; set; } = false;
+  private bool isEditable { get; set; } = false;
+
+  public PatternMask TelMask = new PatternMask("(###) ### ## ##")
+    {
+      MaskChars = new[] { new MaskChar('#', @"[0-9]") },
+      Placeholder = '_',
+      CleanDelimiters = false,
+    };
+
+  private async Task Upload()
+  {
+    var parameters = new DialogParameters();
+    //File.Delete($"{env.WebRootPath}\\uploads\\{model.ImgUrl}");
+    //File.Delete($"{env.WebRootPath}\\uploads\\UP3-*.*");
+    var dir = new DirectoryInfo($"{env.WebRootPath}\\uploads\\");
+    foreach (var file in dir.EnumerateFiles($"UP{USP.UsrId}-*.*"))
+    {
+      
+      file.Delete();
+    }
+
+    parameters.Add("FileName", $"UP{USP.UsrId}-{DateTime.Now.ToString("yyMMddHHmmssfff")}");
+
+    var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+
+    var dialog = DialogService.Show<UploadDialog>("Yükle", parameters, options);
+    var result = await dialog.Result;
+
+    if (!result.Cancelled)
+    {
+      model.ImgUrl = result.Data.ToString();
+    }
+  }
+
+  public override async Task SetParametersAsync(ParameterView parameters)
+  {
+    if (parameters.TryGetValue<UserStateProvider>(nameof(USP), out var value))
+    {
+      if (value is null || value.UsrTyp != "2")
+        NavigationManager.NavigateTo("");
+      else
+        await base.SetParametersAsync(parameters);  //Diger LifeCyle metodlarini cagiriyor
+    }
+  }
+
+  protected override async Task OnInitializedAsync()
+  {
+    isEditable = true;
+    await ReadRec();
+  }
+
+  private async Task ReadRec()
+  {
+    string sql = $"select * from UT where UTid = @UTid";
+    model = await db.LoadRec<UT, dynamic>(sql, new { UTid = USP.UsrId });
+  }
+
+  private async Task OnValidSubmit(EditContext context)
+  {
+    success = true;
+    StateHasChanged();
+
+    // Degisiklik omasa bile bir alana focus ediyorsa Modified sayiyor
+    // Faydasi yok
+    //var aaa = context.IsModified();
+
+    //string sql = "update UT set Stu = @Stu where UTid = @UTid";
+    string sql = "UT_MDF(@UTid, @Name, @MailAdr, @Tel, @ImgUrl, @Lbls, @Info)";
+    var rtrn = await db.StoreProcAsync<UT, UT>(sql, model);
+
+    Snackbar.Add("Kayıt yapıldı.", Severity.Success);
+  }
+
+  private async Task Cancel()
+  {
+    await ReadRec();
+    Snackbar.Add("İşlem iptal edildi", Severity.Warning);
+  }
+
+  private sealed class UT
+  {
+    public int UTid { get; set; }
+
+    [Required(ErrorMessage = "Bu alan zorunludur")]
+    [StringLength(40, ErrorMessage = "Max 40", MinimumLength = 10)]
+    public string? Name { get; set; }
+
+    [Required(ErrorMessage = "Bu alan zorunludur")]
+    [EmailAddress(ErrorMessage = "Hata")]
+    [StringLength(40, ErrorMessage = "Max 40", MinimumLength = 10)]
+    public string? MailAdr { get; set; }
+
+    public string? Tel { get; set; }
+    public string? ImgUrl { get; set; }
+
+    public string? Info { get; set; }
+    public string? Lbls { get; set; }
+  }
+
+
+}

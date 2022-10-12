@@ -1,19 +1,88 @@
-﻿@inherits LayoutComponentBase
+﻿@using HaydiFunApp.Login;
+@inherits LayoutComponentBase
+@inject NavigationManager NavigationManager
+@inject IDialogService DialogService
+@inject IPubs pubs
+@inject ISnackbar Snackbar
+@implements IDisposable
 
-<PageTitle>HaydiFunApp</PageTitle>
+<MudThemeProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+<MudLayout>
+  <MudAppBar Elevation="0" Dense="true">
+    <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+    <MudSpacer />
+    @if (USP?.UsrId == 0)
+    {
+      <MudFab StartIcon="@Icons.Material.Filled.Login"
+            Label="GİRİŞ"
+            Color="Color.Error"
+            Size="Size.Small"
+            OnClick="@(() => DialogService.Show<LoginDialog>())" />
+    }
+    else
+    {
+      <MudTooltip Text="Güvenli Çıkış">
+        <MudFab EndIcon="@Icons.Material.Filled.Logout"
+              Label="@USP.Usr"
+              Color="Color.Error"
+              Size="Size.Small"
+              OnClick="Logout" />
+      </MudTooltip>
+    }
+  </MudAppBar>
+  <MudDrawer @bind-Open="_drawerOpen" Elevation="1">
+    <MudDrawerHeader>
+      <MudText Typo="Typo.h6">HaydiFun</MudText>
+    </MudDrawerHeader>
+    <NavMenu />
+  </MudDrawer>
+  <MudMainContent>
+    <MudContainer MaxWidth="MaxWidth.Large" Class="my-1 pt-1">
+      @Body
+    </MudContainer>
+  </MudMainContent>
+</MudLayout>
 
-    <main>
-        <div class="top-row px-4">
-            <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
-        </div>
+@code {
+  [CascadingParameter] private UserStateProvider? USP { get; set; }
 
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
-</div>
+  bool _drawerOpen = true;
+  string AdmMsg = "";
+
+  void DrawerToggle()
+  {
+    _drawerOpen = !_drawerOpen;
+  }
+
+  private async Task Logout()
+  {
+    await USP!.Logout();
+  }
+
+  protected override void OnInitialized()
+  {
+    pubs.AdmMsgChanged += OnAdmMsgChanged;
+  }
+
+  private void OnAdmMsgChanged(object sender, AdmMsgEventArgs e)
+  {
+    if (e.Who == "H" ||                         // Herkese
+        e.Who == USP.UsrTyp ||             // Adm, Mgz, Tnt
+        USP.UsrId == int.Parse(e.Who))     // Usr
+    {
+      Snackbar.Add(e.Msg, Severity.Error, config =>
+      {
+        config.RequireInteraction = true;
+      });
+    }
+  }
+
+  public void Dispose()
+  {
+    pubs.AdmMsgChanged -= OnAdmMsgChanged;
+  }
+
+}

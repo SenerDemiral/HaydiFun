@@ -4,7 +4,7 @@
 
 <MudDialog>
     <TitleContent>
-        <MudText Typo="Typo.h6">Tanıtıcı olmak istiyorum</MudText>
+        <MudText Typo="Typo.h6">Üye olmak istiyorum</MudText>
         <MudDivider />
     </TitleContent>
     <DialogContent>
@@ -15,13 +15,8 @@
                           @bind-Value="model.Name"
                           For="@(() => model.Name)" />
             <MudTextField Label="Email" Class="mt-3"
-                          @bind-Value="model.eMail"
-                          For="@(() => model.eMail)" />
-            <MudTextField Label="Tel" Class="mt-3"
-                          @bind-Value="model.mTel"
-                          For="@(() => model.mTel)"
-                          Mask="@mTelMask"
-                          HelperText="@mTelMask.Mask" />
+                          @bind-Value="model.MailAdr"
+                          For="@(() => model.MailAdr)" />
             <br />
             <MudButton ButtonType="ButtonType.Submit"
                        Variant="Variant.Filled"
@@ -37,28 +32,29 @@
 </MudDialog>
 
 @code {
-    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
-    public bool success { get; set; } = false;
+  [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+  public bool success { get; set; } = false;
 
-    private RegisterModel model { get; set; } = new();
-    public PatternMask mTelMask = new PatternMask("(###) ### ## ##")
+  private RegisterModel model { get; set; } = new();
+  public PatternMask mTelMask = new PatternMask("(###) ### ## ##")
         {
             MaskChars = new[] { new MaskChar('#', @"[0-9]") },
             Placeholder = '_',
             CleanDelimiters = true,
         };
 
-    private async Task OnValidSubmit(EditContext context)
-    {
-        success = true;
-        StateHasChanged();
+  private async Task OnValidSubmit(EditContext context)
+  {
+    success = true;
+    StateHasChanged();
 
-        ReturnModel rtrn = new();
-        rtrn = await db.StoreProcAsync<ReturnModel, RegisterModel>("TT_NEW(@Name, @eMail, @mTel)", model);
+    var rtrn = await db.StoreProcAsync<dynamic, RegisterModel>("UT_NEW(@Name, @MailAdr)", model);
 
-        if (rtrn.Rsp == 0)
+    int rsp = rtrn.RSP;
+    string msg = rtrn.MSG;
+    if (rsp == 0)
         {
-            Snackbar.Add(rtrn.Msg, Severity.Success, config =>
+            Snackbar.Add(msg, Severity.Success, config =>
                 {
                     config.RequireInteraction = true;
                     config.ShowCloseIcon = true;
@@ -68,7 +64,7 @@
         }
         else
         {
-            Snackbar.Add(rtrn.Msg, Severity.Warning);
+            Snackbar.Add(msg, Severity.Warning);
         }
     }
 
@@ -87,17 +83,7 @@
         [Required(ErrorMessage = "Bu alan zorunludur")]
         [EmailAddress(ErrorMessage = "Hata")]
         [StringLength(40, ErrorMessage = "Max 40")]
-        public string eMail { get; set; }
+        public string MailAdr { get; set; }
 
-        [Required(ErrorMessage = "Bu alan zorunludur")]
-        [Phone]
-        [StringLength(20, ErrorMessage = "Hatali", MinimumLength = 10)]
-        public string mTel { get; set; }
-    }
-
-    private class ReturnModel
-    {
-        public int Rsp { get; set; }
-        public string Msg { get; set; }
     }
 }

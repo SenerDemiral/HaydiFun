@@ -81,9 +81,13 @@ public sealed class DataHub
     pub.ChatRaise(grp);
     // Publish EC nin ETid sine ekleme yapildi
     // Buna Abone olanlar Refresh yapmali 
-    // Aslinda bu Dict uzerinden yapsin tum islemini
+    // Aslinda bu Dict uzerinden yapsin tum islemini. Local copy yok
   }
 
+  // ChatPage.Dispose dan burayi cagir.
+  // et ye ait user kaydini bir azalt.
+  // bu et deki tum 
+  // Bu Chat deki tum userlar ciktiysa sil, birdahakine db den okusun
   public void ChatRemove(int grp, int utId)
   {
     if (ChatUsrs.ContainsKey(grp))
@@ -102,11 +106,7 @@ public sealed class DataHub
         ChatUsrs.TryRemove(grp, out var lst);
       }
     }
-    // ChatPage.Dispose dan burayi cagir.
-    // et ye ait user kaydini bir azalt.
-    // bu et deki tum 
-    // Bu Chat deki tum userlar ciktiysa sil, birdahakine db den okusun
-  }
+      }
   private sealed class ECusr
   {
     public int UTid;

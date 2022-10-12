@@ -1,0 +1,120 @@
+﻿@page "/adm/usrhub"
+
+@inject NavigationManager NavigationManager
+@inject IPubs pubs
+@inject UsrHub UsrHub
+@implements IDisposable
+
+<h3>UsrHubPage</h3>
+<style>
+    .ug {
+        display: grid;
+        grid-gap: 4px;
+        grid-template-columns: 100px 50px 200px;
+        background-color: burlywood;
+        /*color: #444;*/
+        justify-content: center;
+        align-content: center;
+        /*height: 100px;*/
+        /*overflow: auto;*/
+    }
+
+    .tal {
+        text-align: left;
+    }
+
+    .tac {
+        text-align: center;
+    }
+
+    .tar {
+        text-align: right;
+    }
+
+    table, th, td {
+        border: 1px solid burlywood;
+        border-collapse: collapse;
+    }
+</style>
+
+@*<div class="ug">
+    <div>Usr</div>
+    <div>Cnt</div>
+    <div>InsTS</div>
+    @foreach (var kv in UsrHub.Usrs)
+    {
+        <div>@kv.Value.UsrNN</div>
+        <div>@kv.Value.Cnt</div>
+        <div>@kv.Value.EXD</div>
+    }
+
+</div>*@
+
+<table>
+    <caption></caption>
+    <colgroup>
+        <col style="width:100px">
+        <col style="width:50px">
+        <col>
+    </colgroup>
+    <thead>
+        <tr>
+            <th class="tal">Usr</th>
+            <th>Cnt</th>
+            <th>EXD</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            int NOU = 0;
+            int NOC = 0;
+        }
+        @foreach (var kv in UsrHub.Usrs)
+        {
+            <tr @key="kv.Key">
+                <td>@kv.Value.Usr</td>
+                <td class="tac">@kv.Value.Cnt</td>
+                <td>@kv.Value.EXD</td>
+            </tr>
+            NOU++;
+            NOC += kv.Value.Cnt;
+        }
+    </tbody>
+    <tfoot>
+        <tr>
+            <td class="tac">@NOU</td>
+            <td class="tac">@NOC</td>
+        </tr>
+    </tfoot>
+</table>
+
+@code {
+    [CascadingParameter] private UserStateProvider? USP { get; set; }
+
+    public override async Task SetParametersAsync(ParameterView parameters)
+    {
+        if (parameters.TryGetValue<UserStateProvider>(nameof(USP), out var value))
+        {
+            if (value is null || value.UsrTyp != "A")
+                NavigationManager.NavigateTo("");
+            else
+                await base.SetParametersAsync(parameters);  //Diger LifeCyle metodlarini cagiriyor
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        pubs.UsrChanged += OnUsrChanged;
+    }
+
+    public void OnUsrChanged(object sender, EventArgs args)
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        pubs.UsrChanged -= OnUsrChanged;
+    }
+
+}

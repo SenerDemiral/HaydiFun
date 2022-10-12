@@ -23,7 +23,6 @@ else
   private bool isLoaded;
 
   public int UsrId = 0;
-  public int UsrRefId = 0;
   public string? Usr = "?";
   public string? UsrTyp = "?";
 
@@ -44,14 +43,14 @@ else
     {
       if (UsrId != 0)
       {
-        var rtrn = await db.StoreProcAsync<dynamic, dynamic>("Usr_Enter(@UsrId)", new { UsrId = UsrId });
-
-        if (rtrn.STU == 0)
+        //var rtrn = await db.StoreProcAsync<dynamic, dynamic>("Usr_Enter(@UsrId)", new { UsrId = UsrId });
+        var rtrn = await db.StoreProcAsync<dynamic, dynamic>("Usr_Login(@UsrId, @UsrPwd)", new { UsrId = UsrId.ToString(), UsrPwd = "c~@~n" });
+        
+        if (rtrn.STU == "A")
         {
           UsrId = rtrn.UTID;
           UsrTyp = rtrn.TYP;
-          UsrRefId = rtrn.REFID;
-          Usr = rtrn.NN;
+          Usr = rtrn.USR;
 
           UsrHub.UsrAdd(UsrId, Usr);
           //GoHome(); Ozellikle yok
@@ -65,9 +64,6 @@ else
   {
     switch (UsrTyp)
     {
-      case "A": NavigationManager.NavigateTo("adm/home"); break;
-      case "M": NavigationManager.NavigateTo("mgz/home"); break;
-      case "T": NavigationManager.NavigateTo("tnt/home"); break;
       default: NavigationManager.NavigateTo("/"); break;
     }
   }
@@ -79,7 +75,6 @@ else
     db.StoreProc<dynamic, dynamic>("Usr_Logout(@UTid)", new { UTid = UsrId });
     UsrId = 0;
     UsrTyp = "?";
-    UsrRefId = 0;
     Usr = "";
     await PLS.SetAsync(Constants.BrowserUsrIdKey, UsrId);
     //NavigationManager.NavigateTo("");
@@ -87,11 +82,10 @@ else
     StateHasChanged();
   }
 
-  public async Task LoginOk(int usrId, string usrTyp, int usrRefId, string usr)
+  public async Task LoginOk(int usrId, string usrTyp, string usr)
   {
     UsrId = usrId;
     UsrTyp = usrTyp;
-    UsrRefId = usrRefId;
     Usr = usr;
     await PLS.SetAsync(Constants.BrowserUsrIdKey, UsrId);
     //OnUsrChanged();

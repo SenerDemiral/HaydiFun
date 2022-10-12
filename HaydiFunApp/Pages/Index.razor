@@ -1,9 +1,189 @@
 ﻿@page "/"
+<style>
+  ul {
+      list-style-type: circle
+  }
 
+  li {
+      margin-left: 20px;
+  }
+
+</style>
 <PageTitle>Index</PageTitle>
 
-<h1>Hello, world!</h1>
+<h1>HaydiFun!</h1>
 
-Welcome to your new app.
+Yeni programımıza hoşgeldiniz
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+<ul>
+  <li>Üye ol</li>
+  <li>Kendini tanıt</li>
+  <li>Açık Davet düzenle, isteyen katılsın.</li>
+  <li>Özel Davet düzenle, istediklerini çağır.</li>
+  <li>Üye profillerini görerek tanışma partileri düzenle, arkadaşlık kur.</li>
+  <li>Katılanlar ile Chat yap.</li>
+</ul>
+<br />
+<ul>
+  <li>
+    Davet 2 çeşittir
+    <ul>
+      <li>1. Açık: İsteyen Üyeler katılabilir.</li>
+      <li>2. Özel: Düzenleyenin davet ettiği Üyeler dışında kimse katılamaz.</li>
+    </ul>
+  </li>
+  <li>Açık Davete katılabilmen için ilgili Davet üzerinden istek yapmalısın.</li>
+  <li>Düzenleyen bu isteği görüp seni Kabul/Red eder.</li>
+  <li>Düzenleyen seni engellemiş ise bu daveti göremezsin/katılamazsın.</li>
+  <li>Özel Davete katılabilmen için Düzenleyenden davet almalısın,</li>
+  <li> Bu daveti Kabul/Red edebilirsin.</li>
+  <li>İstediğin üyeyi takip listene alabilir, seni engellediyse bilirsin(Onun Davetlerine katılamazsın)</li>
+  <li>Seni takip eden üyeyi görebilir, istersen engelleyebilirsin(Senin Davetlerine katılamaz)</li>
+</ul>
+<br />
+
+<p>Site şu sayfalardan oluşur:</p>
+<ul>
+  <li>
+    Düzenlediğim Davetler:
+    <ul>
+      <li>Düzenlediğin tüm Davetleri burada göreceksin.</li>
+      <li>+Ekle butonuna basarak yeni Davet oluşturabilir, Engellemediğin üyeleri ekleyebilirsin.</li>
+      <li>
+        Davet ettiğin üyeler kendi "İlgilendiğm Davetler" sayfasında davetini görecek,
+        <ul>
+          <li>Kabul/Red seçenekleriyle bu davete katılıp/katılmayacaklarını bildirecek.</li>
+        </ul>
+      </li>
+      <li>Davete katılmak isteyen üyeyi Kabul/Red edebilirsin.</li>
+      <li>Kabul edenler/edilenler ile bu Davet hakkında Chat yapabilirsin.</li>
+    </ul>
+  </li>
+</ul>
+<br />
+
+<ul>
+  <li>
+    İlgilendiğm Davetler:
+    <ul>
+      <li>Davet edildiğin ve Katılmak istediğin tüm Davetleri burada göreceksin.</li>
+      <li>Daveti Kabul/Red edebilirsin.</li>
+      <li>Eğer katıldıysan, Chat butonuna basarak bu Davetteki diğer üyeler ile haberleşebilirsin.</li>
+    </ul>
+  </li>
+</ul>
+<br />
+
+<ul>
+  <li>
+    Katılabileceğim Davetler:
+    <ul>
+      <li>İlgilendiğin Davetleri arayabilir,</li>
+      <li>Katılmak istediğini seçip "İlgilendiğm Davetler" sayfasına aktarabilirsin.</li>
+    </ul>
+  </li>
+</ul>
+<br />
+
+<ul>
+  <li>
+    Takipcilerim:
+    <ul>
+      <li>Seni takip eden üyeleri görebilirsin.</li>
+    </ul>
+  </li>
+</ul>
+<br />
+
+<ul>
+  <li>
+    Takip Ettiklerim:
+    <ul>
+      <li>Senin takip ettiğin üyeleri görebilirsin.</li>
+      <li>Davetlerine katılmasını istemiyorsan Englleyebilirsin</li>
+    </ul>
+  </li>
+</ul>
+<br />
+
+<ul>
+  <li>
+    Üyeler:
+    <ul>
+      <li>EkranAdı, Fotoğrafı ve Etiketlerini görürsün.</li>
+      <li>İstediklerini Takibe alabilirsin.</li>
+      <li>İstediklerini Engelleyebilirsin.</li>
+    </ul>
+  </li>
+</ul>
+<br />
+
+<ul>
+  <li>
+    Profilim:
+    <ul>
+      <li>
+        Ad Soyad gir. (Diğer üyeler göremez)
+        <ul>
+          <li>Kullandığın adı başa koy, göbek adını, kızlık soyadını kullanma, burası Nüfus kaydı değil :)</li>
+          <li>Adınla başlayan bir EkranAdın (CAN123 gibi) otomatik olarak oluşturulacak, birdaha değiştirilemeyecektir.</li>
+          <li>Diğer üyeler seni bu EkranAdı ile tanıyacaklar.</li>
+        </ul>
+      </li>
+
+      <li>
+        Mail adresini gir. (Diğer üyeler göremez)
+        <ul>
+          <li>Üyelik şifreni bu yolla göndereceğiz.</li>
+          <li>Başka bir üye ile aynı olamaz.</li>
+        </ul>
+      </li>
+
+      <li>
+        Resmini yükle.
+        <ul>
+          <li>Seni tanımlayabilecek bir fotoğraf bul, </li>
+          <li>Çocuğununun, Evcil hayavanının resmi ve Emoji olmasın lütfen,.</li>
+          <li>Sadece bu fotoğraf ile tanınacaksın.</li>
+          <li>İstediğinde değiştirebilirsin.</li>
+        </ul>
+      </li>
+
+      <li>
+        Etiketleri tıklayarak kendini tanımla.
+        <ul>
+          <li>Cinsiyet, Yaş, Boy, Ağırlık, Ten, Konum, Hoby, Spor, UzmanlıkAlanı,</li>
+          <li>Grup(dahil olduğun grup/dernek vs), Davetler(ilgilendiğin)</li>
+          <li>Olmayan etiketleri bize bildir, ekleyelim.</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+<br />
+
+<MudCard>
+  <MudCardHeader>
+    <CardHeaderAvatar>
+      <MudAvatar Color="Color.Secondary">I</MudAvatar>
+    </CardHeaderAvatar>
+    <CardHeaderContent>
+      <MudText Typo="Typo.body1">Istra Croatia</MudText>
+      <MudText Typo="Typo.body2">Peninsula in Europe</MudText>
+    </CardHeaderContent>
+    <CardHeaderActions>
+      <MudIconButton Icon="@Icons.Material.Filled.Settings" Color="Color.Default" />
+    </CardHeaderActions>
+  </MudCardHeader>
+  @*<MudCardMedia Image="/uploads/sener.webp?height=250&quality=50" Height="250" />*@
+  <MudCardContent>
+    <div style="display:flex; justify-content:center">
+      <img src="/uploads/sener.webp?height=200&quality=50" />
+    @*<MudText Typo="Typo.body2">This photo was taken in a small village in Istra Croatia.</MudText>*@
+    </div>
+  </MudCardContent>
+  <MudCardActions>
+    <MudIconButton Icon="@Icons.Material.Filled.Favorite" Color="Color.Default" />
+    <MudIconButton Icon="@Icons.Material.Filled.Share" Color="Color.Default" />
+  </MudCardActions>
+</MudCard>

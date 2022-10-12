@@ -1,0 +1,176 @@
+﻿@page "/tsd"
+@inject IDataAccess db
+
+<h3>TagSeachDialog</h3>
+<style>
+    .sener p::first-letter {
+        font-weight:bold;
+    }
+</style>
+<MudPaper>
+    <MudList Clickable="true" Dense="true">
+        <MudListSubheader DisableGutters="false">
+            <MudRadioGroup @bind-SelectedOption="@SelectedOption">
+                <MudRadio Option="true" Color="Color.Primary" Dense="true">Bunların Hepsi</MudRadio>
+                <MudRadio Option="false" Color="Color.Secondary" Dense="true">Bunlardan Biri</MudRadio>
+            </MudRadioGroup>
+
+            <MudChipSet AllClosable="true" OnClose="@ClosedA">
+                @foreach (var lbl in asLbls)
+                {
+                    var fullName = $"{Grps[lbl.LGid].NN}•{lbl.Name}";
+
+                    <MudChip Text="@fullName" Value="@lbl" Color="Color.Primary" Size="Size.Small"></MudChip>
+                }
+            </MudChipSet>
+
+            <MudChipSet AllClosable="true" OnClose="@ClosedO">
+                @foreach (var lbl in osLbls)
+                {
+                    var fullName = $"{Grps[lbl.LGid].NN}•{lbl.Name}";
+
+                    <MudChip Text="@fullName" Value="@lbl" Color="Color.Secondary" Size="Size.Small"></MudChip>
+                }
+            </MudChipSet>
+
+        </MudListSubheader>
+
+        @foreach (var grp in Grps)
+        {
+            var grpVal = grp.Value as LG;
+            <MudListItem Text="@grpVal.Name"
+                     Class="sener"
+                     Dense="true"
+                     Expanded="@grpVal.isExpanded"
+                     ExpandedChanged="@(e => this.ToggleExpanded(e, grp.Key))">
+
+                <NestedList>
+                    @foreach (var lbl in Lbls.Where(x => x.LGid == grp.Key))
+                    {
+                        <MudListItem Disabled="@lbl.isDisabled"
+                             Dense="true"
+                             Text="@lbl.Name"
+                             Value="@lbl"
+                             OnClick="@(() => OnClick(lbl))" />
+                    }
+                </NestedList>
+
+            </MudListItem>
+        }
+    </MudList>
+</MudPaper>
+
+
+@code {
+    List<LT> asLbls = new();    // AND search
+    List<LT> osLbls = new();    // OR  search
+    public bool SelectedOption { get; set; } = true;    //Hepsi
+    public bool expanded;
+
+    Dictionary<int, LG> Grps = new();
+    //{
+    //    {1, new LG { LGid = 1, Name = "Sex", isMny = false } },
+    //    {2, new LG { LGid = 2, Name = "Hby", isMny = true } },
+    //};
+    List<LT> Lbls = new();
+    //{
+    //    new LT { LTid = 1, Name = "Erkek", LGid = 1 },
+    //    new LT { LTid = 2, Name = "Kadin", LGid = 1 },
+
+    //    new LT { LTid = 3, Name = "Spor", LGid = 2 },
+    //    new LT { LTid = 4, Name = "Muzik", LGid = 2 },
+    //    new LT { LTid = 5, Name = "Resim", LGid = 2 },
+    //};
+
+    protected override async Task OnInitializedAsync()
+    {
+        Lbls = (await db.LoadData<LT, dynamic>("select * from LT order by LGid, Name", new { })).ToList();
+        Grps = (await db.LoadData<LG, dynamic>("select * from LG order by LGid", new { })).ToDictionary((x) => x.LGid);
+    }
+    private void ToggleExpanded(bool expanded, int key)
+    {
+        if (expanded)
+        {
+            foreach (var entry in Grps.Where(entry => entry.Key != key))
+            {
+                entry.Value.isExpanded = false;
+            }
+        }
+        Grps[key].isExpanded = expanded;
+    }
+
+    private void OnClick(LT lbl)
+    {
+        var gId = lbl.LGid;
+
+        if (!Grps[gId].isMny)
+        {
+            if (Lbls.Find((x) => x.LGid == gId && x.isDisabled) is not null)
+                return;
+        }
+
+        LT nTag = lbl with { isDisabled = false };
+        if (SelectedOption) // Hepsi andTag
+        {
+            asLbls.Add(nTag);
+            asLbls = asLbls.OrderBy(x => x.LGid).ToList();
+        }
+        else
+        {               // Biri orTag
+            osLbls.Add(nTag);
+            osLbls = osLbls.OrderBy(x => x.LGid).ToList();
+        }
+        lbl.isDisabled = true;
+    }
+
+    public void ClosedA(MudChip chip)
+    {
+        var lbl = chip.Value as LT;
+        // burdan sil
+        asLbls.Remove(lbl);
+        // Lbl enable
+        var ti = Lbls.FindIndex(x => x.LTid == lbl.LTid);
+        if (ti != -1)
+            Lbls[ti].isDisabled = false;
+
+    }
+
+    public void ClosedO(MudChip chip)
+    {
+        var lbl = chip.Value as LT;
+        // burdan sil
+        osLbls.Remove(lbl);
+        // Lbl enable
+        var ti = Lbls.FindIndex(x => x.LTid == lbl.LTid);
+        if (ti != -1)
+            Lbls[ti].isDisabled = false;
+    }
+
+    public record LT
+    {
+        public int LTid { get; set; }
+        public string? Name { get; set; }
+        public bool isDisabled { get; set; } = false;
+        public int LGid { get; set; }
+    }
+
+    public sealed class LG
+    {
+        public int LGid { get; set; }
+        public string? Name { get; set; }
+        public string? Mny { get; set; }
+        public bool isMny
+        {
+            get => Mny == "E" ? true : false;
+            set { }
+        }
+        public bool isExpanded { get; set; }
+        public string? NN
+        {
+            get => Name?.Substring(0,1);
+            set { }
+        }
+    }
+}
+
+
