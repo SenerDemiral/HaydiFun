@@ -1,6 +1,7 @@
 ﻿using DataLibrary;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace HaydiFunApp;
 // Login olmus Userlar, eger birden cok yerdeyse sayisi
@@ -14,7 +15,7 @@ public sealed class UsrHub
     this.pub = pub;
   }
 
-  public void UsrAdd(int usrId, string usr)
+  public void UsrAdd(int usrId, string usr, string avatar)
   {
     if (!Usrs.ContainsKey(usrId))
     {
@@ -23,6 +24,7 @@ public sealed class UsrHub
         UsrId = usrId,
         Usr = usr,
         EXD = DateTime.Now,
+        Avatar = avatar,
         Cnt = 1
       };
       //   pub.UsrRaise();
@@ -60,4 +62,7 @@ public sealed class UsrModel
   public string? Usr;
   public DateTime? EXD;
   public int Cnt;
+  public string? Avatar;
+  public string ImgUrl => $"uploads/{Avatar}?width=100";
+
 }

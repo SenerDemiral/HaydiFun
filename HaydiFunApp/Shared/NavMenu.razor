@@ -5,6 +5,7 @@
   @if (USP.UsrTyp == "?")
   {
     <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">Home</MudNavLink>
+    <MudNavLink Href="adm/usrhub" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.HowToReg">OnLine User</MudNavLink>
     <MudNavLink Icon="@Icons.Filled.CloudUpload" OnClick="@(() => DialogService.Show<Login.RegisterDialog>())">
       Yeni Üyelik
     </MudNavLink>

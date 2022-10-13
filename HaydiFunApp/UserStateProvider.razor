@@ -25,6 +25,7 @@ else
   public int UsrId = 0;
   public string? Usr = "?";
   public string? UsrTyp = "?";
+  public string? UsrAvatar;
 
   protected override async Task OnInitializedAsync()
   {
@@ -45,14 +46,15 @@ else
       {
         //var rtrn = await db.StoreProcAsync<dynamic, dynamic>("Usr_Enter(@UsrId)", new { UsrId = UsrId });
         var rtrn = await db.StoreProcAsync<dynamic, dynamic>("Usr_Login(@UsrId, @UsrPwd)", new { UsrId = UsrId.ToString(), UsrPwd = "c~@~n" });
-        
+
         if (rtrn.STU == "A")
         {
           UsrId = rtrn.UTID;
           UsrTyp = rtrn.TYP;
           Usr = rtrn.USR;
+          UsrAvatar = rtrn.AVATAR;
 
-          UsrHub.UsrAdd(UsrId, Usr);
+          UsrHub.UsrAdd(UsrId, Usr, UsrAvatar);
           //GoHome(); Ozellikle yok
         }
       }
@@ -76,20 +78,22 @@ else
     UsrId = 0;
     UsrTyp = "?";
     Usr = "";
+    UsrAvatar = "";
     await PLS.SetAsync(Constants.BrowserUsrIdKey, UsrId);
     //NavigationManager.NavigateTo("");
     GoHome();
     StateHasChanged();
   }
 
-  public async Task LoginOk(int usrId, string usrTyp, string usr)
+  public async Task LoginOk(int usrId, string usrTyp, string usr, string avatar)
   {
     UsrId = usrId;
     UsrTyp = usrTyp;
     Usr = usr;
+    UsrAvatar = avatar;
     await PLS.SetAsync(Constants.BrowserUsrIdKey, UsrId);
     //OnUsrChanged();
-    UsrHub.UsrAdd(UsrId, Usr);
+    UsrHub.UsrAdd(UsrId, Usr, UsrAvatar);
     GoHome();
     StateHasChanged();
   }

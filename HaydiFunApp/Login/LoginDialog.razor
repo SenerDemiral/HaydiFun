@@ -61,7 +61,7 @@
     {
       Snackbar.Add(rtrn.Msg, Severity.Success);
       MudDialog?.Close();
-      await USP!.LoginOk(rtrn.UTid, rtrn.Typ!, rtrn.Usr);
+      await USP!.LoginOk(rtrn.UTid, rtrn.Typ!, rtrn.Usr, rtrn.Avatar);
     }
     else
     {
@@ -86,6 +86,7 @@
     public int UTid { get; set; }
     public string? Usr { get; set; }
     public string? Typ { get; set; }
+    public string? Avatar { get; set; }
     public string? Msg { get; set; }
   }
 }
