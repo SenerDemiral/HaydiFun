@@ -21,5 +21,6 @@ public interface IPubs
   public void ChatActionRemove(int id, Action<int, string> handler);
   public void ChatActionRaise(int id, int x, string y);
   public int ChatActionCount();
+  public int ChatActionHandlerCount(int id);
 
 }

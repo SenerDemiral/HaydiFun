@@ -1,4 +1,6 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.Concurrent;
+using System.ComponentModel;
+using System.Reflection.PortableExecutable;
 using static Microsoft.IO.RecyclableMemoryStreamManager;
 
 namespace HaydiFunApp;
@@ -41,27 +43,47 @@ public sealed class Pubs : IPubs
   /// <summary>
   /// Bunu kullan
   /// </summary>
-  private Dictionary<int, Action<int, string>> ChatAction = new();
+  private ConcurrentDictionary<int, Action<int, string>> ChatAction = new();
+  private List<Chat> ChatUsrList = new();
   public void ChatActionAdd(int id, Action<int, string> handler)
   {
     if (ChatAction.ContainsKey(id))
       ChatAction[id] += handler;
     else
-      ChatAction.Add(id, handler);
+      ChatAction.TryAdd(id, handler);
+    var aaa = ChatAction[id].GetInvocationList();
+    
+    ChatUsrList.Add(new Chat { ChatId = id, UsrId = id+1});
+    var nnn = ChatUsrList.Where(x => x.ChatId == id).Count();
   }
-  public void ChatActionRemove(int id, Action<int, string>? handler)
+  public void ChatActionRemove(int id, Action<int, string> handler)
   {
     if (ChatAction.ContainsKey(id))
     {
-      ChatAction[id]! -= handler;
+      ChatAction[id] -= handler!;
+      //var aaa = ChatAction[id].GetInvocationList();
       if (ChatAction[id] == null)
-        ChatAction.Remove(id);
+      {
+        Action<int,string> ot = null;
+        ChatAction.TryRemove(id, out ot);
+      }
     }
+    //ChatUsrList.Remove(new Chat { ChatId = id, UsrId = id + 1 });
+    //var ccc = ChatUsrList.Where(x => x.ChatId == id && x.UsrId == id+1).FirstOrDefault(); // yoksa null
+    //var ddd = ChatUsrList.FirstOrDefault(x => x.ChatId == id && x.UsrId == id + 1); // yoksa null
+    var eee = ChatUsrList.Find(x => x.ChatId == id && x.UsrId == id + 1); // yoksa null
+    //var fff = ChatUsrList.FindIndex(x => x.ChatId == id && x.UsrId == id + 1); // yoksa -1
+    ChatUsrList.Remove(eee);  // null geldiginde hata vermiyor
   }
   public void ChatActionRaise(int id, int x, string y)
   {
-    if (ChatAction.ContainsKey(id))
+    if (ChatAction.ContainsKey(id) && ChatAction[id] != null)
+    {
+      x = ChatUsrList.Where(x => x.ChatId == id).Count();
       ChatAction[id](x, y);
+      //ChatAction[id]?.Invoke(x, y);
+    }
+
   }
 
   public int ChatActionCount()
@@ -69,6 +91,18 @@ public sealed class Pubs : IPubs
     return ChatAction.Count;
   }
 
+  public int ChatActionHandlerCount(int id)
+  {
+    if (ChatAction.ContainsKey(id))
+      return ChatAction[id].GetInvocationList().Count();
+    return 0;
+  }
+
+  private sealed class Chat
+  {
+    public int ChatId;
+    public int UsrId;
+  }
 }
 
 

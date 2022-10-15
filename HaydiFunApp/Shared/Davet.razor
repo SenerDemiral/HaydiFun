@@ -1,6 +1,7 @@
 ﻿@page "/davet"
-@using System.ComponentModel
+
 @inject IPubs pubs
+@implements IDisposable
 <h3>Davet</h3>
 
 <MudExpansionPanels MultiExpansion="true">
@@ -18,7 +19,7 @@
   </MudExpansionPanel>
 </MudExpansionPanels>
 
-<button @onclick="deneme">Click Me!</button>
+<button @onclick="deneme">Click Me! @cnt</button>
 
 
 @code {
@@ -26,7 +27,8 @@
   {
 
   }
-  string s;
+  int cnt = 0;
+  string sss = DateTime.Now.ToString();
   public void deneme()
   {
     //object h = 99;
@@ -35,31 +37,41 @@
     //publ.m_handlers["99"].DynamicInvoke(5, 10);
     //publ.m_events[99]?.Invoke(this, EventArgs.Empty);
 
-    ChatEventArgs args = new()
-      {
-        Grp = 66
-      };
+    //ChatEventArgs args = new()
+    //  {
+    //    Grp = 66
+    //  };
     //((EventHandler)pubs.ChatEvents[99])?.Invoke(this, args);
     //pubs.RiseChatEvent(99, 77);
     //pubs.RemoveChatEvent(99, Pubs_Saved);
     //pubs.Raise(88, this, args);
 
     //pubs.Remove(88, Pubs_Saved);
-
-    pubs.ChatActionRaise(77, 11, "sener");
-    pubs.ChatActionRaise(66, 22, "can");
+    cnt++;
+    pubs.ChatActionRaise(77, cnt, "sener");
+    //pubs.ChatActionRaise(66, 22, "can");
   }
   protected override void OnInitialized()
   {
     pubs.ChatActionAdd(77, Aaa);
+    pubs.ChatActionAdd(77, Aaa);
     //pubs.ChatActionAdd(77, Bbb);
-    pubs.ChatActionAdd(66, Bbb);
 
-    var ccc = pubs.ChatActionCount();
+    //pubs.ChatActionAdd(77, Bbb);
+    //pubs.ChatActionAdd(77, Bbb);
+    //pubs.ChatActionAdd(77, Aaa);
+    //pubs.ChatActionAdd(77, Bbb);
+
     //pubs.ChatActionRemove(77, Bbb);
     pubs.ChatActionRemove(77, Aaa);
+    pubs.ChatActionRemove(77, Aaa);
+    pubs.ChatActionRemove(77, Aaa);
+
+    var ccc = pubs.ChatActionCount();
+    var ddd = pubs.ChatActionHandlerCount(77);
     //pubs.ChatActionRemove(77, Aaa);
-    var ddd = pubs.ChatActionCount();
+    //pubs.ChatActionRemove(77, Aaa);
+    ddd = pubs.ChatActionCount();
 
   }
 
@@ -73,12 +85,18 @@
 
   public void Aaa(int bbb, string aaa)
   {
-    
+    cnt = bbb;
+    InvokeAsync(StateHasChanged);
   }
 
   public void Bbb(int bbb, string aaa)
   {
 
+  }
+  public void Dispose()
+  {
+    pubs.ChatActionRemove(77, Aaa);
+    pubs.ChatActionRemove(77, Bbb);
   }
 
 }
