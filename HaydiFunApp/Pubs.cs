@@ -53,7 +53,7 @@ public sealed class Pubs : IPubs
   {
     if (ChatAction.ContainsKey(id))
     {
-      ChatAction[id] -= handler;
+      ChatAction[id]! -= handler;
       if (ChatAction[id] == null)
         ChatAction.Remove(id);
     }
