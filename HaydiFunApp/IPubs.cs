@@ -1,4 +1,5 @@
-﻿using static HaydiFunApp.Pubs;
+﻿using System.ComponentModel;
+using static HaydiFunApp.Pubs;
 
 namespace HaydiFunApp;
 
@@ -15,4 +16,10 @@ public interface IPubs
 
   public event EventHandler<ChatEventArgs>? ChatChanged;
   public void ChatRaise(int grp);
+
+  public void ChatActionAdd(int id, Action<int, string> handler);
+  public void ChatActionRemove(int id, Action<int, string> handler);
+  public void ChatActionRaise(int id, int x, string y);
+  public int ChatActionCount();
+
 }

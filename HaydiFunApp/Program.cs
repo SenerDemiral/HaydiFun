@@ -20,7 +20,9 @@ builder.Services.AddServerSideBlazor();
 builder.Services.AddImageSharp();
 builder.Services.AddSingleton<IDataAccess, FBDataAccess>();
 builder.Services.AddSingleton<IEmailService, EmailService>();
+
 builder.Services.AddSingleton<IPubs, Pubs>();
+
 builder.Services.AddSingleton<UsrHub>();
 builder.Services.AddSingleton<DataHub>();
 builder.Services.AddScoped<ClipboardService>();

@@ -1,0 +1,84 @@
+﻿@page "/davet"
+@using System.ComponentModel
+@inject IPubs pubs
+<h3>Davet</h3>
+
+<MudExpansionPanels MultiExpansion="true">
+  <MudExpansionPanel Text="Panel One" IsExpandedChanged="@((x) => ExpandedChanged(x, 10))">
+    <Chat ETid="10" />
+  </MudExpansionPanel>
+  <MudExpansionPanel Text="Panel Two" IsExpandedChanged="@((x) => ExpandedChanged(x, 20))">
+    <Chat ETid="20" />
+  </MudExpansionPanel>
+  <MudExpansionPanel Text="Panel Three">
+    <Chat ETid="30" />
+  </MudExpansionPanel>
+  <MudExpansionPanel Text="Panel Four">
+    <Chat ETid="40" />
+  </MudExpansionPanel>
+</MudExpansionPanels>
+
+<button @onclick="deneme">Click Me!</button>
+
+
+@code {
+  private async Task ExpandedChanged(bool nw, int id)
+  {
+
+  }
+  string s;
+  public void deneme()
+  {
+    //object h = 99;
+    //s = 99.ToString();//"k1";
+    //publ.DenemeRise(h, 4, 44);
+    //publ.m_handlers["99"].DynamicInvoke(5, 10);
+    //publ.m_events[99]?.Invoke(this, EventArgs.Empty);
+
+    ChatEventArgs args = new()
+      {
+        Grp = 66
+      };
+    //((EventHandler)pubs.ChatEvents[99])?.Invoke(this, args);
+    //pubs.RiseChatEvent(99, 77);
+    //pubs.RemoveChatEvent(99, Pubs_Saved);
+    //pubs.Raise(88, this, args);
+
+    //pubs.Remove(88, Pubs_Saved);
+
+    pubs.ChatActionRaise(77, 11, "sener");
+    pubs.ChatActionRaise(66, 22, "can");
+  }
+  protected override void OnInitialized()
+  {
+    pubs.ChatActionAdd(77, Aaa);
+    //pubs.ChatActionAdd(77, Bbb);
+    pubs.ChatActionAdd(66, Bbb);
+
+    var ccc = pubs.ChatActionCount();
+    //pubs.ChatActionRemove(77, Bbb);
+    pubs.ChatActionRemove(77, Aaa);
+    //pubs.ChatActionRemove(77, Aaa);
+    var ddd = pubs.ChatActionCount();
+
+  }
+
+  private void Pubs_Saved(object? sender, EventArgs e)
+  {
+  }
+
+  private void Pubs_Saved2(object? sender, EventArgs e)
+  {
+  }
+
+  public void Aaa(int bbb, string aaa)
+  {
+    
+  }
+
+  public void Bbb(int bbb, string aaa)
+  {
+
+  }
+
+}

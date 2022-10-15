@@ -1,4 +1,7 @@
-﻿namespace HaydiFunApp;
+﻿using System.ComponentModel;
+using static Microsoft.IO.RecyclableMemoryStreamManager;
+
+namespace HaydiFunApp;
 
 public sealed class Pubs : IPubs
 {
@@ -34,7 +37,41 @@ public sealed class Pubs : IPubs
     // Bir kisi birden cok Login olabilir
     UsrChanged?.Invoke(this, EventArgs.Empty);
   }
+
+  /// <summary>
+  /// Bunu kullan
+  /// </summary>
+  private Dictionary<int, Action<int, string>> ChatAction = new();
+  public void ChatActionAdd(int id, Action<int, string> handler)
+  {
+    if (ChatAction.ContainsKey(id))
+      ChatAction[id] += handler;
+    else
+      ChatAction.Add(id, handler);
+  }
+  public void ChatActionRemove(int id, Action<int, string>? handler)
+  {
+    if (ChatAction.ContainsKey(id))
+    {
+      ChatAction[id] -= handler;
+      if (ChatAction[id] == null)
+        ChatAction.Remove(id);
+    }
+  }
+  public void ChatActionRaise(int id, int x, string y)
+  {
+    if (ChatAction.ContainsKey(id))
+      ChatAction[id](x, y);
+  }
+
+  public int ChatActionCount()
+  {
+    return ChatAction.Count;
+  }
+
 }
+
+
 
 public sealed class AdmMsgEventArgs : EventArgs
 {
