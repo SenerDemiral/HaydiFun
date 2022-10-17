@@ -19,8 +19,7 @@
   </MudExpansionPanel>
 </MudExpansionPanels>
 
-<button @onclick="deneme">Click Me! @cnt</button>
-<input @bind-value="val" />
+<button @onclick="deneme">Click Me!</button>
 
 
 @code {
@@ -30,101 +29,25 @@
   {
 
   }
-  int cnt = 0;
-  string sss = DateTime.Now.ToString();
-  string val = "1";
 
   public void deneme()
   {
-    //object h = 99;
-    //s = 99.ToString();//"k1";
-    //publ.DenemeRise(h, 4, 44);
-    //publ.m_handlers["99"].DynamicInvoke(5, 10);
-    //publ.m_events[99]?.Invoke(this, EventArgs.Empty);
-
-    //ChatEventArgs args = new()
-    //  {
-    //    Grp = 66
-    //  };
-    //((EventHandler)pubs.ChatEvents[99])?.Invoke(this, args);
-    //pubs.RiseChatEvent(99, 77);
-    //pubs.RemoveChatEvent(99, Pubs_Saved);
-    //pubs.Raise(88, this, args);
-
-    //pubs.Remove(88, Pubs_Saved);
-    cnt++;
-    //pubs.ChatActionRaise(77, cnt, "sener");
-    //pubs.ChatActionRaise(66, 22, "can");
-
-    pubs.RaiseDynEvent($"UT:{val}", new { FrUsrId = USP.UsrId, FrUsr = USP.Usr, Sbj = $"{USP.Usr} davetini yanıtladı" });
-
+    //Kendisine (key kendisi)
+    pubs.RaiseDynEvent($"UT:{USP.UsrId}", new { FrUsrId = USP.UsrId, FrUsr = USP.Usr, Sbj = $"{USP.Usr} davetini yanıtladı" });
   }
+
   protected override void OnInitialized()
   {
-    pubs.ChatActionAdd(77, Aaa);
-    pubs.ChatActionAdd(77, Aaa);
-    var qqq = pubs.ChatUsrCount(77);
-    //pubs.ChatActionAdd(77, Bbb);
-
-    //pubs.ChatActionAdd(77, Bbb);
-    //pubs.ChatActionAdd(77, Bbb);
-    //pubs.ChatActionAdd(77, Aaa);
-    //pubs.ChatActionAdd(77, Bbb);
-
-    //pubs.ChatActionRemove(77, Bbb);
-    pubs.ChatActionRemove(77, Aaa);
-    pubs.ChatActionRemove(77, Aaa);
-    pubs.ChatActionRemove(77, Aaa);
-
-    var ccc = pubs.ChatActionCount();
-    var ddd = pubs.ChatActionHandlerCount(77);
-    //pubs.ChatActionRemove(77, Aaa);
-    //pubs.ChatActionRemove(77, Aaa);
-    ddd = pubs.ChatActionCount();
-
-
-    pubs.AddDynEvent($"UT:{USP.UsrId}", PostBox);
-
-    //dynamic x = new
-    //{
-    //  Name = "Sener",
-    //  Age = 62
-    //};
-
-    //pubs.RaiseDynEvent($"UT:{USP.UsrId}", "UK", x);
-
-    //pubs.RemoveDynEvent($"UT:{USP.UsrId}", PostBox);
-
-    //pubs.RaiseDynEvent($"UT:{USP.UsrId}", "UK", x);
+    pubs.AddDynEvent($"UT:{USP.UsrId}", UsrPostBox);
   }
   
-  private void PostBox(dynamic prms)
+  private void UsrPostBox(dynamic prms)
   {
   }
 
-
-  private void Pubs_Saved(object? sender, EventArgs e)
-  {
-  }
-
-  private void Pubs_Saved2(object? sender, EventArgs e)
-  {
-  }
-
-  public void Aaa(int bbb, string aaa)
-  {
-    cnt = bbb;
-    InvokeAsync(StateHasChanged);
-  }
-
-  public void Bbb(int bbb, string aaa)
-  {
-
-  }
   public void Dispose()
   {
-    pubs.ChatActionRemove(77, Aaa);
-    pubs.ChatActionRemove(77, Bbb);
+    pubs.RemoveDynEvent($"UT:{USP.UsrId}", UsrPostBox);
   }
 
 }

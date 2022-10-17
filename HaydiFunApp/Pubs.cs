@@ -7,6 +7,22 @@ namespace HaydiFunApp;
 
 public sealed class Pubs : IPubs
 {
+  private class DENEME
+  {
+    public Action<dynamic> Handler { get; set; }
+    public List<int> UsrIds {get;set;}
+  }
+  private ConcurrentDictionary<string, Action<dynamic>> DynEvent;
+  private ConcurrentDictionary<string, DENEME> Deneme;
+
+  public Pubs()
+  {
+    int concurrencyLevel = Environment.ProcessorCount * 2;
+    int initialCapacity = 101;  // 101,199,293,397,499,599,691,797,887,997 PrimeNumber
+    DynEvent = new(concurrencyLevel, initialCapacity);
+
+    Deneme = new(concurrencyLevel, initialCapacity);
+  }
   public event EventHandler? XxChanged; // Subscribe to this
   public void XxRaise()
   {
@@ -41,12 +57,46 @@ public sealed class Pubs : IPubs
   }
 
   /// <summary>
-  /// Bunu kullan
+  /// Key: UsrCntChanged  handler: UsrCntChanged Enter/Exit/Login/Logout for every user
+  /// Key: UT:{UsrId}     handler: UsrPostAdr for OnlineUser
+  ///                                 Fr    To
+  ///     Davet Edildim               Ownr->User
+  ///     Davetime yanit geldi        User->Owner
+  ///     Davetime katilmak istiyor   User->Owner
+  ///     key: To, prms: Fr, Typ
+  /// Key: ET:{ETid}      handler: ChatChanged for Davet/Etkinlik
   /// </summary>
-  private List<Chat> ChatUsrList = new();
-  
   //-------------------------------------
-  private ConcurrentDictionary<string, Action<dynamic>> DynEvent = new();
+  public void AddDeneme(string key, Action<dynamic> handler, int usrId)
+  {
+    if (Deneme.ContainsKey(key))
+      Deneme[key].Handler += handler;
+    else
+    {
+      DENEME d = new();
+      d.Handler = handler;
+      d.UsrIds = new List<int> { usrId };
+      Deneme.TryAdd(key, d);
+    }
+  }
+  public void RemoveDeneme(string key, Action<dynamic> handler, int usrId)
+  {
+    if (Deneme.ContainsKey(key))
+    {
+      Deneme[key].Handler -= handler!;
+      Deneme[key].UsrIds.Remove(usrId);
+      if (Deneme[key].Handler == null)
+      {
+        DENEME ot;
+        Deneme.TryRemove(key, out ot);
+      }
+    }
+  }
+  public void RaiseDeneme(string key, dynamic prms)
+  {
+    if (Deneme.ContainsKey(key))
+      Deneme[key].Handler?.Invoke(prms);
+  }
   public void AddDynEvent(string key, Action<dynamic> handler)
   {
     if (DynEvent.ContainsKey(key))
@@ -61,77 +111,30 @@ public sealed class Pubs : IPubs
       DynEvent[key] -= handler!;
       if (DynEvent[key] == null)
       {
-        Action<dynamic> ot = null;
+        Action<dynamic> ot;
         DynEvent.TryRemove(key, out ot);
       }
     }
   }
   public void RaiseDynEvent(string key, dynamic prms)
   {
-    if (DynEvent.ContainsKey(key) && DynEvent[key] != null)
-    {
-      DynEvent[key](prms);
-    }
+    // Ikisi de ayni 
+    if (DynEvent.ContainsKey(key))
+      DynEvent[key]?.Invoke(prms);
+
+    //if (DynEvent.ContainsKey(key) && DynEvent[key] != null)
+    //    DynEvent[key](prms);
   }
   public int OnLineUsrCnt()
   {
-    if(DynEvent.ContainsKey(Constants.UsrCntChange))
+    if (DynEvent.ContainsKey(Constants.UsrCntChange))
       return DynEvent[Constants.UsrCntChange].GetInvocationList().Count();
 
     return 0;
   }
-  //-------------------------------------
-  private ConcurrentDictionary<int, Action<int, string>> ChatAction = new();
-  public void ChatActionAdd(int id, Action<int, string> handler)
-  {
-    if (ChatAction.ContainsKey(id))
-      ChatAction[id] += handler;
-    else
-      ChatAction.TryAdd(id, handler);
-
-    //var aaa = ChatAction[key].GetInvocationList();
-
-    ChatUsrList.Add(new Chat { ChatId = id, UsrId = id + 1 });
-  }
-  public void ChatActionRemove(int id, Action<int, string> handler)
-  {
-    if (ChatAction.ContainsKey(id))
-    {
-      ChatAction[id] -= handler!;
-      //var aaa = ChatAction[key].GetInvocationList();
-      if (ChatAction[id] == null)
-      {
-        Action<int, string> ot = null;
-        ChatAction.TryRemove(id, out ot);
-      }
-    }
-    _ = ChatUsrList.Remove(ChatUsrList?.Find(x => x.ChatId == id && x.UsrId == id + 1));
-  }
-  public void ChatActionRaise(int id, int x, string y)
-  {
-    if (ChatAction.ContainsKey(id) && ChatAction[id] != null)
-    {
-      x = ChatUsrList.Where(x => x.ChatId == id).Count();
-      ChatAction[id](x, y);
-      //ChatAction[key]?.Invoke(x, y);
-    }
-  }
-  public int ChatUsrCount(int id)
-  {
-    return ChatUsrList.Where(x => x.ChatId == id).DistinctBy(x => x.UsrId).Count();
-  }
-  public int ChatActionCount()
-  {
-    return ChatAction.Count;
-  }
-
-  public int ChatActionHandlerCount(int id)
-  {
-    if (ChatAction.ContainsKey(id))
-      return ChatAction[id].GetInvocationList().Count();
-    return 0;
-  }
-  //-------------------------------------
+  //private List<Chat> ChatUsrList = new();
+  //_ = ChatUsrList.Remove(ChatUsrList?.Find(x => x.ChatId == id && x.UsrId == id + 1));
+  //return ChatUsrList.Where(x => x.ChatId == id).DistinctBy(x => x.UsrId).Count();
 
   private sealed class Chat
   {

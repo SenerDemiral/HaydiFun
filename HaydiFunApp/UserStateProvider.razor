@@ -61,14 +61,14 @@ else
 
           UsrHub.UsrAdd(UsrId, Usr, UsrAvatar);
           //GoHome(); Ozellikle yok
-          pubs.AddDynEvent($"UT:{UsrId}", PostBox);
+          pubs.AddDynEvent($"UT:{UsrId}", UsrPostBox);
         }
       }
       isLoaded = true;
 
     }
   }
-  private void PostBox(dynamic prms)
+  private void UsrPostBox(dynamic prms)
   {
   }
   private void UsrCntChange(dynamic prms)
@@ -88,7 +88,7 @@ else
   public async Task Logout()
   {
     UsrHub.UsrRemove(UsrId);
-    pubs.RemoveDynEvent($"UT:{UsrId}", PostBox);
+    pubs.RemoveDynEvent($"UT:{UsrId}", UsrPostBox);
 
     db.StoreProc<dynamic, dynamic>("Usr_Logout(@UTid)", new { UTid = UsrId });
     UsrId = 0;
@@ -110,7 +110,7 @@ else
     UsrAvatar = avatar;
     await PLS.SetAsync(Constants.BrowserUsrIdKey, UsrId);
     //OnUsrChanged();
-    pubs.AddDynEvent($"UT:{UsrId}", PostBox);
+    pubs.AddDynEvent($"UT:{UsrId}", UsrPostBox);
     UsrHub.UsrAdd(UsrId, Usr, UsrAvatar);
     GoHome();
     //StateHasChanged();
@@ -120,7 +120,7 @@ else
   public void Dispose()
   {
     pubs.RemoveDynEvent(Constants.UsrCntChange, UsrCntChange);
-    pubs.RemoveDynEvent($"UT:{UsrId}", PostBox);
+    pubs.RemoveDynEvent($"UT:{UsrId}", UsrPostBox);
 
     UsrHub.UsrRemove(UsrId);
   }

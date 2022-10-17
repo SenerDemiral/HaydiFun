@@ -9,15 +9,16 @@ public sealed class DataHub
   public ConcurrentDictionary<int, List<EC>> Chats;
   private ConcurrentDictionary<int, List<ECusr>> ChatUsrs;
   private readonly IDataAccess db;
-  private readonly IPubs pub;
-  public DataHub(IDataAccess dataAccess, IPubs pub)
+  private readonly IPubs pubs;
+  public DataHub(IDataAccess dataAccess, IPubs pubs)
   {
+    this.db = dataAccess;
+    this.pubs = pubs;
+   
     int concurrencyLevel = Environment.ProcessorCount * 2;
     int initialCapacity = 101;  // 101,199,293,397,499,599,691,797,887,997 PrimeNumber
-    this.db = dataAccess;
     Chats = new(concurrencyLevel, initialCapacity);
     ChatUsrs = new(concurrencyLevel, initialCapacity);
-    this.pub = pub;
   }
   public async Task ChatInit(int grp, int utId)
   {
@@ -61,7 +62,7 @@ public sealed class DataHub
     //{
     //    // Chats[etId] = new List<EC>();
     //    Chats[etId] = (await db.LoadData<EC, dynamic>("select * from EC_GET(@ETid)", new { ETid = etId })).ToList();
-    //    pub.ChatRaise();
+    //    pubs.ChatRaise();
     //}
     var ec = new EC()
     {
@@ -78,7 +79,7 @@ public sealed class DataHub
 
     Chats[grp].Insert(0, ec);
 
-    pub.ChatRaise(grp);
+    pubs.ChatRaise(grp);
     // Publish EC nin ETid sine ekleme yapildi
     // Buna Abone olanlar Refresh yapmali 
     // Aslinda bu Dict uzerinden yapsin tum islemini. Local copy yok
