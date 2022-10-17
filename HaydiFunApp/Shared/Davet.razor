@@ -20,15 +20,20 @@
 </MudExpansionPanels>
 
 <button @onclick="deneme">Click Me! @cnt</button>
+<input @bind-value="val" />
 
 
 @code {
+  [CascadingParameter] private UserStateProvider? USP { get; set; }
+
   private async Task ExpandedChanged(bool nw, int id)
   {
 
   }
   int cnt = 0;
   string sss = DateTime.Now.ToString();
+  string val = "1";
+
   public void deneme()
   {
     //object h = 99;
@@ -48,13 +53,17 @@
 
     //pubs.Remove(88, Pubs_Saved);
     cnt++;
-    pubs.ChatActionRaise(77, cnt, "sener");
+    //pubs.ChatActionRaise(77, cnt, "sener");
     //pubs.ChatActionRaise(66, 22, "can");
+
+    pubs.RaiseDynEvent($"UT:{val}", new { FrUsrId = USP.UsrId, FrUsr = USP.Usr, Sbj = $"{USP.Usr} davetini yanıtladı" });
+
   }
   protected override void OnInitialized()
   {
     pubs.ChatActionAdd(77, Aaa);
     pubs.ChatActionAdd(77, Aaa);
+    var qqq = pubs.ChatUsrCount(77);
     //pubs.ChatActionAdd(77, Bbb);
 
     //pubs.ChatActionAdd(77, Bbb);
@@ -73,7 +82,26 @@
     //pubs.ChatActionRemove(77, Aaa);
     ddd = pubs.ChatActionCount();
 
+
+    pubs.AddDynEvent($"UT:{USP.UsrId}", PostBox);
+
+    //dynamic x = new
+    //{
+    //  Name = "Sener",
+    //  Age = 62
+    //};
+
+    //pubs.RaiseDynEvent($"UT:{USP.UsrId}", "UK", x);
+
+    //pubs.RemoveDynEvent($"UT:{USP.UsrId}", PostBox);
+
+    //pubs.RaiseDynEvent($"UT:{USP.UsrId}", "UK", x);
   }
+  
+  private void PostBox(dynamic prms)
+  {
+  }
+
 
   private void Pubs_Saved(object? sender, EventArgs e)
   {

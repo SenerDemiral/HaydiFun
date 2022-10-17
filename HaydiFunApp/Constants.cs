@@ -8,6 +8,7 @@ public static class Constants
   public const string PublishVersion = "HaydiFun© v0.1 Şener Demiral®";
   public const string BrowserUsrIdKey = "haydifun";
   public const string Height = "calc(100vh - 140px)";
+  public const string UsrCntChange = "UsrCntChange";
 
   public static Hashids hashIds0 = new Hashids("this is my salt", 0);   // Nekadar gerekiyorsa
   public static Hashids hashIds5 = new Hashids("this is my salt", 5);

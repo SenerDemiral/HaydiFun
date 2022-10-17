@@ -108,17 +108,22 @@
 
   protected override void OnInitialized()
   {
-    pubs.UsrChanged += OnUsrChanged;
+    //pubs.UsrChanged += OnUsrChanged;
+
+    pubs.AddDynEvent(Constants.UsrCntChange, UsrCntChange);
+
   }
 
-  public void OnUsrChanged(object sender, EventArgs args)
+  public void UsrCntChange(dynamic d)
   {
     InvokeAsync(StateHasChanged);
   }
 
   public void Dispose()
   {
-    pubs.UsrChanged -= OnUsrChanged;
+    //pubs.UsrChanged -= UsrCntChange;
+    pubs.RemoveDynEvent(Constants.UsrCntChange, UsrCntChange);
+
   }
 
 }

@@ -14,6 +14,9 @@
   <MudAppBar Elevation="0" Dense="true">
     <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
     <MudSpacer />
+    <MudTooltip Text="OnLine Üye Sayısı">
+      <MudChip Color="Color.Info">@USP?.NOU</MudChip>
+    </MudTooltip>
     @if (USP?.UsrId == 0)
     {
       <MudFab StartIcon="@Icons.Material.Filled.Login"
@@ -26,7 +29,7 @@
     {
       <MudTooltip Text="Güvenli Çıkış">
         <MudFab EndIcon="@Icons.Material.Filled.Logout"
-              Label="@USP.Usr"
+              Label="@USP?.Usr"
               Color="Color.Error"
               Size="Size.Small"
               OnClick="Logout" />
@@ -47,42 +50,37 @@
 </MudLayout>
 
 @code {
-  [CascadingParameter] private UserStateProvider? USP { get; set; }
+    [CascadingParameter] private UserStateProvider? USP { get; set; }
 
-  bool _drawerOpen = true;
-  string AdmMsg = "";
+    bool _drawerOpen = true;
+    string AdmMsg = "";
 
-  void DrawerToggle()
-  {
-    _drawerOpen = !_drawerOpen;
-  }
-
-  private async Task Logout()
-  {
-    await USP!.Logout();
-  }
-
-  protected override void OnInitialized()
-  {
-    pubs.AdmMsgChanged += OnAdmMsgChanged;
-  }
-
-  private void OnAdmMsgChanged(object sender, AdmMsgEventArgs e)
-  {
-    if (e.Who == "H" ||                         // Herkese
-        e.Who == USP.UsrTyp ||             // Adm, Mgz, Tnt
-        USP.UsrId == int.Parse(e.Who))     // Usr
+    void DrawerToggle()
     {
-      Snackbar.Add(e.Msg, Severity.Error, config =>
-      {
-        config.RequireInteraction = true;
-      });
+        _drawerOpen = !_drawerOpen;
     }
-  }
 
-  public void Dispose()
-  {
-    pubs.AdmMsgChanged -= OnAdmMsgChanged;
-  }
+    private async Task Logout() => await USP.Logout();
+
+    private void OnAdmMsgChanged(object sender, AdmMsgEventArgs e)
+    {
+        // Adminden Mesaj gonderilebilir Login olanlar icin event var ama olmayanlar icin bu var
+        if (e.Who == "H" ||                         // Herkese
+            e.Who == USP.UsrTyp ||             // Adm, Mgz, Tnt
+            USP.UsrId == int.Parse(e.Who))     // Usr
+        {
+            Snackbar.Add(e.Msg, Severity.Error, config =>
+            {
+                config.RequireInteraction = true;
+            });
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        pubs.AdmMsgChanged += OnAdmMsgChanged!;
+    }
+
+    public void Dispose() => pubs.AdmMsgChanged -= OnAdmMsgChanged!;
 
 }

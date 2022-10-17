@@ -43,37 +43,69 @@ public sealed class Pubs : IPubs
   /// <summary>
   /// Bunu kullan
   /// </summary>
-  private ConcurrentDictionary<int, Action<int, string>> ChatAction = new();
   private List<Chat> ChatUsrList = new();
+  
+  //-------------------------------------
+  private ConcurrentDictionary<string, Action<dynamic>> DynEvent = new();
+  public void AddDynEvent(string key, Action<dynamic> handler)
+  {
+    if (DynEvent.ContainsKey(key))
+      DynEvent[key] += handler;
+    else
+      DynEvent.TryAdd(key, handler);
+  }
+  public void RemoveDynEvent(string key, Action<dynamic> handler)
+  {
+    if (DynEvent.ContainsKey(key))
+    {
+      DynEvent[key] -= handler!;
+      if (DynEvent[key] == null)
+      {
+        Action<dynamic> ot = null;
+        DynEvent.TryRemove(key, out ot);
+      }
+    }
+  }
+  public void RaiseDynEvent(string key, dynamic prms)
+  {
+    if (DynEvent.ContainsKey(key) && DynEvent[key] != null)
+    {
+      DynEvent[key](prms);
+    }
+  }
+  public int OnLineUsrCnt()
+  {
+    if(DynEvent.ContainsKey(Constants.UsrCntChange))
+      return DynEvent[Constants.UsrCntChange].GetInvocationList().Count();
+
+    return 0;
+  }
+  //-------------------------------------
+  private ConcurrentDictionary<int, Action<int, string>> ChatAction = new();
   public void ChatActionAdd(int id, Action<int, string> handler)
   {
     if (ChatAction.ContainsKey(id))
       ChatAction[id] += handler;
     else
       ChatAction.TryAdd(id, handler);
-    var aaa = ChatAction[id].GetInvocationList();
-    
-    ChatUsrList.Add(new Chat { ChatId = id, UsrId = id+1});
-    var nnn = ChatUsrList.Where(x => x.ChatId == id).Count();
+
+    //var aaa = ChatAction[key].GetInvocationList();
+
+    ChatUsrList.Add(new Chat { ChatId = id, UsrId = id + 1 });
   }
   public void ChatActionRemove(int id, Action<int, string> handler)
   {
     if (ChatAction.ContainsKey(id))
     {
       ChatAction[id] -= handler!;
-      //var aaa = ChatAction[id].GetInvocationList();
+      //var aaa = ChatAction[key].GetInvocationList();
       if (ChatAction[id] == null)
       {
-        Action<int,string> ot = null;
+        Action<int, string> ot = null;
         ChatAction.TryRemove(id, out ot);
       }
     }
-    //ChatUsrList.Remove(new Chat { ChatId = id, UsrId = id + 1 });
-    //var ccc = ChatUsrList.Where(x => x.ChatId == id && x.UsrId == id+1).FirstOrDefault(); // yoksa null
-    //var ddd = ChatUsrList.FirstOrDefault(x => x.ChatId == id && x.UsrId == id + 1); // yoksa null
-    var eee = ChatUsrList.Find(x => x.ChatId == id && x.UsrId == id + 1); // yoksa null
-    //var fff = ChatUsrList.FindIndex(x => x.ChatId == id && x.UsrId == id + 1); // yoksa -1
-    ChatUsrList.Remove(eee);  // null geldiginde hata vermiyor
+    _ = ChatUsrList.Remove(ChatUsrList?.Find(x => x.ChatId == id && x.UsrId == id + 1));
   }
   public void ChatActionRaise(int id, int x, string y)
   {
@@ -81,11 +113,13 @@ public sealed class Pubs : IPubs
     {
       x = ChatUsrList.Where(x => x.ChatId == id).Count();
       ChatAction[id](x, y);
-      //ChatAction[id]?.Invoke(x, y);
+      //ChatAction[key]?.Invoke(x, y);
     }
-
   }
-
+  public int ChatUsrCount(int id)
+  {
+    return ChatUsrList.Where(x => x.ChatId == id).DistinctBy(x => x.UsrId).Count();
+  }
   public int ChatActionCount()
   {
     return ChatAction.Count;
@@ -97,6 +131,7 @@ public sealed class Pubs : IPubs
       return ChatAction[id].GetInvocationList().Count();
     return 0;
   }
+  //-------------------------------------
 
   private sealed class Chat
   {

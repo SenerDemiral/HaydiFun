@@ -33,7 +33,9 @@ public sealed class UsrHub
     {
       Usrs[usrId].Cnt++;
     }
-    pub.UsrRaise();
+    //pub.UsrRaise();
+
+    pub.RaiseDynEvent(key: Constants.UsrCntChange, new { NOU = Usrs.Count, Sbj = $"#of Online Users : {Usrs.Count}" });
 
   }
 
@@ -51,8 +53,14 @@ public sealed class UsrHub
           // User Cikti
         }
       }
-      pub.UsrRaise();
+      //pub.UsrRaise();
+      pub.RaiseDynEvent(key: Constants.UsrCntChange, new { NOU = Usrs.Count, Sbj = $"#of Online Users : {Usrs.Count}" });
+
     }
+  }
+  public int UsrCnt()
+  {
+    return Usrs.Count();
   }
 }
 
