@@ -11,7 +11,10 @@ public sealed class UsrHub
     private readonly IPubs pubs;
     public UsrHub(IPubs pubs)
     {
-        Usrs = new ConcurrentDictionary<int, UsrModel>();
+        int concurrencyLevel = Environment.ProcessorCount * 2;
+        int initialCapacity = 101;  // 101,199,293,397,499,599,691,797,887,997 PrimeNumber
+        Usrs = new(concurrencyLevel, initialCapacity);
+
         this.pubs = pubs;
     }
 

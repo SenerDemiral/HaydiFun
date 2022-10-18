@@ -23,6 +23,8 @@ builder.Services.AddSingleton<IEmailService, EmailService>();
 
 builder.Services.AddSingleton<IPubs, Pubs>();
 
+builder.Services.AddSingleton<EtkHub>();
+builder.Services.AddSingleton<ChatHub>();
 builder.Services.AddSingleton<UsrHub>();
 builder.Services.AddSingleton<DataHub>();
 builder.Services.AddScoped<ClipboardService>();

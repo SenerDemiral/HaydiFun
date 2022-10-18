@@ -8,121 +8,128 @@
 
 @if (isLoaded)
 {
-  <CascadingValue Value="@this">
-    @ChildContent
-  </CascadingValue>
+    <CascadingValue Value="@this">
+        @ChildContent
+    </CascadingValue>
 }
 else
 {
-  <p>Loading...</p>
+    <p>Loading...</p>
 }
 
 @code {
-  [Parameter]
-  public RenderFragment? ChildContent { get; set; }
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
 
-  private bool isLoaded;
+    private bool isLoaded;
 
-  public int UsrId = 0;
-  public string? Usr = "?";
-  public string? UsrTyp = "?";
-  public string? UsrAvatar;
-  public int NOU = 0;
+    public int UsrId = 0;
+    public string? Usr = "?";
+    public string? UsrTyp = "?";
+    public string? UsrAvatar;
+    public int NOU = 0;
 
-  protected override async Task OnInitializedAsync()
-  {
-    try
+    private void GoHome()
     {
-      var toto = await PLS.GetAsync<int>(Constants.BrowserUsrIdKey);
-      if (toto.Success)
-        UsrId = toto.Value;
-    }
-    catch (Exception)
-    {
-      UsrId = 0;
-      await PLS.SetAsync(Constants.BrowserUsrIdKey, UsrId);
-    }
-    finally
-    {
-      pubs.AddDynEvent(Constants.UsrCntChange, UsrCntChange);
-      NOU = UsrHub.UsrCnt();
-
-      if (UsrId != 0)
-      {
-        //var rtrn = await db.StoreProcAsync<dynamic, dynamic>("Usr_Enter(@UsrId)", new { UsrId = UsrId });
-        var rtrn = await db.StoreProcAsync<dynamic, dynamic>("Usr_Login(@UsrId, @UsrPwd)", new { UsrId = UsrId.ToString(), UsrPwd = "c~@~n" });
-
-        if (rtrn.STU == "A")  // A degilse ne yapilacak??
+        switch (UsrTyp)
         {
-          UsrId = rtrn.UTID;
-          UsrTyp = rtrn.TYP;
-          Usr = rtrn.USR;
-          UsrAvatar = rtrn.AVATAR;
-
-          UsrHub.UsrAdd(UsrId, Usr, UsrAvatar);
-          //GoHome(); Ozellikle yok
-          pubs.AddDynEvent($"UT:{UsrId}", UsrPostBox);
+            default: NavigationManager.NavigateTo("/"); break;
         }
-      }
-      isLoaded = true;
-
     }
-  }
-  private void UsrPostBox(dynamic prms)
-  {
-  }
-  private void UsrCntChange(dynamic prms)
-  {
-    NOU = prms.NOU;
-    InvokeAsync(StateHasChanged);
-  }
 
-  private void GoHome()
-  {
-    switch (UsrTyp)
+    protected override async Task OnInitializedAsync()
     {
-      default: NavigationManager.NavigateTo("/"); break;
+        try
+        {
+            var toto = await PLS.GetAsync<int>(Constants.BrowserUsrIdKey);
+            if (toto.Success)
+                UsrId = toto.Value;
+        }
+        catch (Exception)
+        {
+            UsrId = 0;
+            await PLS.SetAsync(Constants.BrowserUsrIdKey, UsrId);
+        }
+        finally
+        {
+            pubs.AddDynEvent(Constants.UsrCntChange, UsrCntChange);
+
+            NOU = UsrHub.UsrCnt();
+
+            if (UsrId != 0)
+            {
+                //var rtrn = await db.StoreProcAsync<dynamic, dynamic>("Usr_Enter(@UsrId)", new { UsrId = UsrId });
+                var rtrn = await db.StoreProcAsync<dynamic, dynamic>("Usr_Login(@UsrId, @UsrPwd)", new { UsrId = UsrId.ToString(), UsrPwd = "c~@~n" });
+
+                if (rtrn.STU == "A")  // A degilse ne yapilacak??
+                {
+                    UsrId = rtrn.UTID;
+                    UsrTyp = rtrn.TYP;
+                    Usr = rtrn.USR;
+                    UsrAvatar = rtrn.AVATAR;
+
+                    UsrHub.UsrAdd(UsrId, Usr, UsrAvatar);
+                    //GoHome(); Ozellikle yok
+
+                    pubs.AddDynEvent($"UT:{UsrId}", UsrPostBox);
+                }
+            }
+            isLoaded = true;
+
+        }
     }
-  }
+    private void UsrPostBox(dynamic prms)
+    {
+    }
+    private void UsrCntChange(dynamic prms)
+    {
+        NOU = prms.NOU;
+        InvokeAsync(StateHasChanged);
+    }
 
-  public async Task Logout()
-  {
-    UsrHub.UsrRemove(UsrId);
-    pubs.RemoveDynEvent($"UT:{UsrId}", UsrPostBox);
+    
+    public async Task Logout()
+    {
+        UsrHub.UsrRemove(UsrId);
 
-    db.StoreProc<dynamic, dynamic>("Usr_Logout(@UTid)", new { UTid = UsrId });
-    UsrId = 0;
-    UsrTyp = "?";
-    Usr = "";
-    UsrAvatar = "";
-    await PLS.SetAsync(Constants.BrowserUsrIdKey, UsrId);
-    //NavigationManager.NavigateTo("");
+        pubs.RemoveDynEvent($"UT:{UsrId}", UsrPostBox);
 
-    GoHome();
-    StateHasChanged();
-  }
 
-  public async Task LoginOk(int usrId, string usrTyp, string usr, string avatar)
-  {
-    UsrId = usrId;
-    UsrTyp = usrTyp;
-    Usr = usr;
-    UsrAvatar = avatar;
-    await PLS.SetAsync(Constants.BrowserUsrIdKey, UsrId);
-    //OnUsrChanged();
-    pubs.AddDynEvent($"UT:{UsrId}", UsrPostBox);
-    UsrHub.UsrAdd(UsrId, Usr, UsrAvatar);
-    GoHome();
-    //StateHasChanged();
-    await InvokeAsync(StateHasChanged);
-  }
+        db.StoreProc<dynamic, dynamic>("Usr_Logout(@UTid)", new { UTid = UsrId });
+        UsrId = 0;
+        UsrTyp = "?";
+        Usr = "";
+        UsrAvatar = "";
+        await PLS.SetAsync(Constants.BrowserUsrIdKey, UsrId);
+        //NavigationManager.NavigateTo("");
 
-  public void Dispose()
-  {
-    pubs.RemoveDynEvent(Constants.UsrCntChange, UsrCntChange);
-    pubs.RemoveDynEvent($"UT:{UsrId}", UsrPostBox);
+        GoHome();
+        StateHasChanged();
+    }
 
-    UsrHub.UsrRemove(UsrId);
-  }
+    public async Task LoginOk(int usrId, string usrTyp, string usr, string avatar)
+    {
+        UsrId = usrId;
+        UsrTyp = usrTyp;
+        Usr = usr;
+        UsrAvatar = avatar;
+        await PLS.SetAsync(Constants.BrowserUsrIdKey, UsrId);
+        //OnUsrChanged();
+
+        pubs.AddDynEvent($"UT:{UsrId}", UsrPostBox);
+
+        UsrHub.UsrAdd(UsrId, Usr, UsrAvatar);
+        GoHome();
+        //StateHasChanged();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        pubs.RemoveDynEvent(Constants.UsrCntChange, UsrCntChange);
+        pubs.RemoveDynEvent($"UT:{UsrId}", UsrPostBox);
+
+        UsrHub.UsrRemove(UsrId);
+    }
 
 }

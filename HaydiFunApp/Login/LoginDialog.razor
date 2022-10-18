@@ -2,91 +2,91 @@
 @inject IDataAccess db
 
 <MudDialog>
-  <TitleContent>
-    <MudText Typo="Typo.h6">
-      Login
-    </MudText>
-  </TitleContent>
-  <DialogContent>
-    <MudTextField AutoFocus="true"
-                  @bind-Value="Model.LgnNme"
-                  Label="UsrId"
-                  Variant="Variant.Text" />
-    <MudTextField @bind-Value="Model.LgnPwd"
-                  Label="Pwd"
-                  Variant="Variant.Text"
-                  InputType="@PasswordInput"
-                  Adornment="Adornment.End"
-                  AdornmentIcon="@PasswordInputIcon"
-                  OnAdornmentClick="ToggleShowPwd"
-                  AdornmentAriaLabel="Show Password" />
-  </DialogContent>
-  <DialogActions>
-    <MudButton OnClick="Cancel">Cancel</MudButton>
-    <MudButton Color="Color.Error" OnClick="TryLogin">Login</MudButton>
-  </DialogActions>
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            Login
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudTextField AutoFocus="true"
+                      @bind-Value="Model.LgnNme"
+                      Label="UsrId"
+                      Variant="Variant.Text" />
+        <MudTextField @bind-Value="Model.LgnPwd"
+                      Label="Pwd"
+                      Variant="Variant.Text"
+                      InputType="@PasswordInput"
+                      Adornment="Adornment.End"
+                      AdornmentIcon="@PasswordInputIcon"
+                      OnAdornmentClick="ToggleShowPwd"
+                      AdornmentAriaLabel="Show Password" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Error" OnClick="TryLogin">Login</MudButton>
+    </DialogActions>
 </MudDialog>
 
 @code {
-  [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
-  [CascadingParameter] private UserStateProvider? USP { get; set; }
+    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+    [CascadingParameter] private UserStateProvider? USP { get; set; }
 
-  private InputModel Model { get; set; } = new();
-  bool isShow;
-  InputType PasswordInput = InputType.Password;
-  string PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
+    private InputModel Model { get; set; } = new();
+    bool isShow;
+    InputType PasswordInput = InputType.Password;
+    string PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
 
-  void ToggleShowPwd()
-  {
-    @if (isShow)
+    void ToggleShowPwd()
     {
-      isShow = false;
-      PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
-      PasswordInput = InputType.Password;
+        @if (isShow)
+        {
+            isShow = false;
+            PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
+            PasswordInput = InputType.Password;
+        }
+        else
+        {
+            isShow = true;
+            PasswordInputIcon = Icons.Material.Filled.Visibility;
+            PasswordInput = InputType.Text;
+        }
     }
-    else
+
+    private async Task TryLogin()
     {
-      isShow = true;
-      PasswordInputIcon = Icons.Material.Filled.Visibility;
-      PasswordInput = InputType.Text;
+        // SP input params db de tanimlandigi sirasiyla gelmeli.
+        var rtrn = await db.StoreProcAsync<OutputModel, InputModel>("Usr_Login(@LgnNme, @LgnPwd)", Model);
+
+        if (rtrn.Stu == "A")
+        {
+            Snackbar.Add(rtrn.Msg, Severity.Success);
+            MudDialog?.Close();
+            await USP!.LoginOk(rtrn.UTid, rtrn.Typ!, rtrn.Usr, rtrn.Avatar);
+        }
+        else
+        {
+            Snackbar.Add(rtrn.Msg, Severity.Error);
+        }
     }
-  }
 
-  private async Task TryLogin()
-  {
-    // SP input params db de tanimlandigi sirasiyla gelmeli.
-    var rtrn = await db.StoreProcAsync<OutputModel, InputModel>("Usr_Login(@LgnNme, @LgnPwd)", Model);
-
-    if (rtrn.Stu == "A")
+    private void Cancel()
     {
-      Snackbar.Add(rtrn.Msg, Severity.Success);
-      MudDialog?.Close();
-      await USP!.LoginOk(rtrn.UTid, rtrn.Typ!, rtrn.Usr, rtrn.Avatar);
+        MudDialog?.Cancel();
     }
-    else
+
+    private sealed class InputModel
     {
-      Snackbar.Add(rtrn.Msg, Severity.Error);
+        public string? LgnNme { get; set; }
+        public string? LgnPwd { get; set; }
     }
-  }
 
-  private void Cancel()
-  {
-    MudDialog?.Cancel();
-  }
-
-  private sealed class InputModel
-  {
-    public string? LgnNme { get; set; }
-    public string? LgnPwd { get; set; }
-  }
-
-  private sealed class OutputModel
-  {
-    public string Stu { get; set; }
-    public int UTid { get; set; }
-    public string? Usr { get; set; }
-    public string? Typ { get; set; }
-    public string? Avatar { get; set; }
-    public string? Msg { get; set; }
-  }
+    private sealed class OutputModel
+    {
+        public string Stu { get; set; }
+        public int UTid { get; set; }
+        public string? Usr { get; set; }
+        public string? Typ { get; set; }
+        public string? Avatar { get; set; }
+        public string? Msg { get; set; }
+    }
 }

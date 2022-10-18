@@ -1,6 +1,8 @@
 ﻿@page "/davet"
 
 @inject IPubs pubs
+@inject ChatHub CH
+@inject EtkHub EH
 @implements IDisposable
 <h3>Davet</h3>
 
@@ -23,23 +25,24 @@
 
 
 @code {
-  [CascadingParameter] private UserStateProvider? USP { get; set; }
+    [CascadingParameter] private UserStateProvider? USP { get; set; }
 
-  private async Task ExpandedChanged(bool nw, int id)
-  {
+    private async Task ExpandedChanged(bool nw, int id)
+    {
 
-  }
+    }
 
-  public void deneme()
-  {
-    //Kendisine (key kendisi)
-    pubs.RaiseDynEvent($"UT:{USP.UsrId}", new { FrUsrId = USP.UsrId, FrUsr = USP.Usr, Sbj = $"{USP.Usr} davetini yanıtladı" });
-  }
+    public void deneme()
+    {
+        //Kendisine (key kendisi)
+        pubs.RaiseDynEvent($"UT:{USP.UsrId}", new { FrUsrId = USP.UsrId, FrUsr = USP.Usr, Sbj = $"{USP.Usr} davetini yanıtladı" });
+    }
 
-  protected override void OnInitialized()
-  {
-    pubs.AddDynEvent($"UT:{USP.UsrId}", UsrPostBox);
-  }
+    protected override void OnInitialized()
+    {
+        pubs.AddDynEvent($"UT:{USP.UsrId}", UsrPostBox);
+        EH.Deneme();
+    }
   
   private void UsrPostBox(dynamic prms)
   {
