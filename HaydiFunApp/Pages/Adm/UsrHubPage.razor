@@ -5,36 +5,35 @@
 @inject UsrHub UsrHub
 @implements IDisposable
 
-<h3>UsrHubPage</h3>
 <style>
-  .ug {
-      display: grid;
-      grid-gap: 4px;
-      grid-template-columns: 100px 50px 200px;
-      background-color: burlywood;
-      /*color: #444;*/
-      justify-content: center;
-      align-content: center;
-      /*height: 100px;*/
-      /*overflow: auto;*/
-  }
+    .ug {
+        display: grid;
+        grid-gap: 4px;
+        grid-template-columns: 100px 50px 200px;
+        background-color: burlywood;
+        /*color: #444;*/
+        justify-content: center;
+        align-content: center;
+        /*height: 100px;*/
+        /*overflow: auto;*/
+    }
 
-  .tal {
-      text-align: left;
-  }
+    .tal {
+        text-align: left;
+    }
 
-  .tac {
-      text-align: center;
-  }
+    .tac {
+        text-align: center;
+    }
 
-  .tar {
-      text-align: right;
-  }
+    .tar {
+        text-align: right;
+    }
 
-  table, th, td {
-      border: 1px solid burlywood;
-      border-collapse: collapse;
-  }
+    table, th, td {
+        border: 1px solid burlywood;
+        border-collapse: collapse;
+    }
 </style>
 
 @*<div class="ug">
@@ -49,81 +48,97 @@
     }
 
 </div>*@
-
-<table>
-  <caption></caption>
-  <colgroup>
-    <col style="width:100px">
-    <col style="width:50px">
-    <col>
-    <col>
-  </colgroup>
-  <thead>
-    <tr>
-      <th class="tal">Usr</th>
-      <th>Cnt</th>
-      <th>EXD</th>
-      <th>Avatar</th>
-    </tr>
-  </thead>
-  <tbody>
-    @{
-      int NOU = 0;
-      int NOC = 0;
-    }
-    @foreach (var kv in UsrHub.Usrs)
-    {
-      <tr @key="kv.Key">
-        <td>@kv.Value.Usr</td>
-        <td class="tac">@kv.Value.Cnt</td>
-        <td>@kv.Value.EXD</td>
-        <td><img src="@kv.Value.ImgUrl" style="display:block" /></td>
-      </tr>
-      NOU++;
-      NOC += kv.Value.Cnt;
-    }
-  </tbody>
-  <tfoot>
-    <tr>
-      <td class="tac">@NOU</td>
-      <td class="tac">@NOC</td>
-    </tr>
-  </tfoot>
-</table>
-
+<div style="margin:auto; width: fit-content;">
+    <table>
+        <caption style="background-color: burlywood;">Online Users</caption>
+        <colgroup>
+            <col style="width:100px">
+            <col style="width:50px">
+            <col>
+            <col>
+            <col>
+            <col>
+        </colgroup>
+        <thead>
+            <tr>
+                <th class="tal">Usr</th>
+                <th>Cnt</th>
+                <th>EXD</th>
+                <th>Avatar</th>
+                <th>Takipcim</th>
+                <th>Izliyorum</th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                int NOU = 0;
+                int NOC = 0;
+            }
+            @foreach (var kv in UsrHub.Usrs)
+            {
+                char ToTkpStu = '?';
+                char FrTkpStu = '?';
+                if (kv.Value.Fans.ContainsKey(USP.UsrId))
+                {
+                    ToTkpStu = kv.Value.Fans[USP.UsrId];
+                }
+                if (UsrHub.Usrs[USP.UsrId].Fans.ContainsKey(kv.Key))
+                {
+                    FrTkpStu = UsrHub.Usrs[USP.UsrId].Fans[kv.Key];
+                }
+                <tr @key="kv.Key">
+                    <td>@kv.Value.Usr</td>
+                    <td class="tac">@kv.Value.Cnt</td>
+                    <td>@kv.Value.EXD</td>
+                    <td><img src="@kv.Value.ImgUrl" style="display:block" /></td>
+                    <td class="tac">@ToTkpStu</td>
+                    <td class="tac">@FrTkpStu</td>
+                </tr>
+                NOU++;
+                NOC += kv.Value.Cnt;
+            }
+        </tbody>
+        <tfoot>
+            <tr>
+                <td class="tac">@NOU</td>
+                <td class="tac">@NOC</td>
+            </tr>
+        </tfoot>
+    </table>
+</div>
 @code {
-  [CascadingParameter] private UserStateProvider? USP { get; set; }
+    [CascadingParameter] private UserStateProvider? USP { get; set; }
 
-  public override async Task SetParametersAsync(ParameterView parameters)
-  {
-    //if (parameters.TryGetValue<UserStateProvider>(nameof(USP), out var value))
-    //{
-    //  if (value is null || value.UsrTyp != "A")
-    //    NavigationManager.NavigateTo("");
-    //  else
-    //    await base.SetParametersAsync(parameters);  //Diger LifeCyle metodlarini cagiriyor
-    //}
-    await base.SetParametersAsync(parameters);  //Diger LifeCyle metodlarini cagiriyor
-  }
+    public override async Task SetParametersAsync(ParameterView parameters)
+    {
+        //if (parameters.TryGetValue<UserStateProvider>(nameof(USP), out var value))
+        //{
+        //  if (value is null || value.UsrTyp != "A")
+        //    NavigationManager.NavigateTo("");
+        //  else
+        //    await base.SetParametersAsync(parameters);  //Diger LifeCyle metodlarini cagiriyor
+        //}
+        await base.SetParametersAsync(parameters);  //Diger LifeCyle metodlarini cagiriyor
+    }
 
-  protected override void OnInitialized()
-  {
-    //pubs.UsrChanged += OnUsrChanged;
+    protected override void OnInitialized()
+    {
+        //pubs.UsrChanged += OnUsrChanged;
 
-    pubs.AddDynEvent(Constants.UsrCntChange, UsrCntChange);
+        pubs.AddDynEvent(Constants.UsrCntChange, UsrCntChange);
 
-  }
+    }
 
-  public void UsrCntChange(dynamic d)
-  {
-    InvokeAsync(StateHasChanged);
-  }
+    public void UsrCntChange(dynamic d)
+    {
+        InvokeAsync(StateHasChanged);
+    }
 
-  public void Dispose()
-  {
-    //pubs.UsrChanged -= UsrCntChange;
-    pubs.RemoveDynEvent(Constants.UsrCntChange, UsrCntChange);
+    public void Dispose()
+    {
+        //pubs.UsrChanged -= UsrCntChange;
+        pubs.RemoveDynEvent(Constants.UsrCntChange, UsrCntChange);
 
-  }
+    }
 
 }

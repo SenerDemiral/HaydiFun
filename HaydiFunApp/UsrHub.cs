@@ -1,6 +1,7 @@
 ﻿using DataLibrary;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reflection;
 
 namespace HaydiFunApp;
@@ -28,8 +29,9 @@ public sealed class UsrHub
                 Usr = usr,
                 EXD = DateTime.Now,
                 Avatar = avatar,
-                Cnt = 1
+                Cnt = 1,
             };
+            Usrs[usrId].Fans.Add(usrId+1, 'T');
             //   pubs.UsrRaise();
         }
         else
@@ -41,7 +43,6 @@ public sealed class UsrHub
         pubs.RaiseDynEvent(key: Constants.UsrCntChange, new { NOU = Usrs.Count, Sbj = $"#of Online Users : {Usrs.Count}" });
 
     }
-
     public void UsrRemove(int usrId)
     {
         UsrModel? usr;
@@ -61,6 +62,43 @@ public sealed class UsrHub
 
         }
     }
+    public void UsrEnter(int usrId, string usr, string avatar)
+    {
+        if (!Usrs.ContainsKey(usrId))
+        {
+            // Read User from db
+            UsrModel? u = new();
+            u.Cnt++;
+            Usrs[usrId] = u;
+        }
+        else
+        {
+            Usrs[usrId].Cnt++;
+        }
+
+        var NOU = Usrs.Where(x => x.Value.isOnline).Count();
+        pubs.RaiseDynEvent(key: Constants.UsrCntChange, new { NOU = NOU });
+
+    }
+
+    public void UsrExit(int usrId)
+    {
+        UsrModel? usr;
+        if (Usrs.ContainsKey(usrId))
+        {
+            Usrs[usrId].Cnt--;
+
+            var NOU = Usrs.Where(x => x.Value.isOnline).Count();
+            pubs.RaiseDynEvent(key: Constants.UsrCntChange, new { NOU = NOU });
+        }
+    }
+    public void UsrModifed(int usrId)
+    {
+        // Yapildigi yerden Raise et
+        // Avatar, Lbls, Fans degisebilir
+        // Load UT rec
+        
+    }
     public int UsrCnt()
     {
         return Usrs.Count();
@@ -70,9 +108,13 @@ public sealed class UsrHub
         public int UsrId;
         public string? Usr;
         public DateTime? EXD;
-        public int Cnt;
+        public int Cnt; // if 0 Offline
         public string? Avatar;
-        public string ImgUrl => $"uploads/{Avatar}?width=100";
+        public string ImgUrl => $"uploads/{Avatar}?width=100&height=100";
+
+        public bool isOnline => Cnt == 0 ? false : true;
+        public string Lbls;
+        public Dictionary<int, char> Fans = new();
 
     }
 }
