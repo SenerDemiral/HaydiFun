@@ -48,64 +48,102 @@
     }
 
 </div>*@
-<div style="margin:auto; width: fit-content;">
-    <table>
-        <caption style="background-color: burlywood;">Online Users</caption>
-        <colgroup>
-            <col style="width:100px">
-            <col style="width:50px">
-            <col>
-            <col>
-            <col>
-            <col>
-        </colgroup>
-        <thead>
-            <tr>
-                <th class="tal">Usr</th>
-                <th>Cnt</th>
-                <th>EXD</th>
-                <th>Avatar</th>
-                <th>Takipcim</th>
-                <th>Izliyorum</th>
-            </tr>
-        </thead>
-        <tbody>
-            @{
-                int NOU = 0;
-                int NOC = 0;
-            }
-            @foreach (var kv in UsrHub.Usrs)
-            {
-                char ToTkpStu = '?';
-                char FrTkpStu = '?';
-                if (kv.Value.Fans.ContainsKey(USP.UsrId))
-                {
-                    ToTkpStu = kv.Value.Fans[USP.UsrId];
-                }
-                if (UsrHub.Usrs[USP.UsrId].Fans.ContainsKey(kv.Key))
-                {
-                    FrTkpStu = UsrHub.Usrs[USP.UsrId].Fans[kv.Key];
-                }
-                <tr @key="kv.Key">
-                    <td>@kv.Value.Usr</td>
-                    <td class="tac">@kv.Value.Cnt</td>
-                    <td>@kv.Value.EXD</td>
-                    <td><img src="@kv.Value.ImgUrl" style="display:block" /></td>
-                    <td class="tac">@ToTkpStu</td>
-                    <td class="tac">@FrTkpStu</td>
+@if (USP.UsrId != 0)
+{
+    <div style="margin:auto; width: fit-content;">
+        <table>
+            <caption style="background-color: burlywood;">Online Users</caption>
+            <colgroup>
+                <col>
+                <col>
+                <col>
+                <col style="width:100px">
+                <col>
+                <col>
+            </colgroup>
+            <thead>
+                <tr>
+                    <th class="tal">Usr</th>
+                    <th>Cnt</th>
+                    <th>EXD</th>
+                    <th>Avatar</th>
+                    <th>Takipcim</th>
+                    <th>İzliyorum</th>
                 </tr>
-                NOU++;
-                NOC += kv.Value.Cnt;
-            }
-        </tbody>
-        <tfoot>
-            <tr>
-                <td class="tac">@NOU</td>
-                <td class="tac">@NOC</td>
-            </tr>
-        </tfoot>
-    </table>
-</div>
+            </thead>
+            <tbody>
+                @{
+                    int NOU = 0;
+                    int NOC = 0;
+                }
+                @foreach (var kv in UsrHub.UsrD)
+                {
+                    char Takipcim = ' ';
+                    char Izliyorum = ' ';
+                    if (kv.Key == USP.UsrId)
+                    {
+                        Takipcim = '★';
+                        Izliyorum = '★';
+                    }
+                    if (kv.Value.FanD.TryGetValue(USP.UsrId, out char tv))
+                    {
+                        Takipcim = tv switch
+                        {
+                            'T' => '✓',
+                            'E' => '⛔', //(char)0x26D4, //'✘', //(char)0x2718,
+                        };
+                    }
+                    if (UsrHub.UsrD[USP.UsrId].FanD.TryGetValue(kv.Key, out char fv))
+                    {
+                        Izliyorum = fv switch
+                        {
+                            'T' => '✓',
+                            'E' => (char)0x26D4, //'✘', //(char)0x2718,
+                        };
+                    }
+
+                    @*if (kv.Value.FanD.ContainsKey(USP.UsrId))
+            {
+            //ToTkpStu = kv.Value.FanD[USP.UsrId];
+            ToTkpStu = kv.Value.FanD[USP.UsrId] switch
+            {
+            'T' => '✓',
+            'E' => (char)0x26D4, //'✘', //(char)0x2718,
+            };
+            }*@
+                    @*if (UsrHub.UsrD[USP.UsrId].FanD.ContainsKey(kv.Key))
+            {
+            //FrTkpStu = UsrHub.UsrD[USP.UsrId].FanD[kv.Key];
+            FrTkpStu = UsrHub.UsrD[USP.UsrId].FanD[kv.Key] switch
+            {
+            'T' => '✓',
+            'E' => (char)0x26D4,
+            };
+            }*@
+                    <tr @key="kv.Key">
+                        <td>@kv.Value.Usr</td>
+                        <td class="tac">@kv.Value.Cnt</td>
+                        <td>@kv.Value.EXD</td>
+                        <td><img src="@kv.Value.ImgUrl" style="display:block" /></td>
+                        <td class="tac" style="font-size:x-large">@Takipcim</td>
+                        <td class="tac" style="font-size:x-large">@Izliyorum</td>
+                    </tr>
+                    <tr>
+                        <td colspan="9">@kv.Value.LblAds</td>
+                    </tr>
+                    NOU++;
+                    NOC += kv.Value.Cnt;
+                }
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td class="tac">@NOU</td>
+                    <td class="tac">@NOC</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+}
 @code {
     [CascadingParameter] private UserStateProvider? USP { get; set; }
 

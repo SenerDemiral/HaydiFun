@@ -7,8 +7,10 @@ namespace DataLibrary
 {
     public interface IDataAccess
     {
-        Task<T> LoadRec<T, U>(string sql, U parameters);
-        Task<IEnumerable<T>> LoadData<T, U>(string sql, U parameters);
+        Task<T> LoadRecAsync<T, U>(string sql, U parameters);
+        Task<IEnumerable<T>> LoadDataAsync<T, U>(string sql, U parameters);
+        IEnumerable<T> LoadData<T, U>(string sql, U parameters);
+
         T StoreProc<T, U>(string storeProc, U parameters);
         Task<T> StoreProcAsync<T, U>(string storeProc, U parameters);
         //Task<dynamic> StoreProc2<T>(string storeProc, T parameters);

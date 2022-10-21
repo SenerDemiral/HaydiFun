@@ -25,7 +25,7 @@ public sealed class DataHub
         // UI Chat'a girerken mutlaka ilk once buraya gelmeli
         if (!Chats.ContainsKey(grp))
         {
-            Chats[grp] = (await db.LoadData<EC, dynamic>("select * from EC_GET(@ETid)", new { ETid = grp })).ToList();
+            Chats[grp] = (await db.LoadDataAsync<EC, dynamic>("select * from EC_GET(@ETid)", new { ETid = grp })).ToList();
         }
 
         if (!ChatUsrs.ContainsKey(grp))
@@ -61,7 +61,7 @@ public sealed class DataHub
         //if (!Chats.ContainsKey(etId))
         //{
         //    // Chats[etId] = new List<EC>();
-        //    Chats[etId] = (await db.LoadData<EC, dynamic>("select * from EC_GET(@ETid)", new { ETid = etId })).ToList();
+        //    Chats[etId] = (await db.LoadDataAsync<EC, dynamic>("select * from EC_GET(@ETid)", new { ETid = etId })).ToList();
         //    pubs.ChatRaise();
         //}
         var ec = new EC()

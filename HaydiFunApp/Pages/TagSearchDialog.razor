@@ -84,8 +84,8 @@
 
     protected override async Task OnInitializedAsync()
     {
-        Lbls = (await db.LoadData<LT, dynamic>("select * from LT order by LGid, Name", new { })).ToList();
-        Grps = (await db.LoadData<LG, dynamic>("select * from LG order by LGid", new { })).ToDictionary((x) => x.LGid);
+        Lbls = (await db.LoadDataAsync<LT, dynamic>("select * from LT order by LGid, Name", new { })).ToList();
+        Grps = (await db.LoadDataAsync<LG, dynamic>("select * from LG order by LGid", new { })).ToDictionary((x) => x.LGid);
     }
     private void ToggleExpanded(bool expanded, int key)
     {

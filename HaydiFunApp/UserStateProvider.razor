@@ -58,8 +58,8 @@ else
 
             if (UsrId != 0)
             {
-                //var rtrn = await db.StoreProcAsync<dynamic, dynamic>("Usr_Enter(@UsrId)", new { UsrId = UsrId });
-                var rtrn = await db.StoreProcAsync<dynamic, dynamic>("Usr_Login(@UsrId, @UsrPwd)", new { UsrId = UsrId.ToString(), UsrPwd = "c~@~n" });
+                //var rtrn = await db.StoreProcAsync<dynamic, dynamic>("Usr_Enter(@UTid)", new { UTid = UTid });
+                var rtrn = await db.StoreProcAsync<dynamic, dynamic>("Usr_Login(@UTid, @UsrPwd)", new { UTid = UsrId.ToString(), UsrPwd = "c~@~n" });
 
                 if (rtrn.STU == "A")  // A degilse ne yapilacak??
                 {
@@ -68,7 +68,8 @@ else
                     Usr = rtrn.USR;
                     UsrAvatar = rtrn.AVATAR;
 
-                    UsrHub.UsrAdd(UsrId, Usr, UsrAvatar);
+                    //UsrHub.UsrAdd(UsrId, Usr, UsrAvatar);
+                    UsrHub.UsrEnter(UsrId);
                     //GoHome(); Ozellikle yok
 
                     pubs.AddDynEvent($"UT:{UsrId}", UsrPostBox);
@@ -90,7 +91,7 @@ else
     
     public async Task Logout()
     {
-        UsrHub.UsrRemove(UsrId);
+        UsrHub.UsrExit(UsrId);
 
         pubs.RemoveDynEvent($"UT:{UsrId}", UsrPostBox);
 
@@ -118,7 +119,8 @@ else
 
         pubs.AddDynEvent($"UT:{UsrId}", UsrPostBox);
 
-        UsrHub.UsrAdd(UsrId, Usr, UsrAvatar);
+        //UsrHub.UsrAdd(UsrId, Usr, UsrAvatar);
+        UsrHub.UsrEnter(UsrId);
         GoHome();
         //StateHasChanged();
         await InvokeAsync(StateHasChanged);
@@ -129,7 +131,7 @@ else
         pubs.RemoveDynEvent(Constants.UsrCntChange, UsrCntChange);
         pubs.RemoveDynEvent($"UT:{UsrId}", UsrPostBox);
 
-        UsrHub.UsrRemove(UsrId);
+        UsrHub.UsrExit(UsrId);
     }
 
 }

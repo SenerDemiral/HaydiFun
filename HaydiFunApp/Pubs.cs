@@ -58,7 +58,7 @@ public sealed class Pubs : IPubs
 
     /// <summary>
     /// Key: UsrCntChanged  handler: UsrCntChanged Enter/Exit/Login/Logout for every user
-    /// Key: UT:{UsrId}     handler: UsrPostAdr for OnlineUser
+    /// Key: UT:{UTid}     handler: UsrPostAdr for OnlineUser
     ///                                 Fr    To
     ///     Davet Edildim               Ownr->User
     ///     Davetime yanit geldi        User->Owner
@@ -141,8 +141,8 @@ public sealed class Pubs : IPubs
         return 0;
     }
     //private List<Chat> ChatUsrList = new();
-    //_ = ChatUsrList.Remove(ChatUsrList?.Find(x => x.ChatId == id && x.UsrId == id + 1));
-    //return ChatUsrList.Where(x => x.ChatId == id).DistinctBy(x => x.UsrId).Count();
+    //_ = ChatUsrList.Remove(ChatUsrList?.Find(x => x.ChatId == id && x.UTid == id + 1));
+    //return ChatUsrList.Where(x => x.ChatId == id).DistinctBy(x => x.UTid).Count();
 
     private sealed class Chat
     {

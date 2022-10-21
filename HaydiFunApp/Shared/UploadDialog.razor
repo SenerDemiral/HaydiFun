@@ -6,85 +6,85 @@
 @inject IWebHostEnvironment env
 
 <MudDialog>
-  <TitleContent>
-    <MudText Typo="Typo.h6">
-      Upload
-    </MudText>
-  </TitleContent>
-  <DialogContent>
-    <InputFile id="fileInput" OnChange="OnInputFileChange" hidden accept=".jpg, .jpeg, .webp" />
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            Upload
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <InputFile id="fileInput" OnChange="OnInputFileChange" hidden accept=".jpg, .jpeg, .webp" />
 
-    <MudButton HtmlTag="label"
-               Variant="Variant.Filled"
-               Color="MudBlazor.Color.Primary"
-               StartIcon="@Icons.Filled.CloudUpload"
-               for="fileInput">
-      Select File
-    </MudButton>
-    <h3>@Message</h3>
-  </DialogContent>
-  <DialogActions>
-    <MudButton OnClick="Cancel">Cancel</MudButton>
-    <MudButton Color="MudBlazor.Color.Error" OnClick="OnSubmit">Upload</MudButton>
-  </DialogActions>
+        <MudButton HtmlTag="label"
+                   Variant="Variant.Filled"
+                   Color="MudBlazor.Color.Primary"
+                   StartIcon="@Icons.Filled.CloudUpload"
+                   for="fileInput">
+            Select File
+        </MudButton>
+        <h3>@Message</h3>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="MudBlazor.Color.Error" OnClick="OnSubmit">Upload</MudButton>
+    </DialogActions>
 </MudDialog>
 
 
 
 @code {
-  [CascadingParameter] MudDialogInstance MudDialog { get; set; }
-  [Parameter] public string FileName { get; set; }
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [Parameter] public string FileName { get; set; }
 
-  void Submit() => MudDialog.Close(DialogResult.Ok(true));
-  void Cancel() => MudDialog.Cancel();
+    void Submit() => MudDialog.Close(DialogResult.Ok(true));
+    void Cancel() => MudDialog.Cancel();
 
-  string Message = "";
-  //IReadOnlyList<IBrowserFile> selectedFiles;
-  IBrowserFile selectedFile;
+    string Message = "";
+    //IReadOnlyList<IBrowserFile> selectedFiles;
+    IBrowserFile selectedFile;
 
-  private void OnInputFileChange(InputFileChangeEventArgs e)
-  {
-    selectedFile = e.File;   // if single file
-                             //selectedFiles = e.GetMultipleFiles();
-    Message = $"{selectedFile.ContentType} selected";
-    this.StateHasChanged();
-  }
-
-  private async Task OnSubmit()
-  {
-    if (selectedFile is null)
-      Message = $"Seçim yapın";
-    else if (selectedFile.Size > 512_000)
-      Message = $"512KB dan büyük olamaz";
-    else if (selectedFile.ContentType != "image/jpeg" &&
-             selectedFile.ContentType != "image/webp")
-      Message = $"sadece image: jpeg/jpg/webp";
-    else
+    private void OnInputFileChange(InputFileChangeEventArgs e)
     {
-      //await using FileStream fs = new($"{env.WebRootPath}\\uploads\\{selectedFile.Name}", FileMode.Create);
-      //await using FileStream fs = new($"{env.ContentRootPath}\\uploads\\{selectedFile.Name}", FileMode.Create);
-      //await selectedFile.OpenReadStream().CopyToAsync(fs);
-
-      //IImageFormat format;
-      //var image2 = Image.Load(selectedFile.OpenReadStream(), out format)
-
-      var ext = "jpeg";
-      if (selectedFile.ContentType == "image/webp")
-        ext = "webp";
-      FileName = $"{FileName}.{ext}";
-      var fileName = $"{env.WebRootPath}\\uploads\\{FileName}";
-
-      using (var image = await Image.LoadAsync(selectedFile.OpenReadStream()))
-      {
-        //image.Mutate(x => x.Resize(1024, 0));  //(256, 256));
-        image.Save(fileName);
-        Message = $"{selectedFile.Name} uploaded.";
-      }
-
-      MudDialog.Close(DialogResult.Ok(FileName));
+        selectedFile = e.File;   // if single file
+                                 //selectedFiles = e.GetMultipleFiles();
+        Message = $"{selectedFile.ContentType} selected";
+        this.StateHasChanged();
     }
-    this.StateHasChanged();
-  }
+
+    private async Task OnSubmit()
+    {
+        if (selectedFile is null)
+            Message = $"Seçim yapın";
+        else if (selectedFile.Size > 512_000)
+            Message = $"512KB dan büyük olamaz";
+        else if (selectedFile.ContentType != "image/jpeg" &&
+                 selectedFile.ContentType != "image/webp")
+            Message = $"sadece image: jpeg/jpg/webp";
+        else
+        {
+            //await using FileStream fs = new($"{env.WebRootPath}\\uploads\\{selectedFile.Name}", FileMode.Create);
+            //await using FileStream fs = new($"{env.ContentRootPath}\\uploads\\{selectedFile.Name}", FileMode.Create);
+            //await selectedFile.OpenReadStream().CopyToAsync(fs);
+
+            //IImageFormat format;
+            //var image2 = Image.Load(selectedFile.OpenReadStream(), out format)
+
+            var ext = "jpeg";
+            if (selectedFile.ContentType == "image/webp")
+                ext = "webp";
+            FileName = $"{FileName}.{ext}";
+            var fileName = $"{env.WebRootPath}\\uploads\\{FileName}";
+
+            using (var image = await Image.LoadAsync(selectedFile.OpenReadStream()))
+            {
+                image.Mutate(x => { if (x.GetCurrentSize().Width > 512) x.Resize(512, 0); }); //Resize(1024, 0));  //(256, 256));
+                image.Save(fileName);
+                Message = $"{selectedFile.Name} uploaded.";
+            }
+
+            MudDialog.Close(DialogResult.Ok(FileName));
+        }
+        this.StateHasChanged();
+    }
 
 
 }

@@ -1,0 +1,141 @@
+﻿@page "/etkhub"
+
+@inject NavigationManager NavigationManager
+@inject IPubs pubs
+@inject EtkHub EtkHub
+@inject UsrHub UsrHub
+@implements IDisposable
+
+<style>
+    .ug {
+        display: grid;
+        grid-gap: 4px;
+        grid-template-columns: 100px 50px 200px;
+        background-color: burlywood;
+        /*color: #444;*/
+        justify-content: center;
+        align-content: center;
+        /*height: 100px;*/
+        /*overflow: auto;*/
+    }
+
+    .tal {
+        text-align: left;
+    }
+
+    .tac {
+        text-align: center;
+    }
+
+    .tar {
+        text-align: right;
+    }
+
+    table, th, td {
+        border: 1px solid burlywood;
+        border-collapse: collapse;
+        padding: 0 4px;
+    }
+</style>
+
+@*<div class="ug">
+    <div>Usr</div>
+    <div>Cnt</div>
+    <div>InsTS</div>
+    @foreach (var kv in UsrHub.Usrs)
+    {
+        <div>@kv.Value.UsrNN</div>
+        <div>@kv.Value.Cnt</div>
+        <div>@kv.Value.EXD</div>
+    }
+
+</div>*@
+<div style="margin:auto; width: fit-content;">
+    <table>
+        <caption style="background-color: burlywood;">Etkinliklerim</caption>
+        <colgroup>
+            <col>
+            <col>
+            <col>
+            <col>
+            <col>
+        </colgroup>
+        <thead>
+            <tr>
+                <th class="tal">ID</th>
+                <th>Typ</th>
+                <th>Owner</th>
+                <th>Avatar</th>
+                <th>Info</th>
+                <th>Stu</th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                int NOU = 0;
+            }
+            @foreach (var kv in EtkHub.EtkD)
+            {
+                char MbrStu = '?';
+                var val = kv.Value;
+                //var aaa = UsrHub.UsrD.ContainsKey(val.OwnId)
+                string OwnUsr = UsrHub.UsrD.ContainsKey(val.OwnId) ? UsrHub.UsrD[val.OwnId].Usr : "!";
+                if (kv.Value.MbrD.ContainsKey(USP.UsrId))
+                {
+                    MbrStu = val.MbrD[USP.UsrId];
+
+                    <tr @key="kv.Key">
+                        <td>@val.ETid</td>
+                        <td class="tac">@val.TypAd</td>
+                        <td>@OwnUsr</td>
+                        <td style="padding:0"><img src="@UsrHub.UsrD[val.OwnId].ImgUrl" style="display:block" /></td>
+                        <td>@val.Info</td>
+                        <td class="tac">@MbrStu</td>
+                    </tr>
+                    NOU++;
+                }
+            }
+        </tbody>
+        <tfoot>
+            <tr>
+                <td class="tac">@NOU</td>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+@code {
+    [CascadingParameter] private UserStateProvider? USP { get; set; }
+
+    public override async Task SetParametersAsync(ParameterView parameters)
+    {
+        //if (parameters.TryGetValue<UserStateProvider>(nameof(USP), out var value))
+        //{
+        //  if (value is null || value.UsrTyp != "A")
+        //    NavigationManager.NavigateTo("");
+        //  else
+        //    await base.SetParametersAsync(parameters);  //Diger LifeCyle metodlarini cagiriyor
+        //}
+        await base.SetParametersAsync(parameters);  //Diger LifeCyle metodlarini cagiriyor
+    }
+
+    protected override void OnInitialized()
+    {
+        //pubs.UsrChanged += OnUsrChanged;
+
+        pubs.AddDynEvent(Constants.UsrCntChange, UsrCntChange);
+
+    }
+
+    public void UsrCntChange(dynamic d)
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        //pubs.UsrChanged -= UsrCntChange;
+        pubs.RemoveDynEvent(Constants.UsrCntChange, UsrCntChange);
+
+    }
+
+}

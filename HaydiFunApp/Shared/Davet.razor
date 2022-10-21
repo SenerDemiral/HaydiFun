@@ -3,6 +3,7 @@
 @inject IPubs pubs
 @inject ChatHub CH
 @inject EtkHub EH
+@inject UsrHub UH
 @implements IDisposable
 <h3>Davet</h3>
 
@@ -42,6 +43,7 @@
     {
         pubs.AddDynEvent($"UT:{USP.UsrId}", UsrPostBox);
         EH.Deneme();
+        //UH.Deneme();
     }
   
   private void UsrPostBox(dynamic prms)

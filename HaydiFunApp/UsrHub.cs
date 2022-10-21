@@ -3,92 +3,155 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
+using static HaydiFunApp.EtkHub;
+using static MudBlazor.CategoryTypes;
 
 namespace HaydiFunApp;
 // Login olmus Userlar, eger birden cok yerdeyse sayisi
 public sealed class UsrHub
 {
-    public ConcurrentDictionary<int, UsrModel> Usrs;
+    public ConcurrentDictionary<int, UsrMdl> UsrD;
+    private readonly IDataAccess db;
+
     private readonly IPubs pubs;
-    public UsrHub(IPubs pubs)
+    public UsrHub(IPubs pubs, IDataAccess db)
     {
         int concurrencyLevel = Environment.ProcessorCount * 2;
         int initialCapacity = 101;  // 101,199,293,397,499,599,691,797,887,997 PrimeNumber
-        Usrs = new(concurrencyLevel, initialCapacity);
+        UsrD = new(concurrencyLevel, initialCapacity);
 
         this.pubs = pubs;
+        this.db = db;
+    }
+    public void LoadAllUsr()
+    {
+        UsrD.Clear();
+        Task<IEnumerable<UsrMdl>> res = db.LoadDataAsync<UsrMdl, dynamic>("select * from UT_GETALL", new { });
+
+        foreach (var itm in res.Result)
+        {
+            UsrMdl m = new()
+            {
+                UTid = itm.UTid,
+                Usr = itm.Usr,
+                Avatar = itm.Avatar,
+                Lbls = itm.Lbls,
+                LblAds = itm.LblAds,
+                //MbrD = AAA(itm.Mbrs)
+            };
+            Constants.StringToDictionary(itm.Fans, m.FanD);
+
+            UsrD.TryAdd(itm.UTid, m);
+
+        }
+        //StringToDictionary(itm.Mbrs, EtkD[etId].MbrD);
+        //if (EtkD.ContainsKey(etId))
+        //{
+
+        //}
+        //EtkD[etId] = mdl2;
     }
 
+    public void RefreshUsr(int utId)
+    {
+        var itm = db.StoreProc<UsrMdl, dynamic>("UT_GET(@iUTid)", new { iUTid = utId });
+
+        if (UsrD.ContainsKey(utId))
+        {
+            UsrD[utId].UTid = itm.UTid;
+            UsrD[utId].Usr = itm.Usr;
+            UsrD[utId].Avatar = itm.Avatar;
+            UsrD[utId].Lbls = itm.Lbls;
+            UsrD[utId].LblAds = itm.LblAds;
+            Constants.StringToDictionary(itm.Fans, UsrD[utId].FanD);
+        }
+        else
+        {
+            UsrMdl m = new UsrMdl
+            {
+                UTid = itm.UTid,
+                Usr = itm.Usr,
+                Avatar = itm.Avatar,
+                Lbls = itm.Lbls,
+                LblAds = itm.LblAds,
+            };
+            Constants.StringToDictionary(itm.Fans, m.FanD);
+
+            UsrD.TryAdd(itm.UTid, m);
+        }
+        int NOU = UsrD.Count(x => x.Value.isOnline);
+        pubs.RaiseDynEvent(key: Constants.UsrCntChange, new { NOU = NOU, Sbj = $"#of Online Users : {NOU}" });
+    }
     public void UsrAdd(int usrId, string usr, string avatar)
     {
-        if (!Usrs.ContainsKey(usrId))
+        if (!UsrD.ContainsKey(usrId))
         {
-            Usrs[usrId] = new()
+            UsrD[usrId] = new()
             {
-                UsrId = usrId,
+                UTid = usrId,
                 Usr = usr,
                 EXD = DateTime.Now,
                 Avatar = avatar,
                 Cnt = 1,
             };
-            Usrs[usrId].Fans.Add(usrId+1, 'T');
+            UsrD[usrId].FanD.Add(usrId + 1, 'T');
             //   pubs.UsrRaise();
         }
         else
         {
-            Usrs[usrId].Cnt++;
+            UsrD[usrId].Cnt++;
         }
         //pubs.UsrRaise();
 
-        pubs.RaiseDynEvent(key: Constants.UsrCntChange, new { NOU = Usrs.Count, Sbj = $"#of Online Users : {Usrs.Count}" });
+        pubs.RaiseDynEvent(key: Constants.UsrCntChange, new { NOU = UsrD.Count, Sbj = $"#of Online Users : {UsrD.Count}" });
 
     }
     public void UsrRemove(int usrId)
     {
-        UsrModel? usr;
-        if (Usrs.ContainsKey(usrId))
+        UsrMdl? usr;
+        if (UsrD.ContainsKey(usrId))
         {
-            Usrs[usrId].Cnt--;
+            UsrD[usrId].Cnt--;
 
-            if (Usrs[usrId].Cnt == 0)
+            if (UsrD[usrId].Cnt == 0)
             {
-                if (Usrs.TryRemove(usrId, out usr))
+                if (UsrD.TryRemove(usrId, out usr))
                 {
                     // User Cikti
                 }
             }
             //pubs.UsrRaise();
-            pubs.RaiseDynEvent(key: Constants.UsrCntChange, new { NOU = Usrs.Count, Sbj = $"#of Online Users : {Usrs.Count}" });
+            pubs.RaiseDynEvent(key: Constants.UsrCntChange, new { NOU = UsrD.Count, Sbj = $"#of Online Users : {UsrD.Count}" });
 
         }
     }
-    public void UsrEnter(int usrId, string usr, string avatar)
+    public void UsrEnter(int usrId)
     {
-        if (!Usrs.ContainsKey(usrId))
+        if (!UsrD.ContainsKey(usrId))
         {
             // Read User from db
-            UsrModel? u = new();
+            UsrMdl? u = new();
             u.Cnt++;
-            Usrs[usrId] = u;
+            UsrD[usrId] = u;
         }
         else
         {
-            Usrs[usrId].Cnt++;
+            UsrD[usrId].Cnt++;
         }
 
-        var NOU = Usrs.Where(x => x.Value.isOnline).Count();
+        var NOU = UsrD.Where(x => x.Value.isOnline).Count();
         pubs.RaiseDynEvent(key: Constants.UsrCntChange, new { NOU = NOU });
 
     }
 
     public void UsrExit(int usrId)
     {
-        UsrModel? usr;
-        if (Usrs.ContainsKey(usrId))
+        UsrMdl? usr;
+        if (UsrD.ContainsKey(usrId))
         {
-            Usrs[usrId].Cnt--;
+            UsrD[usrId].Cnt--;
 
-            var NOU = Usrs.Where(x => x.Value.isOnline).Count();
+            var NOU = UsrD.Where(x => x.Value.isOnline).Count();
             pubs.RaiseDynEvent(key: Constants.UsrCntChange, new { NOU = NOU });
         }
     }
@@ -97,24 +160,26 @@ public sealed class UsrHub
         // Yapildigi yerden Raise et
         // Avatar, Lbls, Fans degisebilir
         // Load UT rec
-        
+
     }
     public int UsrCnt()
     {
-        return Usrs.Count();
+        return UsrD.Count();
     }
-    public sealed class UsrModel
+    public sealed class UsrMdl
     {
-        public int UsrId;
+        public int UTid;
         public string? Usr;
         public DateTime? EXD;
         public int Cnt; // if 0 Offline
         public string? Avatar;
-        public string ImgUrl => $"uploads/{Avatar}?width=100&height=100";
+        public string? Lbls;
+        public string? LblAds;
+        public string? Fans;
+        public string ImgUrl => $"uploads/{Avatar}?width=50&height=50";
 
         public bool isOnline => Cnt == 0 ? false : true;
-        public string Lbls;
-        public Dictionary<int, char> Fans = new();
+        public Dictionary<int, char> FanD = new();
 
     }
 }

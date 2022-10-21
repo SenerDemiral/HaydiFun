@@ -48,7 +48,7 @@ namespace DataLibrary
 
         }
 
-        public async Task<T> LoadRec<T, U>(string sql, U parameters)
+        public async Task<T> LoadRecAsync<T, U>(string sql, U parameters)
         {
             using (IDbConnection cnct = new FbConnection(cnctStr))
             {
@@ -58,17 +58,18 @@ namespace DataLibrary
         }
 
 
-        public async Task<IEnumerable<T>> LoadData<T, U>(string sql, U parameters)
+        public async Task<IEnumerable<T>> LoadDataAsync<T, U>(string sql, U parameters)
         {
-            Stopwatch stopWatch = new Stopwatch();
-            stopWatch.Start();  
             using IDbConnection cnct = new FbConnection(cnctStr);
-            //return await cnct.QueryAsync<T>(sql, parameters);
-            var aaa = await cnct.QueryAsync<T>(sql, parameters); //.ConfigureAwait(false); bunu bekliyorsun
-            stopWatch.Stop();
-            Console.WriteLine($"fbLoadData:{stopWatch.ElapsedMilliseconds}");
-            return aaa;
+            return await cnct.QueryAsync<T>(sql, parameters); //.ConfigureAwait(false); bunu bekliyorsun
         }
+
+        public IEnumerable<T> LoadData<T, U>(string sql, U parameters)
+        {
+            using IDbConnection cnct = new FbConnection(cnctStr);
+            return cnct.Query<T>(sql, parameters); //.ConfigureAwait(false); bunu bekliyorsun
+        }
+
 
         /// <summary>
         /// Ins/Upd/Del StoreProcedure returns Row (multiple fields)

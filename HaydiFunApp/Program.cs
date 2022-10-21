@@ -61,4 +61,9 @@ app.UseRouting();
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
 
+var someService = app.Services.GetService<EtkHub>();
+
+someService.LoadAllEtk();
+app.Services.GetService<UsrHub>().LoadAllUsr();
+
 app.Run();

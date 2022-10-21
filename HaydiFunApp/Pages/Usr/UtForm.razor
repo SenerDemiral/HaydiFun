@@ -4,188 +4,192 @@
 
 @inject NavigationManager NavigationManager
 @inject IDataAccess db
+@inject UsrHub UsrHub
+@inject IPubs Pubs
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
 
 <PageTitle>Üye Profili</PageTitle>
 
 <div class="mud-theme-dark">
-  <MudText Align="Align.Center" Typo="Typo.body2">@USP.Usr</MudText>
+    <MudText Align="Align.Center" Typo="Typo.body2">@USP.Usr</MudText>
 </div>
 
 <EditForm Model="model" OnValidSubmit="OnValidSubmit">
-  <DataAnnotationsValidator />
-  <MudTextField Label="Ad"
-                @bind-Value="model.Name"
-                For="@(() => model.Name)" />
-  <MudTextField Label="Email" Class="mt-3"
-                @bind-Value="model.MailAdr"
-                For="@(() => model.MailAdr)" />
-  <MudTextField Label="Tel" Class="mt-3"
-                @bind-Value="model.Tel"
-                For="@(() => model.Tel)"
-                Mask="@TelMask"
-                HelperText="@TelMask.Mask" />
-  <MudTextField Label="Info" Lines="4"
-                @bind-Value="model.Info"
-                For="@(() => model.Info)" />
+    <DataAnnotationsValidator />
+    <MudTextField Label="Ad"
+                  @bind-Value="model.Name"
+                  For="@(() => model.Name)" />
+    <MudTextField Label="Email" Class="mt-3"
+                  @bind-Value="model.MailAdr"
+                  For="@(() => model.MailAdr)" />
+    <MudTextField Label="Tel" Class="mt-3"
+                  @bind-Value="model.Tel"
+                  For="@(() => model.Tel)"
+                  Mask="@TelMask"
+                  HelperText="@TelMask.Mask" />
+    <MudTextField Label="Info" Lines="4"
+                  @bind-Value="model.Info"
+                  For="@(() => model.Info)" />
 
-  @*<img src="/uploads/sener.webp?height=200&quality=50" />*@
-  <div class="d-flex justify-center gap-4 my-3">
-  <MudImage Src="@($"uploads/{model.Avatar}?width=200")" Elevation="2" Class="rounded-lg" @onclick="Upload" Style="cursor: pointer;" />
-  </div>
-
-  @if (isEditable)
-  {
-    <MudDivider Class="my-3"/>
-    <div class="d-flex justify-center gap-4 ">
-      <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" >Kaydet</MudButton>
-      <MudButton OnClick="Cancel">Iptal</MudButton>
+    @*<img src="/uploads/sener.webp?height=200&quality=50" />*@
+    <div class="d-flex justify-center gap-4 my-3">
+        <MudImage Src="@($"uploads/{model.Avatar}?width=200")" Elevation="2" Class="rounded-lg" @onclick="Upload" Style="cursor: pointer;" />
     </div>
-  }
+
+    @if (isEditable)
+    {
+        <MudDivider Class="my-3" />
+        <div class="d-flex justify-center gap-4 ">
+            <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary">Kaydet</MudButton>
+            <MudButton OnClick="Cancel">Iptal</MudButton>
+        </div>
+    }
 </EditForm>
 
 @code {
-  [CascadingParameter] private UserStateProvider? USP { get; set; }
+    [CascadingParameter] private UserStateProvider? USP { get; set; }
 
-  private UT model { get; set; } = new();
-  private bool success { get; set; } = false;
-  private bool isEditable { get; set; } = false;
+    private UT model { get; set; } = new();
+    private bool success { get; set; } = false;
+    private bool isEditable { get; set; } = false;
 
-  private string? newAvatar;
-  private bool imgChanged = false;
+    private string? newAvatar;
+    private bool imgChanged = false;
 
-  public PatternMask TelMask = new PatternMask("(###) ### ## ##")
+    public PatternMask TelMask = new PatternMask("(###) ### ## ##")
+        {
+            MaskChars = new[] { new MaskChar('#', @"[0-9]") },
+            Placeholder = '_',
+            CleanDelimiters = false,
+        };
+
+    private async Task Upload()
     {
-      MaskChars = new[] { new MaskChar('#', @"[0-9]") },
-      Placeholder = '_',
-      CleanDelimiters = false,
-    };
+        newAvatar = $"UA{USP.UsrId}-{DateTime.Now.ToString("yyMMddHHmmss")}";
+        var parameters = new DialogParameters();
+        parameters.Add("FileName", newAvatar);
+        var dialog = DialogService.Show<UploadDialog>("Resim Yükle", parameters);
+        var result = await dialog.Result;
 
-  private async Task Upload()
-  {
-    newAvatar = $"UA{USP.UsrId}-{DateTime.Now.ToString("yyMMddHHmmss")}";
-    var parameters = new DialogParameters();
-    parameters.Add("FileName", newAvatar);
-    var dialog = DialogService.Show<UploadDialog>("Resim Yükle", parameters);
-    var result = await dialog.Result;
-
-    if (!result.Cancelled)
-    {
-      imgChanged = true;
-      newAvatar = result.Data.ToString(); // file uzantisiyla geliyor
-    }
-  }
-
-  private async Task Upload2()
-  {
-    // file name degismedigi icin Browser file iceriginin degistigini anlamaiyor
-    // Bu yuzden file ismini degistirerek kaydet (disk ve db)
-    // Ama birden fazla defa upload yaparsa Disk de ayni kisiye ait birden cok img oluyor
-    // Kullanilanin disindakileri silmek gerek.
-    // Upload edip, kayit da yapmiyabilir.
-
-    // oldFileName : model.ImgUrl
-    // newFileName : derived
-    //
-
-    //File.Delete($"{env.WebRootPath}\\uploads\\{model.ImgUrl}");
-    //File.Delete($"{env.WebRootPath}\\uploads\\UA3-*.*");
-    var dir = new DirectoryInfo($"{env.WebRootPath}\\uploads\\");
-    foreach (var file in dir.EnumerateFiles($"UA{USP.UsrId}-*.*"))
-    {
-
-      file.Delete();
+        if (!result.Cancelled)
+        {
+            imgChanged = true;
+            newAvatar = result.Data.ToString(); // file uzantisiyla geliyor
+        }
     }
 
-    var parameters = new DialogParameters();
-    parameters.Add("FileName", $"UA{USP.UsrId}-{DateTime.Now.ToString("yyMMddHHmmssfff")}");
-
-    var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
-
-    var dialog = DialogService.Show<UploadDialog>("Resim Yükle", parameters, options);
-    var result = await dialog.Result;
-
-    if (!result.Cancelled)
+    private async Task Upload2()
     {
-      model.Avatar = result.Data.ToString();
-    }
-  }
+        // file name degismedigi icin Browser file iceriginin degistigini anlamaiyor
+        // Bu yuzden file ismini degistirerek kaydet (disk ve db)
+        // Ama birden fazla defa upload yaparsa Disk de ayni kisiye ait birden cok img oluyor
+        // Kullanilanin disindakileri silmek gerek.
+        // Upload edip, kayit da yapmiyabilir.
 
-  public override async Task SetParametersAsync(ParameterView parameters)
-  {
-    if (parameters.TryGetValue<UserStateProvider>(nameof(USP), out var value))
-    {
-      if (value is null || value.UsrTyp != "2")
-        NavigationManager.NavigateTo("");
-      else
-        await base.SetParametersAsync(parameters);  //Diger LifeCyle metodlarini cagiriyor
-    }
-  }
+        // oldFileName : model.ImgUrl
+        // newFileName : derived
+        //
 
-  protected override async Task OnInitializedAsync()
-  {
-    isEditable = true;
-    await ReadRec();
-  }
+        //File.Delete($"{env.WebRootPath}\\uploads\\{model.ImgUrl}");
+        //File.Delete($"{env.WebRootPath}\\uploads\\UA3-*.*");
+        var dir = new DirectoryInfo($"{env.WebRootPath}\\uploads\\");
+        foreach (var file in dir.EnumerateFiles($"UA{USP.UsrId}-*.*"))
+        {
 
-  private async Task ReadRec()
-  {
-    string sql = $"select * from UT where UTid = @UTid";
-    model = await db.LoadRec<UT, dynamic>(sql, new { UTid = USP.UsrId });
-  }
+            file.Delete();
+        }
 
-  private async Task OnValidSubmit(EditContext context)
-  {
-    success = true;
-    StateHasChanged();
+        var parameters = new DialogParameters();
+        parameters.Add("FileName", $"UA{USP.UsrId}-{DateTime.Now.ToString("yyMMddHHmmssfff")}");
 
-    // Degisiklik omasa bile bir alana focus ediyorsa Modified sayiyor
-    // Faydasi yok
-    //var aaa = context.IsModified();
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
 
-    if (imgChanged)
-    {
-      if (model.Avatar != "default-avatar.jpg")
-        File.Delete($"{env.WebRootPath}\\uploads\\{model.Avatar}");
-      model.Avatar = newAvatar;
-      imgChanged = false;
+        var dialog = DialogService.Show<UploadDialog>("Resim Yükle", parameters, options);
+        var result = await dialog.Result;
+
+        if (!result.Cancelled)
+        {
+            model.Avatar = result.Data.ToString();
+        }
     }
 
-    string sql = "UT_MDF(@UTid, @Name, @MailAdr, @Tel, @Avatar, @Lbls, @Info)";
-    var rtrn = await db.StoreProcAsync<UT, UT>(sql, model);
+    public override async Task SetParametersAsync(ParameterView parameters)
+    {
+        if (parameters.TryGetValue<UserStateProvider>(nameof(USP), out var value))
+        {
+            if (value is null || value.UsrTyp != "2")
+                NavigationManager.NavigateTo("");
+            else
+                await base.SetParametersAsync(parameters);  //Diger LifeCyle metodlarini cagiriyor
+        }
+    }
 
-    Snackbar.Add("Kayıt yapıldı.", Severity.Success);
-  }
+    protected override async Task OnInitializedAsync()
+    {
+        isEditable = true;
+        await ReadRec();
+    }
 
-  private async Task Cancel()
-  {
-    if (imgChanged)
-      File.Delete($"{env.WebRootPath}\\uploads\\{newAvatar}");
-    
-    await ReadRec();
-    Snackbar.Add("İşlem iptal edildi", Severity.Warning);
-  }
+    private async Task ReadRec()
+    {
+        string sql = $"select * from UT where UTid = @UTid";
+        model = await db.LoadRecAsync<UT, dynamic>(sql, new { UTid = USP.UsrId });
+    }
 
-  private sealed class UT
-  {
-    public int UTid { get; set; }
+    private async Task OnValidSubmit(EditContext context)
+    {
+        success = true;
+        StateHasChanged();
 
-    [Required(ErrorMessage = "Bu alan zorunludur")]
-    [StringLength(40, ErrorMessage = "Max 40", MinimumLength = 10)]
-    public string? Name { get; set; }
+        // Degisiklik omasa bile bir alana focus ediyorsa Modified sayiyor
+        // Faydasi yok
+        //var aaa = context.IsModified();
 
-    [Required(ErrorMessage = "Bu alan zorunludur")]
-    [EmailAddress(ErrorMessage = "Hata")]
-    [StringLength(40, ErrorMessage = "Max 40", MinimumLength = 10)]
-    public string? MailAdr { get; set; }
+        if (imgChanged)
+        {
+            if (model.Avatar != "default-avatar.jpg")
+                File.Delete($"{env.WebRootPath}\\uploads\\{model.Avatar}");
+            model.Avatar = newAvatar;
+            imgChanged = false;
+        }
 
-    public string? Tel { get; set; }
-    public string? Avatar { get; set; }
+        string sql = "UT_MDF(@UTid, @Name, @MailAdr, @Tel, @Avatar, @Lbls, @Info)";
+        var rtrn = await db.StoreProcAsync<UT, UT>(sql, model);
 
-    public string? Info { get; set; }
-    public string? Lbls { get; set; }
-  }
+        UsrHub.RefreshUsr(model.UTid);
+
+        Snackbar.Add("Kayıt yapıldı.", Severity.Success);
+    }
+
+    private async Task Cancel()
+    {
+        if (imgChanged)
+            File.Delete($"{env.WebRootPath}\\uploads\\{newAvatar}");
+
+        await ReadRec();
+        Snackbar.Add("İşlem iptal edildi", Severity.Warning);
+    }
+
+    private sealed class UT
+    {
+        public int UTid { get; set; }
+
+        [Required(ErrorMessage = "Bu alan zorunludur")]
+        [StringLength(40, ErrorMessage = "Max 40", MinimumLength = 10)]
+        public string? Name { get; set; }
+
+        [Required(ErrorMessage = "Bu alan zorunludur")]
+        [EmailAddress(ErrorMessage = "Hata")]
+        [StringLength(40, ErrorMessage = "Max 40", MinimumLength = 10)]
+        public string? MailAdr { get; set; }
+
+        public string? Tel { get; set; }
+        public string? Avatar { get; set; }
+
+        public string? Info { get; set; }
+        public string? Lbls { get; set; }
+    }
 
 
 }
