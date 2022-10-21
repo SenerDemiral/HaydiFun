@@ -33,6 +33,7 @@
     table, th, td {
         border: 1px solid burlywood;
         border-collapse: collapse;
+        padding: 0 4px;
     }
 </style>
 
@@ -57,7 +58,7 @@
                 <col>
                 <col>
                 <col>
-                <col style="width:100px">
+                <col style="width:50px">
                 <col>
                 <col>
             </colgroup>
@@ -75,6 +76,8 @@
                 @{
                     int NOU = 0;
                     int NOC = 0;
+                    char Online = '✅'; // (char)0x2705;
+                    string aa = "📞☎✅";
                 }
                 @foreach (var kv in UsrHub.UsrD)
                 {
@@ -101,44 +104,30 @@
                             'E' => (char)0x26D4, //'✘', //(char)0x2718,
                         };
                     }
+                    Online = ' ';
+                    if (UsrHub.UsrD[kv.Key].isOnline)
+                        Online = (char)0x2705;
 
-                    @*if (kv.Value.FanD.ContainsKey(USP.UsrId))
-            {
-            //ToTkpStu = kv.Value.FanD[USP.UsrId];
-            ToTkpStu = kv.Value.FanD[USP.UsrId] switch
-            {
-            'T' => '✓',
-            'E' => (char)0x26D4, //'✘', //(char)0x2718,
-            };
-            }*@
-                    @*if (UsrHub.UsrD[USP.UsrId].FanD.ContainsKey(kv.Key))
-            {
-            //FrTkpStu = UsrHub.UsrD[USP.UsrId].FanD[kv.Key];
-            FrTkpStu = UsrHub.UsrD[USP.UsrId].FanD[kv.Key] switch
-            {
-            'T' => '✓',
-            'E' => (char)0x26D4,
-            };
-            }*@
                     <tr @key="kv.Key">
-                        <td>@kv.Value.Usr</td>
+                        <td><b>@kv.Value.Usr @Online</b></td>
                         <td class="tac">@kv.Value.Cnt</td>
                         <td>@kv.Value.EXD</td>
-                        <td><img src="@kv.Value.ImgUrl" style="display:block" /></td>
-                        <td class="tac" style="font-size:x-large">@Takipcim</td>
-                        <td class="tac" style="font-size:x-large">@Izliyorum</td>
+                        <td class="px-0"><img src="@kv.Value.ImgUrl" style="display:block" /></td>
+                        <td class="tac" style="font-weight:bold">@Takipcim</td>
+                        <td class="tac" style="font-weight:bold">@Izliyorum</td>
                     </tr>
-                    <tr>
+                    <tr style="background-color: beige">
                         <td colspan="9">@kv.Value.LblAds</td>
                     </tr>
                     NOU++;
                     NOC += kv.Value.Cnt;
                 }
             </tbody>
-            <tfoot>
+            <tfoot style="background-color: burlywood;">
                 <tr>
                     <td class="tac">@NOU</td>
                     <td class="tac">@NOC</td>
+                    <td colspan="9"></td>
                 </tr>
             </tfoot>
         </table>

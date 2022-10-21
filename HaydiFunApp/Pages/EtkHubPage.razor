@@ -50,59 +50,68 @@
     }
 
 </div>*@
-<div style="margin:auto; width: fit-content;">
-    <table>
-        <caption style="background-color: burlywood;">Etkinliklerim</caption>
-        <colgroup>
-            <col>
-            <col>
-            <col>
-            <col>
-            <col>
-        </colgroup>
-        <thead>
-            <tr>
-                <th class="tal">ID</th>
-                <th>Typ</th>
-                <th>Owner</th>
-                <th>Avatar</th>
-                <th>Info</th>
-                <th>Stu</th>
-            </tr>
-        </thead>
-        <tbody>
-            @{
-                int NOU = 0;
-            }
-            @foreach (var kv in EtkHub.EtkD)
-            {
-                char MbrStu = '?';
-                var val = kv.Value;
-                //var aaa = UsrHub.UsrD.ContainsKey(val.OwnId)
-                string OwnUsr = UsrHub.UsrD.ContainsKey(val.OwnId) ? UsrHub.UsrD[val.OwnId].Usr : "!";
-                if (kv.Value.MbrD.ContainsKey(USP.UsrId))
-                {
-                    MbrStu = val.MbrD[USP.UsrId];
-
-                    <tr @key="kv.Key">
-                        <td>@val.ETid</td>
-                        <td class="tac">@val.TypAd</td>
-                        <td>@OwnUsr</td>
-                        <td style="padding:0"><img src="@UsrHub.UsrD[val.OwnId].ImgUrl" style="display:block" /></td>
-                        <td>@val.Info</td>
-                        <td class="tac">@MbrStu</td>
-                    </tr>
-                    NOU++;
+@if (USP.UsrId != 0)
+{
+    <div style="margin:auto; width: fit-content;">
+        <table>
+            <caption style="background-color: burlywood;">Etkinliklerim</caption>
+            <colgroup>
+                <col>
+                <col>
+                <col>
+                <col style="width:50px">
+                <col>
+            </colgroup>
+            <thead>
+                <tr>
+                    <th class="tal">ID</th>
+                    <th>Typ</th>
+                    <th>Owner</th>
+                    <th>Avtr</th>
+                    <th>Stu</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    int NOU = 0;
+                    char Online = ' ';
                 }
-            }
-        </tbody>
-        <tfoot>
-            <tr>
-                <td class="tac">@NOU</td>
-            </tr>
-        </tfoot>
-    </table>
-</div>
+                @foreach (var kv in EtkHub.EtkD)
+                {
+                    Online = ' ';
+                    if (UsrHub.UsrD[kv.Value.OwnId].isOnline)
+                        Online = (char)0x2705;
+                    char MbrStu = '?';
+                    var val = kv.Value;
+                    //var aaa = UsrHub.UsrD.ContainsKey(val.OwnId)
+                    string OwnUsr = UsrHub.UsrD.ContainsKey(val.OwnId) ? UsrHub.UsrD[val.OwnId].Usr : "!";
+                    if (kv.Value.MbrD.ContainsKey(USP.UsrId))
+                    {
+                        MbrStu = val.MbrD[USP.UsrId];
+
+                        <tr @key="kv.Key">
+                            <td>@val.ETid</td>
+                            <td class="tac">@val.TypAd</td>
+                            <td>@OwnUsr @Online</td>
+                            <td class="px-0"><img src="@UsrHub.UsrD[val.OwnId].ImgUrl" style="display:block" /></td>
+                            <td class="tac">@MbrStu</td>
+                        </tr>
+                        <tr style="background-color: beige">
+                            <td colspan="9">@kv.Value.Info</td>
+                        </tr>
+                        NOU++;
+                    }
+                }
+            </tbody>
+            <tfoot style="background-color: burlywood;">
+                <tr>
+                    <td class="tac">@NOU</td>
+                    <td colspan="9"></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+}
 @code {
     [CascadingParameter] private UserStateProvider? USP { get; set; }
 
