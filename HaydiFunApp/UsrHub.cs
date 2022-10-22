@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using static HaydiFunApp.EtkHub;
+using static HaydiFunApp.UsrHub;
 using static MudBlazor.CategoryTypes;
 
 namespace HaydiFunApp;
@@ -52,8 +53,9 @@ public sealed class UsrHub
         //EtkD[etId] = mdl2;
     }
 
-    public void RefreshUsr(int utId)
+    public void RefreshUsr(int utId, int cnt = 0)
     {
+        int NOU;
         var itm = db.StoreProc<UsrMdl, dynamic>("UT_GET(@iUTid)", new { iUTid = utId });
 
         if (UsrD.ContainsKey(utId))
@@ -63,7 +65,14 @@ public sealed class UsrHub
             UsrD[utId].Avatar = itm.Avatar;
             UsrD[utId].Lbls = itm.Lbls;
             UsrD[utId].LblAds = itm.LblAds;
+            if(cnt > 0)
+            {
+                UsrD[utId].Cnt = cnt;
+            }
             Constants.StringToDictionary(itm.Fans, UsrD[utId].FanD);
+
+            NOU = UsrD.Count(x => x.Value.isOnline);
+            pubs.RaiseDynEvent(key: Constants.UsrCntChange, new { UsrId = utId, Ops = "M", NOU = NOU });
         }
         else
         {
@@ -76,11 +85,11 @@ public sealed class UsrHub
                 LblAds = itm.LblAds,
             };
             Constants.StringToDictionary(itm.Fans, m.FanD);
-
             UsrD.TryAdd(itm.UTid, m);
+
+            NOU = UsrD.Count(x => x.Value.isOnline);
+            pubs.RaiseDynEvent(key: Constants.UsrCntChange, new { UsrId = utId, Ops = "I", NOU = NOU });
         }
-        int NOU = UsrD.Count(x => x.Value.isOnline);
-        pubs.RaiseDynEvent(key: Constants.UsrCntChange, new { NOU = NOU, Sbj = $"#of Online Users : {NOU}" });
     }
     public void UsrAdd(int usrId, string usr, string avatar)
     {
@@ -127,21 +136,18 @@ public sealed class UsrHub
     }
     public void UsrEnter(int usrId)
     {
-        if (!UsrD.ContainsKey(usrId))
+        if (UsrD.ContainsKey(usrId))
         {
-            // Read User from db
-            UsrMdl? u = new();
-            u.Cnt++;
-            UsrD[usrId] = u;
+            UsrD[usrId].Cnt++;
+            
+            var NOU = UsrD.Count(x => x.Value.isOnline);
+            pubs.RaiseDynEvent(key: Constants.UsrCntChange, new { UsrId = usrId, Ops = "E", NOU = NOU });
         }
         else
         {
-            UsrD[usrId].Cnt++;
+            // Read User from db
+            RefreshUsr(usrId, 1);
         }
-
-        var NOU = UsrD.Where(x => x.Value.isOnline).Count();
-        pubs.RaiseDynEvent(key: Constants.UsrCntChange, new { NOU = NOU });
-
     }
 
     public void UsrExit(int usrId)
@@ -151,8 +157,8 @@ public sealed class UsrHub
         {
             UsrD[usrId].Cnt--;
 
-            var NOU = UsrD.Where(x => x.Value.isOnline).Count();
-            pubs.RaiseDynEvent(key: Constants.UsrCntChange, new { NOU = NOU });
+            var NOU = UsrD.Count(x => x.Value.isOnline);
+            pubs.RaiseDynEvent(key: Constants.UsrCntChange, new { UsrId = usrId, Ops = "X", NOU = NOU });
         }
     }
     public void UsrModifed(int usrId)

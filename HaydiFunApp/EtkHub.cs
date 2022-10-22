@@ -138,6 +138,7 @@ public class EtkHub
                 LAD = itm.LAD,
                 Info = itm.Info,
                 Lbls = itm.Lbls,
+                LblAds = itm.LblAds,
             };
             Constants.StringToDictionary(itm.Mbrs, em.MbrD);
 
@@ -162,6 +163,7 @@ public class EtkHub
                 LAD = itm.LAD,
                 Info = itm.Info,
                 Lbls = itm.Lbls,
+                LblAds = itm.LblAds,
                 //MbrD = AAA(itm.Mbrs)
             };
             Constants.StringToDictionary(itm.Mbrs, em.MbrD);
@@ -231,14 +233,16 @@ public class EtkHub
         public DateTime? EXD;
         public DateTime? LAD;
         public string? Info;
-        public string Mbrs;
         public string? Lbls;
+        public string? LblAds;
+        public string Mbrs;
 
         public Dictionary<int, char> MbrD = new();
         public int UsrId;
         public char UsrStu;
         public bool isOwnr;
 
+        // Unicode G yesil / Ozel kirmizi birsey bul
         public string TypAd => Typ switch
         {
             'G' => "Gnl",
