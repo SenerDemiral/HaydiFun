@@ -49,6 +49,15 @@
     }
 
 </div>*@
+
+<label>
+    <label for="isOnline">Online olanlar</label>
+    <input type="checkbox" @bind="isOnline" name="isOnline" />
+    Normal Blazor binding:
+    <input @bind="SrchValue" />
+</label>
+<button @onclick="Srch">Search</button>
+
 @if (USP.UsrId != 0)
 {
     <div style="margin:auto; width: fit-content;">
@@ -79,12 +88,16 @@
                     char Online = '✅'; // (char)0x2705;
                     string aa = "📞☎✅";
                 }
-                @foreach (var kv in UsrHub.UsrD)
+                @foreach (var itm in UsrL)
+                //@foreach (var kv in UsrHub.UsrD)
                 {
+                    //var kv = UsrHub.UsrD[itm.Key];
                     var meId = USP.UsrId;
                     var me = UsrHub.UsrD[meId];
-                    var usrId = kv.Key;
-                    var usr = kv.Value;
+                    //var usrId = kv.Key;
+                    var usrId = itm;
+                    // var usr = kv.Value;
+                    var usr = UsrHub.UsrD[itm];
 
                     char Takipcim = ' ';
                     char Izliyorum = ' ';
@@ -98,7 +111,7 @@
                         Takipcim = tv switch
                         {
                             'T' => '✓',
-                            'E' => '⛔', //(char)0x26D4, //'✘', //(char)0x2718,
+                            'E' => '⛔', //(char)0x26D4, '✘'(char)0x2718,
                         };
                     }
                     if (me.FanD.TryGetValue(usrId, out char fv))
@@ -106,14 +119,14 @@
                         Izliyorum = fv switch
                         {
                             'T' => '✓',
-                            'E' => (char)0x26D4, //'✘', //(char)0x2718,
+                            'E' => '⛔'
                         };
                     }
                     Online = ' ';
                     if (usr.isOnline)
                         Online = (char)0x2705;
 
-                    <tr @key="usrId">
+                    <tr>
                         <td><b>@usr.Usr @Online</b></td>
                         <td class="tac">@usr.Cnt.ToString("#")</td>
                         <td>@usr.EXD</td>
@@ -138,8 +151,52 @@
         </table>
     </div>
 }
+
+
 @code {
     [CascadingParameter] private UserStateProvider? USP { get; set; }
+    string SrchValue = "1,9";
+    bool isOnline;
+    Dictionary<int, string[]> Usrs = new();
+
+    List<int> UsrL = new List<int>();
+
+    public void Srch()
+    {
+        HashSet<int> shs = new();
+        Constants.StringToHashSet(SrchValue, shs);
+
+        UsrL.Clear();
+        foreach (var itm in UsrHub.UsrD.Values)
+        {
+            if(!isOnline || itm.isOnline)
+                if (shs.Count == 0 || shs.IsProperSubsetOf(itm.LblH))
+                    UsrL.Add(itm.UTid);
+        }
+    }
+
+    public void Srch2()
+    {
+        //Usrs = UsrHub.UsrD.Values.Contains(x=> x.Lbls.Contains("6,")). 
+        Usrs.Clear();
+        foreach (var itm in UsrHub.UsrD.Values)
+        {
+            // if online Lbls += ",O";
+            var oll = itm.Cnt > 0 ? ",O" : "";
+            var lbls = itm.Lbls + oll;
+            Usrs.Add(itm.UTid, lbls.Split(',', StringSplitOptions.RemoveEmptyEntries));
+        }
+        foreach (var s in SrchValue.Split(',', StringSplitOptions.RemoveEmptyEntries))
+        {
+            foreach (var i in Usrs)
+            {
+                if (!i.Value.Contains(s))
+                    Usrs.Remove(i.Key);
+            }
+        }
+
+        //UsrIds = UsrHub.UsrD.Values.Where(x => x.Lbls.Contains(SrchValue)).Select(x=> x.UTid).ToList();
+    }
 
     public override async Task SetParametersAsync(ParameterView parameters)
     {
@@ -151,6 +208,21 @@
         //    await base.SetParametersAsync(parameters);  //Diger LifeCyle metodlarini cagiriyor
         //}
         await base.SetParametersAsync(parameters);  //Diger LifeCyle metodlarini cagiriyor
+    }
+    protected override void OnParametersSet()
+    {
+        UsrL.Clear();
+        foreach (var itm in UsrHub.UsrD.Values)
+        {
+            UsrL.Add(itm.UTid);
+        }
+
+        Usrs.Clear();
+        foreach (var itm in UsrHub.UsrD.Values)
+        {
+            Usrs.Add(itm.UTid, itm.Lbls.Split(',', StringSplitOptions.RemoveEmptyEntries));
+
+        }
     }
 
     protected override void OnInitialized()

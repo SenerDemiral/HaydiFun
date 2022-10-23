@@ -4,13 +4,13 @@
 <h3>TagSeachDialog</h3>
 <style>
     .sener p::first-letter {
-        font-weight:bold;
+        font-weight: bold;
     }
 </style>
 <MudPaper>
     <MudList Clickable="true" Dense="true">
         <MudListSubheader DisableGutters="false">
-            <MudRadioGroup @bind-SelectedOption="@SelectedOption">
+            <MudRadioGroup @bind-SelectedOption="@AndSelected">
                 <MudRadio Option="true" Color="Color.Primary" Dense="true">Bunların Hepsi</MudRadio>
                 <MudRadio Option="false" Color="Color.Secondary" Dense="true">Bunlardan Biri</MudRadio>
             </MudRadioGroup>
@@ -62,9 +62,12 @@
 
 
 @code {
+    HashSet<int> aH = new();
+    HashSet<int> oH = new();
+
     List<LT> asLbls = new();    // AND search
     List<LT> osLbls = new();    // OR  search
-    public bool SelectedOption { get; set; } = true;    //Hepsi
+    public bool AndSelected { get; set; } = true;    //Hepsi
     public bool expanded;
 
     Dictionary<int, LG> Grps = new();
@@ -101,22 +104,45 @@
 
     private void OnClick(LT lbl)
     {
+        // Disabled olanlar buraya zaten gelmez
         var gId = lbl.LGid;
 
-        if (!Grps[gId].isMny)
+        if (!Grps[gId].isMny)   // Single
         {
-            if (Lbls.Find((x) => x.LGid == gId && x.isDisabled) is not null)
-                return;
+            if (AndSelected)
+            {
+                // Zaten varsa cik
+                if (asLbls.Count((x) => x.LGid == gId) > 0)
+                    return;
+
+                // or dakileri sil, Lbls.isDisable lari false yap
+                var bb = osLbls.FindAll(x => x.LGid == gId);
+                if (bb.Count() > 0)
+                {
+                    foreach (var b in bb)
+                        osLbls.Remove(b);
+                    foreach (var c in Lbls.FindAll(x => x.LGid == gId))
+                        c.isDisabled = false;
+                }
+            }
+            else // Or selected
+            {
+                // Bu grupdaki biri a da varsa yapma
+                if (asLbls.Count(x => x.LGid == gId) > 0)
+                {
+                    return;
+                }
+            }
         }
 
         LT nTag = lbl with { isDisabled = false };
-        if (SelectedOption) // Hepsi andTag
+        if (AndSelected) // Hepsi
         {
             asLbls.Add(nTag);
             asLbls = asLbls.OrderBy(x => x.LGid).ToList();
         }
-        else
-        {               // Biri orTag
+        else // Biri
+        {
             osLbls.Add(nTag);
             osLbls = osLbls.OrderBy(x => x.LGid).ToList();
         }
@@ -167,7 +193,7 @@
         public bool isExpanded { get; set; }
         public string? NN
         {
-            get => Name?.Substring(0,1);
+            get => Name?.Substring(0, 1);
             set { }
         }
     }

@@ -41,6 +41,7 @@ public sealed class UsrHub
                 //MbrD = AAA(itm.Mbrs)
             };
             Constants.StringToDictionary(itm.Fans, m.FanD);
+            Constants.StringToHashSet(itm.Lbls, m.LblH);
 
             UsrD.TryAdd(itm.UTid, m);
 
@@ -186,6 +187,7 @@ public sealed class UsrHub
 
         public bool isOnline => Cnt == 0 ? false : true;
         public Dictionary<int, char> FanD = new();
+        public HashSet<int> LblH = new();
 
     }
 }

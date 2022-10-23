@@ -22,12 +22,23 @@ public static class Constants
         char c;
         int i;
         dst.Clear();    // 
-        string[] sa = str.Split(",", StringSplitOptions.RemoveEmptyEntries);
-        foreach (var m in sa)
+        foreach (var m in str.Split(",", StringSplitOptions.RemoveEmptyEntries))
         {
             c = m[0];
             i = Int32.Parse(m.Substring(1));
             dst[i] = c;
         }
+    }
+
+    public static void StringToHashSet(string str, HashSet<int> dst)
+    {
+        dst.Clear();
+        int i;
+        foreach (var m in str.Split(",", StringSplitOptions.RemoveEmptyEntries))
+        {
+            i = Int32.Parse(m);
+            dst.Add(i);
+        }
+
     }
 }
