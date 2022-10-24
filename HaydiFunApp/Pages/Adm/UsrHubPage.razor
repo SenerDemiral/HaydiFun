@@ -85,8 +85,8 @@
                 @{
                     int NOU = 0;
                     int NOC = 0;
-                    char Online = '✅'; // (char)0x2705;
-                    string aa = "📞☎✅";
+                    char Online;// = '✅'; // (char)0x2705;
+                                        //string aa = "📞☎✅";
                 }
                 @foreach (var itm in UsrL)
                 //@foreach (var kv in UsrHub.UsrD)
@@ -122,9 +122,7 @@
                             'E' => '⛔'
                         };
                     }
-                    Online = ' ';
-                    if (usr.isOnline)
-                        Online = (char)0x2705;
+                    Online = usr.isOnline ? '✅' : ' ';
 
                     <tr>
                         <td><b>@usr.Usr @Online</b></td>
@@ -155,9 +153,8 @@
 
 @code {
     [CascadingParameter] private UserStateProvider? USP { get; set; }
-    string SrchValue = "1,9";
-    bool isOnline;
-    Dictionary<int, string[]> Usrs = new();
+    string SrchValue = "";
+    bool isOnline = true;
 
     List<int> UsrL = new List<int>();
 
@@ -169,33 +166,12 @@
         UsrL.Clear();
         foreach (var itm in UsrHub.UsrD.Values)
         {
-            if(!isOnline || itm.isOnline)
+            if (!isOnline || itm.isOnline)
+            {
                 if (shs.Count == 0 || shs.IsProperSubsetOf(itm.LblH))
                     UsrL.Add(itm.UTid);
-        }
-    }
-
-    public void Srch2()
-    {
-        //Usrs = UsrHub.UsrD.Values.Contains(x=> x.Lbls.Contains("6,")). 
-        Usrs.Clear();
-        foreach (var itm in UsrHub.UsrD.Values)
-        {
-            // if online Lbls += ",O";
-            var oll = itm.Cnt > 0 ? ",O" : "";
-            var lbls = itm.Lbls + oll;
-            Usrs.Add(itm.UTid, lbls.Split(',', StringSplitOptions.RemoveEmptyEntries));
-        }
-        foreach (var s in SrchValue.Split(',', StringSplitOptions.RemoveEmptyEntries))
-        {
-            foreach (var i in Usrs)
-            {
-                if (!i.Value.Contains(s))
-                    Usrs.Remove(i.Key);
             }
         }
-
-        //UsrIds = UsrHub.UsrD.Values.Where(x => x.Lbls.Contains(SrchValue)).Select(x=> x.UTid).ToList();
     }
 
     public override async Task SetParametersAsync(ParameterView parameters)
@@ -211,38 +187,27 @@
     }
     protected override void OnParametersSet()
     {
-        UsrL.Clear();
-        foreach (var itm in UsrHub.UsrD.Values)
-        {
-            UsrL.Add(itm.UTid);
-        }
-
-        Usrs.Clear();
-        foreach (var itm in UsrHub.UsrD.Values)
-        {
-            Usrs.Add(itm.UTid, itm.Lbls.Split(',', StringSplitOptions.RemoveEmptyEntries));
-
-        }
+        Srch();
     }
 
     protected override void OnInitialized()
     {
-        //pubs.UsrChanged += OnUsrChanged;
-
-        pubs.AddDynEvent(Constants.UsrCntChange, UsrCntChange);
-
+        // Subscribe olmaya gerek yok.
+        // UsrHub.UsrD degistiginde USP(parent) degistigi icin burayi StateHasChanged yapiyor
+        // (StateHasChanged de OnParameterSet cagriliyor)
+        // https://learn.microsoft.com/en-us/aspnet/core/blazor/components/lifecycle?view=aspnetcore-6.0#after-parameters-are-set-onparameterssetasync
+        
+        //pubs.AddDynEvent(Constants.UsrCntChange, UsrCntChange);
     }
 
     public void UsrCntChange(dynamic d)
     {
-        InvokeAsync(StateHasChanged);
+        //InvokeAsync(StateHasChanged);
     }
 
     public void Dispose()
     {
-        //pubs.UsrChanged -= UsrCntChange;
-        pubs.RemoveDynEvent(Constants.UsrCntChange, UsrCntChange);
-
+        //pubs.RemoveDynEvent(Constants.UsrCntChange, UsrCntChange);
     }
 
 }

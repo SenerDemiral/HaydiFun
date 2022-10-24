@@ -171,12 +171,6 @@ public class EtkHub
             EtkD.TryAdd(itm.ETid, em);
 
         }
-        //StringToDictionary(itm.Mbrs, EtkD[etId].MbrD);
-        //if (EtkD.ContainsKey(etId))
-        //{
-
-        //}
-        //EtkD[etId] = mdl2;
     }
 
     // Update/Insert member
@@ -190,23 +184,22 @@ public class EtkHub
 
     public List<EtkMdl> GetUsrEtks(int mbr)
     {
+        // Memberi oldugu veya Genel Davetleri (Katilmak isteyebilir) gorecek
         // mbr.Stu ne olursa User gorecek?
         var bbb = EtkD
-            .Where(x => x.Value.MbrD.ContainsKey(mbr))
+            .Where(x => x.Value.Typ == 'G' || x.Value.MbrD.ContainsKey(mbr))
             .Select(x => x.Value)
-            .OrderByDescending(x => x.EXD)
+            .OrderByDescending(x => x.LAD)
             .ToList();
 
-        //foreach(var itm in bbb)
-        //{
-        //    itm.UTid = mbr;
-        //    itm.UsrStu = itm.MbrD[mbr];
-        //    if (itm.OwnId == mbr)
-        //    {
-        //        itm.isOwnr = true;
-        //    }
-        //}
-
+        // Katilmak isteyecegi Genel etkinliklere yoksa member olarak ekle
+        foreach(var v in bbb)
+        {
+            if (!v.MbrD.ContainsKey(mbr))
+            {
+                v.MbrD.Add(mbr, '!');
+            }
+        }
         return bbb;
     }
 
@@ -230,6 +223,7 @@ public class EtkHub
         public int OwnId;
         public string? OwnUsr;
         public char Typ;
+        //public char Aktif;
         public DateTime? EXD;
         public DateTime? LAD;
         public string? Info;
@@ -242,12 +236,13 @@ public class EtkHub
         public char UsrStu;
         public bool isOwnr;
 
+        //public bool isAktif => Aktif == 'E' ? true : false;
         // Unicode G yesil / Ozel kirmizi birsey bul
         public string TypAd => Typ switch
         {
             'G' => "Gnl",
             'O' => "Özl",
-            _ => "???"
+            _ => "???" 
         };
     }
 
