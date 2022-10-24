@@ -197,7 +197,7 @@
         // (StateHasChanged de OnParameterSet cagriliyor)
         // https://learn.microsoft.com/en-us/aspnet/core/blazor/components/lifecycle?view=aspnetcore-6.0#after-parameters-are-set-onparameterssetasync
         
-        //pubs.AddDynEvent(Constants.UsrCntChange, UsrCntChange);
+        //pubs.Subscribe(Constants.UsrChange, UsrChange);
     }
 
     public void UsrCntChange(dynamic d)
@@ -207,7 +207,7 @@
 
     public void Dispose()
     {
-        //pubs.RemoveDynEvent(Constants.UsrCntChange, UsrCntChange);
+        //pubs.UnSubscribe(Constants.UsrChange, UsrChange);
     }
 
 }

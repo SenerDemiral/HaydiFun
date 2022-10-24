@@ -52,7 +52,7 @@ else
         }
         finally
         {
-            pubs.AddDynEvent(Constants.UsrCntChange, UsrCntChange);
+            pubs.Subscribe(Constants.UsrChange, UsrCntChange);
 
             NOU = UsrHub.UsrCnt();
 
@@ -72,7 +72,7 @@ else
                     UsrHub.UsrEnter(UsrId);
                     //GoHome(); Ozellikle yok
 
-                    pubs.AddDynEvent($"UT:{UsrId}", UsrPostBox);
+                    pubs.Subscribe($"UT:{UsrId}", UsrPostBox);
                 }
             }
             isLoaded = true;
@@ -93,7 +93,7 @@ else
     {
         UsrHub.UsrExit(UsrId);
 
-        pubs.RemoveDynEvent($"UT:{UsrId}", UsrPostBox);
+        pubs.UnSubscribe($"UT:{UsrId}", UsrPostBox);
 
 
         db.StoreProc<dynamic, dynamic>("Usr_Logout(@UTid)", new { UTid = UsrId });
@@ -117,7 +117,7 @@ else
         await PLS.SetAsync(Constants.BrowserUsrIdKey, UsrId);
         //OnUsrChanged();
 
-        pubs.AddDynEvent($"UT:{UsrId}", UsrPostBox);
+        pubs.Subscribe($"UT:{UsrId}", UsrPostBox);
 
         //UsrHub.UsrAdd(UsrId, Usr, UsrAvatar);
         UsrHub.UsrEnter(UsrId);
@@ -128,8 +128,8 @@ else
 
     public void Dispose()
     {
-        pubs.RemoveDynEvent(Constants.UsrCntChange, UsrCntChange);
-        pubs.RemoveDynEvent($"UT:{UsrId}", UsrPostBox);
+        pubs.UnSubscribe(Constants.UsrChange, UsrCntChange);
+        pubs.UnSubscribe($"UT:{UsrId}", UsrPostBox);
 
         UsrHub.UsrExit(UsrId);
     }

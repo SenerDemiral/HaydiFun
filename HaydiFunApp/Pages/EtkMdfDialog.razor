@@ -1,0 +1,104 @@
+﻿@using System.ComponentModel.DataAnnotations
+@inject ISnackbar Snackbar
+@inject IDataAccess db
+@inject EtkHub EtkHub
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">Etkinlik</MudText>
+        <MudDivider />
+    </TitleContent>
+    <DialogContent>
+        <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+            <DataAnnotationsValidator />
+            <MudTextField Label="Açıklama" AutoFocus="true"
+                          HelperText="Açıklama"
+                          @bind-Value="model.Info"
+                          For="@(() => model.Info)" />
+            <MudRadioGroup @bind-SelectedOption="model.isOzl" Style="margin-left:6px">
+                <MudRadio Option="true" Color="Color.Secondary" Dense="true">Özel</MudRadio>
+                <MudRadio Option="false" Color="Color.Success" Dense="true">Genel</MudRadio>
+            </MudRadioGroup>
+            <br />
+            <MudButton ButtonType="ButtonType.Submit"
+                       Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       Class="ml-auto">
+                Kaydet
+            </MudButton>
+
+            <MudButton OnClick="Cancel">İptal</MudButton>
+        </EditForm>
+    </DialogContent>
+    <DialogActions>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private UserStateProvider? USP { get; set; }
+    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+    public bool success { get; set; } = false;
+
+    private RegisterModel model { get; set; } = new();
+    public PatternMask mTelMask = new PatternMask("(###) ### ## ##")
+        {
+            MaskChars = new[] { new MaskChar('#', @"[0-9]") },
+            Placeholder = '_',
+            CleanDelimiters = true,
+        };
+
+    private async Task OnValidSubmit(EditContext context)
+    {
+        success = true;
+        StateHasChanged();
+
+        model.ETid = 0;
+        model.OwnId = USP.UsrId;
+        var rtrn = await db.StoreProcAsync<dynamic, RegisterModel>("ET_MDF(@ETid, @OwnId, @Typ, @Info, @Lbls)", model);
+
+        int rETid = rtrn.RETID;
+        string Msj = rtrn.MSJ;
+        EtkHub.RefreshEtk(rETid);
+
+        //if (rsp == 0)
+        //{
+        //    Snackbar.Add("OK", Severity.Success, config =>
+        //        {
+        //            config.RequireInteraction = true;
+        //            config.ShowCloseIcon = true;
+        //        });
+
+        //    MudDialog?.Close(DialogResult.Ok(true));
+        //}
+        //else
+        //{
+        //    Snackbar.Add("HATA", Severity.Warning);
+        //}
+    }
+
+    private void Cancel()
+    {
+        Snackbar.Add("İşlem iptal edildi", Severity.Warning);
+        MudDialog?.Cancel();
+    }
+
+    private class RegisterModel
+    {
+        public int ETid { get; set; }
+        public int OwnId { get; set; }
+
+        public string Typ { get; set; } = "O";
+
+        public bool isOzl
+        {
+            get { return Typ == "O" ? true : false; }
+            set { Typ = value ? "O" : "G"; }
+        }
+
+        [Required(ErrorMessage = "Bu alan zorunludur")]
+        [StringLength(40, ErrorMessage = "Max 40")]
+        public string? Info { get; set; }
+        public string? Lbls { get; set; }
+
+    }
+}

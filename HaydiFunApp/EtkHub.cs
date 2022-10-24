@@ -144,6 +144,7 @@ public class EtkHub
 
             EtkD.TryAdd(itm.ETid, em);
         }
+        pubs.Publish(Constants.EtkChange, new { ETid = itm.ETid });
     }
 
     public void LoadAllEtk()
@@ -223,7 +224,7 @@ public class EtkHub
         public int OwnId;
         public string? OwnUsr;
         public char Typ;
-        //public char Aktif;
+        //public char Aktf;
         public DateTime? EXD;
         public DateTime? LAD;
         public string? Info;

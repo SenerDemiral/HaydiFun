@@ -17,8 +17,8 @@ public interface IPubs
   public event EventHandler<ChatEventArgs>? ChatChanged;
   public void ChatRaise(int grp);
 
-  public void AddDynEvent(string key, Action<dynamic> handler);
-  public void RemoveDynEvent(string key, Action<dynamic> handler);
-  public void RaiseDynEvent(string key, dynamic prms);
+  public void Subscribe(string key, Action<dynamic> handler);
+  public void UnSubscribe(string key, Action<dynamic> handler);
+  public void Publish(string key, dynamic prms);
   public int OnLineUsrCnt();
 }

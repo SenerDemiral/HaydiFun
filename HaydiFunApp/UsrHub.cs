@@ -13,7 +13,6 @@ public sealed class UsrHub
 {
     public ConcurrentDictionary<int, UsrMdl> UsrD;
     private readonly IDataAccess db;
-
     private readonly IPubs pubs;
     public UsrHub(IPubs pubs, IDataAccess db)
     {
@@ -73,7 +72,7 @@ public sealed class UsrHub
             Constants.StringToDictionary(itm.Fans, UsrD[utId].FanD);
 
             NOU = UsrD.Count(x => x.Value.isOnline);
-            pubs.RaiseDynEvent(key: Constants.UsrCntChange, new { UsrId = utId, Ops = "M", NOU = NOU });
+            pubs.Publish(key: Constants.UsrChange, new { UsrId = utId, Ops = "M", NOU = NOU });
         }
         else
         {
@@ -89,7 +88,7 @@ public sealed class UsrHub
             UsrD.TryAdd(itm.UTid, m);
 
             NOU = UsrD.Count(x => x.Value.isOnline);
-            pubs.RaiseDynEvent(key: Constants.UsrCntChange, new { UsrId = utId, Ops = "I", NOU = NOU });
+            pubs.Publish(key: Constants.UsrChange, new { UsrId = utId, Ops = "I", NOU = NOU });
         }
     }
     public void UsrAdd(int usrId, string usr, string avatar)
@@ -113,7 +112,7 @@ public sealed class UsrHub
         }
         //pubs.UsrRaise();
 
-        pubs.RaiseDynEvent(key: Constants.UsrCntChange, new { NOU = UsrD.Count, Sbj = $"#of Online Users : {UsrD.Count}" });
+        pubs.Publish(key: Constants.UsrChange, new { NOU = UsrD.Count, Sbj = $"#of Online Users : {UsrD.Count}" });
 
     }
     public void UsrRemove(int usrId)
@@ -131,7 +130,7 @@ public sealed class UsrHub
                 }
             }
             //pubs.UsrRaise();
-            pubs.RaiseDynEvent(key: Constants.UsrCntChange, new { NOU = UsrD.Count, Sbj = $"#of Online Users : {UsrD.Count}" });
+            pubs.Publish(key: Constants.UsrChange, new { NOU = UsrD.Count, Sbj = $"#of Online Users : {UsrD.Count}" });
 
         }
     }
@@ -142,7 +141,7 @@ public sealed class UsrHub
             UsrD[usrId].Cnt++;
             
             var NOU = UsrD.Count(x => x.Value.isOnline);
-            pubs.RaiseDynEvent(key: Constants.UsrCntChange, new { UsrId = usrId, Ops = "E", NOU = NOU });
+            pubs.Publish(key: Constants.UsrChange, new { UsrId = usrId, Ops = "E", NOU = NOU });
         }
         else
         {
@@ -159,7 +158,7 @@ public sealed class UsrHub
             UsrD[usrId].Cnt--;
 
             var NOU = UsrD.Count(x => x.Value.isOnline);
-            pubs.RaiseDynEvent(key: Constants.UsrCntChange, new { UsrId = usrId, Ops = "X", NOU = NOU });
+            pubs.Publish(key: Constants.UsrChange, new { UsrId = usrId, Ops = "X", NOU = NOU });
         }
     }
     public void UsrModifed(int usrId)

@@ -23,6 +23,7 @@ public sealed class Pubs : IPubs
 
         Deneme = new(concurrencyLevel, initialCapacity);
     }
+    #region DenemeHadler
     public event EventHandler? XxChanged; // Subscribe to this
     public void XxRaise()
     {
@@ -55,6 +56,7 @@ public sealed class Pubs : IPubs
         // Bir kisi birden cok Login olabilir
         UsrChanged?.Invoke(this, EventArgs.Empty);
     }
+    #endregion DenemeHandler
 
     /// <summary>
     /// Key: UsrCntChanged  handler: UsrCntChanged Enter/Exit/Login/Logout for every user
@@ -69,22 +71,22 @@ public sealed class Pubs : IPubs
     //-------------------------------------
     public void AddDeneme(string key, Action<dynamic> handler, int usrId)
     {
-    if (Deneme.ContainsKey(key))
-    {
-      Deneme[key].Handler += handler;
-      Deneme[key].UsrIds.Add(usrId);
-    }
-    else
-    {
-      //DENEME d = new();
-      //d.Handler = handler;
-      //d.UsrIds = new List<int> { usrId };
-      Deneme.TryAdd(key, new DENEME
-      {
-        Handler = handler,
-        UsrIds = new List<int> { usrId }
-      });
-    }
+        if (Deneme.ContainsKey(key))
+        {
+            Deneme[key].Handler += handler;
+            Deneme[key].UsrIds.Add(usrId);
+        }
+        else
+        {
+            //DENEME d = new();
+            //d.Handler = handler;
+            //d.UsrIds = new List<int> { usrId };
+            Deneme.TryAdd(key, new DENEME
+            {
+                Handler = handler,
+                UsrIds = new List<int> { usrId }
+            });
+        }
     }
     public void RemoveDeneme(string key, Action<dynamic> handler, int usrId)
     {
@@ -105,26 +107,26 @@ public sealed class Pubs : IPubs
             Deneme[key].Handler?.Invoke(prms);
     }
 
-    public void AddDynEvent(string key, Action<dynamic> handler)
+    public void Subscribe(string key, Action<dynamic> handler)
     {
         if (DynEvent.ContainsKey(key))
             DynEvent[key] += handler;
         else
             DynEvent.TryAdd(key, handler);
     }
-    public void RemoveDynEvent(string key, Action<dynamic> handler)
+
+    public void UnSubscribe(string key, Action<dynamic> handler)
     {
-        if (DynEvent.ContainsKey(key))
+        if (DynEvent.ContainsKey(key) && DynEvent[key] != null)
         {
             DynEvent[key] -= handler!;
             if (DynEvent[key] == null)
             {
-                Action<dynamic> ot;
-                DynEvent.TryRemove(key, out ot);
+                DynEvent.TryRemove(key, out _);
             }
         }
     }
-    public void RaiseDynEvent(string key, dynamic prms)
+    public void Publish(string key, dynamic prms)
     {
         // Ikisi de ayni 
         if (DynEvent.ContainsKey(key))
@@ -135,8 +137,8 @@ public sealed class Pubs : IPubs
     }
     public int OnLineUsrCnt()
     {
-        if (DynEvent.ContainsKey(Constants.UsrCntChange))
-            return DynEvent[Constants.UsrCntChange].GetInvocationList().Count();
+        if (DynEvent.ContainsKey(Constants.UsrChange))
+            return DynEvent[Constants.UsrChange].GetInvocationList().Count();
 
         return 0;
     }
