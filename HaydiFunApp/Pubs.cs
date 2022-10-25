@@ -15,14 +15,17 @@ public sealed class Pubs : IPubs
     private ConcurrentDictionary<string, Action<dynamic>> DynEvent;
     private ConcurrentDictionary<string, DENEME> Deneme;
     private readonly ChatHub ChatHub;
-    public Pubs(ChatHub chatHub)
+
+    public IServiceProvider Services { get; }
+
+    public Pubs(IServiceProvider services)
     {
-        ChatHub = chatHub;
         int concurrencyLevel = Environment.ProcessorCount * 2;
         int initialCapacity = 101;  // 101,199,293,397,499,599,691,797,887,997 PrimeNumber
         DynEvent = new(concurrencyLevel, initialCapacity);
         
         Deneme = new(concurrencyLevel, initialCapacity);
+        Services = services;
     }
     #region DenemeHadler
     public event EventHandler? XxChanged; // Subscribe to this
@@ -126,7 +129,8 @@ public sealed class Pubs : IPubs
                 DynEvent.TryRemove(key, out _);
                 if (key.StartsWith("Chat:"))
                 {
-                    ChatHub.RemoveChats(key);
+                    var a = Services.GetRequiredService<ChatHub>();
+                    a.RemoveChats(key);
                 }
             }
         }

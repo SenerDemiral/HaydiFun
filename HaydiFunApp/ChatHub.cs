@@ -31,13 +31,13 @@ public class ChatHub
         // Publish ChatChange
         // ayni zamanda EXD == ET.LAD Publish EtkChange
 
-        var res = db.StoreProc<ChatMdl, dynamic>("EC_INS(@ETid, @UTid, @Info", new { ETid = etId, UTid=utId, Info=info });
+        var res = db.StoreProc<ChatMdl, dynamic>("EC_INS(@ETid, @UTid, @Info)", new { ETid = etId, UTid=utId, Info=info });
         if (res != null)
         {
-            ChatD[etId].Add(res);
+            ChatD[etId].Insert(0, res);
 
             // Sadece bunu dinleyenlere gidecek, dinleyen kalmadiginda ChatD[etId].Remove ???
-            pubs.Publish($"Chat:{etId}", new { });    
+            pubs.Publish($"Chat:{etId}", new { ETid = etId, UTid=utId, Info=info });    
             //pubs.Publish(Cnst.ChatChangeEvnt, new { ETid = etId });
             pubs.Publish(Cnst.EtkChangeEvnt, new { ETid = etId });
         }
@@ -47,7 +47,7 @@ public class ChatHub
         if (!ChatD.ContainsKey(etId))
         {
             ChatD[etId] = new List<ChatMdl>();
-            var res = db.LoadData<ChatMdl, dynamic>("select * from EC_GETALL(@iETid", new { iETid = etId });
+            var res = db.LoadData<ChatMdl, dynamic>("select * from EC_GETALL(@iETid)", new { iETid = etId });
             if (res != null)
             {
                 foreach (var itm in res)
@@ -70,7 +70,7 @@ public class ChatHub
         public int ECid;
         public int ETid;
         public int UTid;
-        public DateTime? EXD;
+        public DateTime EXD;
         public string? Info;
     }
 

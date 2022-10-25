@@ -1,8 +1,7 @@
-﻿@page "/chathub"
+﻿@page "/chathub/{etId:int}"
 
 @inject NavigationManager NavigationManager
 @inject IPubs pubs
-@inject EtkHub EtkHub
 @inject UsrHub UsrHub
 @inject ChatHub ChatHub
 @inject IDialogService DialogService
@@ -13,37 +12,51 @@
         Label="Yeni"
         Color="Color.Error"
         Size="Size.Small"
-        OnClick="@(() => DialogService.Show<EtkMdfDialog>())" />
+        OnClick="deneme" />
+
+HepsiniAra:
+<input @bind="ChatText" />
 
 @if (USP.UsrId != 0)
 {
-    <div style="margin:auto; width: fit-content;">
+    <div style="margin:auto; width: fit-content;height:88vh">
         <table>
             <caption style="background-color: burlywood;">Etkinliklerim</caption>
-            <colgroup>
-                <col>
-                <col>
-                <col>
-                <col style="width:50px">
-                <col>
-            </colgroup>
-            <thead>
-                <tr>
-                    <th class="tal">ID</th>
-                    <th>Typ</th>
-                    <th>Owner</th>
-                    <th>Avtr</th>
-                    <th>Stu</th>
-                </tr>
-            </thead>
             <tbody>
+                @{
+                    DateTime p = new(1, 1, 1);
+                }
                 @foreach (var e in ChatL)
                 {
-                    <tr @key="e.ETid">
-                        <td>@e.ECid</td>
-                        <td>@e.UTid</td>
-                        <td>@e.EXD</td>
-                        <td>@e.Info</td>
+                    if (p != e.EXD.Date)
+                    {
+                        p = e.EXD.Date;
+                        <tr>
+                            <td colspan="9" class="tac">
+                                <span class="tarih">@e.EXD.Date.ToString("dd.MMM.yy")</span>
+                            </td>
+                        </tr>
+                    }
+
+                    bool isOwn = USP.UsrId == e.UTid ? true : false;
+                    string kim = isOwn ? "Ben" : UsrHub.UsrD[e.UTid].Usr;
+                    <tr @key="e.ECid">
+                        @if (isOwn)
+                        {
+                            <td class="info" data-kim="@kim">
+                                <div>@e.Info</div>
+                                <div class="saat">@e.EXD.ToString("HH:mm")</div>
+                            </td>
+
+                        }
+                        else
+                        {
+                            <td class="info" data-kim="@kim">
+                                <div>@kim</div>
+                                <div>@e.Info</div>
+                                <div class="saat">@e.EXD.ToString("HH:mm")</div>
+                            </td>
+                        }
                     </tr>
                 }
             </tbody>
@@ -56,6 +69,7 @@
     [CascadingParameter] private UserStateProvider USP { get; set; }
     [Parameter] public int ETid { get; set; }
     List<ChatHub.ChatMdl> ChatL = new();
+    private string ChatText { get; set; }
 
     public override async Task SetParametersAsync(ParameterView parameters)
     {
@@ -69,6 +83,10 @@
         await base.SetParametersAsync(parameters);  //Diger LifeCyle metodlarini cagiriyor
     }
 
+    private void deneme()
+    {
+        ChatHub.AddChat(ETid, USP.UsrId, ChatText);
+    }
     protected override void OnParametersSet()
     {
     }
@@ -84,17 +102,19 @@
         // Igili Etkinlik degisimlerini dinlemek gerek cunki USP yi etkilemiyor
 
         //ChatL = EtkHub.GetUsrEtks(USP.UsrId);
-        pubs.Subscribe(Cnst.ChatChangeEvnt, ChatChangeHandler);
+        ChatL = ChatHub.GetEtkChats(ETid);
+        pubs.Subscribe($"Chat:{ETid}", ChatChangeHandler);
     }
 
     public void ChatChangeHandler(dynamic d)
     {
-        int etId = d.ETid;
-        if(ETid == etId)
-        {
-            //ChatL = EtkHub.GetUsrEtks(USP.UsrId);
-            InvokeAsync(StateHasChanged);
-        }
+        InvokeAsync(StateHasChanged);
+        //int etId = d.ETid;
+        //if(ETid == etId)
+        //{
+        //    //ChatL = EtkHub.GetUsrEtks(USP.UsrId);
+        //    InvokeAsync(StateHasChanged);
+        //}
     }
 
     public void Dispose()
@@ -115,6 +135,29 @@
         align-content: center;
         /*height: 100px;*/
         /*overflow: auto;*/
+    }
+
+    .info {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        background-color: #edeeee;
+    }
+
+    [data-kim="Ben"] {
+        background-color: beige;
+        margin-left: 50px;
+    }
+
+    .tarih {
+        font-weight: 900;
+        margin: 4px;
+    }
+
+    .saat {
+        align-self: flex-end;
+        font-size: x-small;
+        font-weight: 200;
     }
 
     .G {
@@ -138,8 +181,8 @@
     }
 
     table, th, td {
-        border: 1px solid burlywood;
-        border-collapse: collapse;
+        border: 1px solid none;
+        /*border-collapse: collapse;*/
         padding: 0 4px;
     }
 </style>
