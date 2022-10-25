@@ -1,75 +1,77 @@
-﻿using System.Collections.Concurrent;
+﻿using DataLibrary;
+using System.Collections.Concurrent;
+using static MudBlazor.CategoryTypes;
 
 namespace HaydiFunApp;
 
 public class ChatHub
 {
-    private ConcurrentDictionary<int, List<int>> ChatDict;
+    public ConcurrentDictionary<int, List<ChatMdl>> ChatD;
+    private readonly IPubs pubs;
+    private readonly IDataAccess db;
 
-    public ChatHub()
+    public ChatHub(IPubs pubs, IDataAccess db)
     {
+        this.db = db;
         int concurrencyLevel = Environment.ProcessorCount * 2;
         int initialCapacity = 101;  // 101,199,293,397,499,599,691,797,887,997 PrimeNumber
-        ChatDict = new(concurrencyLevel, initialCapacity);
-        ChatDict.TryAdd(1, new List<int> { 10, 11, 12, 12, 12 });
-        ChatDict.TryAdd(2, new List<int> { 10, 11, 12, 13 });
+        ChatD = new(concurrencyLevel, initialCapacity);
 
+        this.pubs = pubs;
     }
-    public void Deneme()
+
+    public void RemoveChats(string key)
     {
-        ChatDict.TryAdd(3, new List<int> { 10, 11 });
+        int etId = int.Parse(key.Replace("Chats:", ""));
+        ChatD.Remove(etId, out _);
+    }
+    public void AddChat(int etId, int utId, string info)
+    {
+        // db insert, returns ChatMdl
+        // Publish ChatChange
+        // ayni zamanda EXD == ET.LAD Publish EtkChange
 
-        var qqq = ChatDict[1].Count;                 // # Connection
-        var www = ChatDict[1].Distinct().Count();    // # unique user
-
-        // UTid=10 hangi Chatlerde var?
-        var eee = ChatDict.Where(x => x.Value.Contains(10)).Select(x => x.Key);
-        // Chat yapan tum connectionlar multi same usr
-        var ttt = ChatDict.Values.SelectMany(x => x).ToList();
-        // Chat yapan Unique Usr sayisi
-        var yyy = ChatDict.Values.SelectMany(x => x).Distinct().Count();
-        var uuu = ChatDict.Values.SelectMany(x => x).Distinct().ToList();
-
-
-        ChatDict[1].Remove(12);
-        ChatDict[1].Remove(12);
-        ChatDict[1].Remove(12);
-        ChatDict[1].Remove(12); // Bulamazsa hata vermiyor
-        ChatDict[1].Clear();
-        if (ChatDict[1].Count == 0)
+        var res = db.StoreProc<ChatMdl, dynamic>("EC_INS(@ETid, @UTid, @Info", new { ETid = etId, UTid=utId, Info=info });
+        if (res != null)
         {
-            ChatDict.Remove(1, out _);
+            ChatD[etId].Add(res);
+
+            // Sadece bunu dinleyenlere gidecek, dinleyen kalmadiginda ChatD[etId].Remove ???
+            pubs.Publish($"Chat:{etId}", new { });    
+            //pubs.Publish(Cnst.ChatChangeEvnt, new { ETid = etId });
+            pubs.Publish(Cnst.EtkChangeEvnt, new { ETid = etId });
+        }
+    }
+    public void LoadEtkChats(int etId)
+    {
+        if (!ChatD.ContainsKey(etId))
+        {
+            ChatD[etId] = new List<ChatMdl>();
+            var res = db.LoadData<ChatMdl, dynamic>("select * from EC_GETALL(@iETid", new { iETid = etId });
+            if (res != null)
+            {
+                foreach (var itm in res)
+                {
+                    ChatD[etId].Add(itm);
+                }
+            }
         }
     }
 
-    public void AddChatHub(int etId, int usrId)
+    public List<ChatMdl> GetEtkChats(int etId)
     {
-        if (ChatDict.ContainsKey(etId))
-            ChatDict[etId].Add(usrId);
-        else
-            ChatDict.TryAdd(etId, new List<int> { usrId });
+        if (!ChatD.ContainsKey(etId))
+            LoadEtkChats(etId);
+        return ChatD[etId];
     }
 
-    public void RemoveChatHub(int etId, int usrId)
+    public sealed class ChatMdl
     {
-        if (ChatDict.ContainsKey(etId))
-        {
-            ChatDict[etId].Remove(usrId);
-
-            if (ChatDict[etId].Count == 0)
-                ChatDict.Remove(etId, out _);
-        }
+        public int ECid;
+        public int ETid;
+        public int UTid;
+        public DateTime? EXD;
+        public string? Info;
     }
 
-    public int CntUsrChatHub(int etId)
-    {
-        if(ChatDict.ContainsKey(etId))
-            return ChatDict[etId].Distinct().Count();
-        
-        return 0;
-    }
-    public int CntDavetChatHub()
-    {
-        return (int)(ChatDict.Count);
-    }
 }

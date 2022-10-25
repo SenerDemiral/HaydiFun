@@ -9,6 +9,7 @@ public static class Cnst
     public const string Height = "calc(100vh - 140px)";
     public const string UsrChangeEvnt = "UsrChangeEvnt";
     public const string EtkChangeEvnt = "EtkChangeEvnt";
+    public const string ChatChangeEvnt = "ChatChangeEvnt";
 
     public static Hashids hashIds0 = new Hashids("this is my salt", 0);   // Nekadar gerekiyorsa
     public static Hashids hashIds5 = new Hashids("this is my salt", 5);

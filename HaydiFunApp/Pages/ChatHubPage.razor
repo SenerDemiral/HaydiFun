@@ -1,0 +1,146 @@
+﻿@page "/chathub"
+
+@inject NavigationManager NavigationManager
+@inject IPubs pubs
+@inject EtkHub EtkHub
+@inject UsrHub UsrHub
+@inject ChatHub ChatHub
+@inject IDialogService DialogService
+
+@implements IDisposable
+
+<MudFab StartIcon="@Icons.Material.Filled.Login"
+        Label="Yeni"
+        Color="Color.Error"
+        Size="Size.Small"
+        OnClick="@(() => DialogService.Show<EtkMdfDialog>())" />
+
+@if (USP.UsrId != 0)
+{
+    <div style="margin:auto; width: fit-content;">
+        <table>
+            <caption style="background-color: burlywood;">Etkinliklerim</caption>
+            <colgroup>
+                <col>
+                <col>
+                <col>
+                <col style="width:50px">
+                <col>
+            </colgroup>
+            <thead>
+                <tr>
+                    <th class="tal">ID</th>
+                    <th>Typ</th>
+                    <th>Owner</th>
+                    <th>Avtr</th>
+                    <th>Stu</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var e in ChatL)
+                {
+                    <tr @key="e.ETid">
+                        <td>@e.ECid</td>
+                        <td>@e.UTid</td>
+                        <td>@e.EXD</td>
+                        <td>@e.Info</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+
+@code {
+    [CascadingParameter] private UserStateProvider USP { get; set; }
+    [Parameter] public int ETid { get; set; }
+    List<ChatHub.ChatMdl> ChatL = new();
+
+    public override async Task SetParametersAsync(ParameterView parameters)
+    {
+        //if (parameters.TryGetValue<UserStateProvider>(nameof(USP), out var value))
+        //{
+        //  if (value is null || value.UsrTyp != "A")
+        //    NavigationManager.NavigateTo("");
+        //  else
+        //    await base.SetParametersAsync(parameters);  //Diger LifeCyle metodlarini cagiriyor
+        //}
+        await base.SetParametersAsync(parameters);  //Diger LifeCyle metodlarini cagiriyor
+    }
+
+    protected override void OnParametersSet()
+    {
+    }
+
+    protected override void OnInitialized()
+    {
+        // Subscribe olmaya gerek yok.
+        // UsrHub.UsrD degistiginde USP(parent) degistigi icin burayi refresh ediyor (OnParameterSet)
+        // https://learn.microsoft.com/en-us/aspnet/core/blazor/components/lifecycle?view=aspnetcore-6.0#after-parameters-are-set-onparameterssetasync
+
+        //pubs.Subscribe(Constants.UsrChangeEvnt, OnUsrChange);
+
+        // Igili Etkinlik degisimlerini dinlemek gerek cunki USP yi etkilemiyor
+
+        //ChatL = EtkHub.GetUsrEtks(USP.UsrId);
+        pubs.Subscribe(Cnst.ChatChangeEvnt, ChatChangeHandler);
+    }
+
+    public void ChatChangeHandler(dynamic d)
+    {
+        int etId = d.ETid;
+        if(ETid == etId)
+        {
+            //ChatL = EtkHub.GetUsrEtks(USP.UsrId);
+            InvokeAsync(StateHasChanged);
+        }
+    }
+
+    public void Dispose()
+    {
+        pubs.UnSubscribe(Cnst.ChatChangeEvnt, ChatChangeHandler);
+    }
+
+}
+
+<style>
+    .ug {
+        display: grid;
+        grid-gap: 4px;
+        grid-template-columns: 100px 50px 200px;
+        background-color: burlywood;
+        /*color: #444;*/
+        justify-content: center;
+        align-content: center;
+        /*height: 100px;*/
+        /*overflow: auto;*/
+    }
+
+    .G {
+        background-color: aliceblue;
+    }
+
+    .O {
+        background-color: bisque;
+    }
+
+    .tal {
+        text-align: left;
+    }
+
+    .tac {
+        text-align: center;
+    }
+
+    .tar {
+        text-align: right;
+    }
+
+    table, th, td {
+        border: 1px solid burlywood;
+        border-collapse: collapse;
+        padding: 0 4px;
+    }
+</style>
+

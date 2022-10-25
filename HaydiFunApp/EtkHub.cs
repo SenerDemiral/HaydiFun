@@ -21,8 +21,8 @@ public class EtkHub
         //long t1 = Environment.TickCount;
         //for (int i = 0; i < 1_000_000; i++)
         //{
-        //    EtkD.TryAdd(i,
-        //        new EtkMdl
+        //    ChatD.TryAdd(i,
+        //        new ChatMdl
         //        {
         //            ETid = i,
         //            OwnId = 10,
@@ -37,11 +37,11 @@ public class EtkHub
 
 
         /*
-        EtkD.TryAdd(2, 
-            new EtkMdl { ETid = 2, OwnId = 13, OwnUsr = "BB13", EXD = DateTime.Now.AddSeconds(20), 
+        ChatD.TryAdd(2, 
+            new ChatMdl { ETid = 2, OwnId = 13, OwnUsr = "BB13", EXD = DateTime.Now.AddSeconds(20), 
                 MbrD = new Dictionary<int, char> { { 11, 'R' }, { 13, 'K' }, { 14, 'r' } } });
-        EtkD.TryAdd(3, 
-            new EtkMdl { ETid = 3, OwnId = 11, OwnUsr = "CC11", EXD = DateTime.Now.AddSeconds(30), 
+        ChatD.TryAdd(3, 
+            new ChatMdl { ETid = 3, OwnId = 11, OwnUsr = "CC11", EXD = DateTime.Now.AddSeconds(30), 
                 MbrD = new Dictionary<int, char> { { 11, 'B' }, { 14, 'K' }, { 15, 'K' } } });
         */
     }
@@ -72,24 +72,24 @@ public class EtkHub
     {
         LoadAllEtk();
         //AddDeneme();
-        //EtkD.Clear();
+        //ChatD.Clear();
         //AddDeneme();
         //AddDeneme();
         //AddDeneme();
 
-        //var aaa = EtkD.Where(x => x.Value.MbrD.Contains("11:K")).Select(x => x.Value).ToList();
-        //var bbb = EtkD.Where(x => x.Value.MbrD.Any(x => x == "11:K" || x == "11:B")).Select(x => x.Value).ToList();
+        //var aaa = ChatD.Where(x => x.Value.MbrD.Contains("11:K")).Select(x => x.Value).ToList();
+        //var bbb = ChatD.Where(x => x.Value.MbrD.Any(x => x == "11:K" || x == "11:B")).Select(x => x.Value).ToList();
 
         //string mbrs = "K31,B45,r66";
-        //StringToDictionary(mbrs, EtkD[3].MbrD);
+        //StringToDictionary(mbrs, ChatD[3].MbrD);
 
         //var ddd = GetUsrEtkts("11");
 
         //MdfEtkMbr(1, 11, 'Z'); // Update OK
         //MdfEtkMbr(1, 99, 'K'); // Insert OK
 
-        //var ne = new EtkMdl { ETid = 1, UTid = 10, Usr = "AA10", EXD = DateTime.Now.AddSeconds(10), MbrD = new Dictionary<int, string> { { 11, "K" }, { 12, "R" }, { 13, "k" } } });
-        //var ne = EtkD[1];
+        //var ne = new ChatMdl { ETid = 1, UTid = 10, Usr = "AA10", EXD = DateTime.Now.AddSeconds(10), MbrD = new Dictionary<int, string> { { 11, "K" }, { 12, "R" }, { 13, "k" } } });
+        //var ne = ChatD[1];
         //ne.ETid = 55;
         //ne.EXD = DateTime.Now.AddDays(1);
         //MdfEtk2(ne);
@@ -99,7 +99,7 @@ public class EtkHub
         //long t2 = Environment.TickCount;
         //long t3 = t2 - t1;
         //Console.WriteLine($"GetUsrEtks: {t3}");
-        //EtkMdl ccc = new();
+        //ChatMdl ccc = new();
 
         //ccc.MbrD[123] = 'X';
 

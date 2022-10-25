@@ -46,12 +46,12 @@ public sealed class UsrHub
             UsrD.TryAdd(itm.UTid, m);
 
         }
-        //StringToDictionary(itm.Mbrs, EtkD[etId].MbrD);
-        //if (EtkD.ContainsKey(etId))
+        //StringToDictionary(itm.Mbrs, ChatD[etId].MbrD);
+        //if (ChatD.ContainsKey(etId))
         //{
 
         //}
-        //EtkD[etId] = mdl2;
+        //ChatD[etId] = mdl2;
     }
 
     public void RefreshUsr(int utId, int cnt = 0)
