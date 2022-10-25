@@ -1,15 +1,14 @@
-﻿using static HaydiFunApp.Constants;
-using HashidsNet;
+﻿using HashidsNet;
 
 namespace HaydiFunApp;
 
-public static class Constants
+public static class Cnst
 {
     public const string PublishVersion = "HaydiFun© v0.1 Şener Demiral®";
     public const string BrowserUsrIdKey = "haydifun";
     public const string Height = "calc(100vh - 140px)";
-    public const string UsrChange = "UsrChange";
-    public const string EtkChange = "EtkChange";
+    public const string UsrChangeEvnt = "UsrChangeEvnt";
+    public const string EtkChangeEvnt = "EtkChangeEvnt";
 
     public static Hashids hashIds0 = new Hashids("this is my salt", 0);   // Nekadar gerekiyorsa
     public static Hashids hashIds5 = new Hashids("this is my salt", 5);

@@ -137,8 +137,8 @@ public sealed class Pubs : IPubs
     }
     public int OnLineUsrCnt()
     {
-        if (DynEvent.ContainsKey(Constants.UsrChange))
-            return DynEvent[Constants.UsrChange].GetInvocationList().Count();
+        if (DynEvent.ContainsKey(Cnst.UsrChangeEvnt))
+            return DynEvent[Cnst.UsrChangeEvnt].GetInvocationList().Count();
 
         return 0;
     }

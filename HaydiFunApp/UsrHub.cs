@@ -6,6 +6,7 @@ using System.Reflection;
 using static HaydiFunApp.EtkHub;
 using static HaydiFunApp.UsrHub;
 using static MudBlazor.CategoryTypes;
+using static HaydiFunApp.Cnst;
 
 namespace HaydiFunApp;
 // Login olmus Userlar, eger birden cok yerdeyse sayisi
@@ -39,8 +40,8 @@ public sealed class UsrHub
                 LblAds = itm.LblAds,
                 //MbrD = AAA(itm.Mbrs)
             };
-            Constants.StringToDictionary(itm.Fans, m.FanD);
-            Constants.StringToHashSet(itm.Lbls, m.LblH);
+            StringToDictionary(itm.Fans, m.FanD);
+            StringToHashSet(itm.Lbls, m.LblH);
 
             UsrD.TryAdd(itm.UTid, m);
 
@@ -69,10 +70,10 @@ public sealed class UsrHub
             {
                 UsrD[utId].Cnt = cnt;
             }
-            Constants.StringToDictionary(itm.Fans, UsrD[utId].FanD);
+            Cnst.StringToDictionary(itm.Fans, UsrD[utId].FanD);
 
             NOU = UsrD.Count(x => x.Value.isOnline);
-            pubs.Publish(key: Constants.UsrChange, new { UsrId = utId, Ops = "M", NOU = NOU });
+            pubs.Publish(key: Cnst.UsrChangeEvnt, new { UsrId = utId, Ops = "M", NOU = NOU });
         }
         else
         {
@@ -84,11 +85,11 @@ public sealed class UsrHub
                 Lbls = itm.Lbls,
                 LblAds = itm.LblAds,
             };
-            Constants.StringToDictionary(itm.Fans, m.FanD);
+            Cnst.StringToDictionary(itm.Fans, m.FanD);
             UsrD.TryAdd(itm.UTid, m);
 
             NOU = UsrD.Count(x => x.Value.isOnline);
-            pubs.Publish(key: Constants.UsrChange, new { UsrId = utId, Ops = "I", NOU = NOU });
+            pubs.Publish(key: Cnst.UsrChangeEvnt, new { UsrId = utId, Ops = "I", NOU = NOU });
         }
     }
     public void UsrAdd(int usrId, string usr, string avatar)
@@ -112,7 +113,7 @@ public sealed class UsrHub
         }
         //pubs.UsrRaise();
 
-        pubs.Publish(key: Constants.UsrChange, new { NOU = UsrD.Count, Sbj = $"#of Online Users : {UsrD.Count}" });
+        pubs.Publish(key: Cnst.UsrChangeEvnt, new { NOU = UsrD.Count, Sbj = $"#of Online Users : {UsrD.Count}" });
 
     }
     public void UsrRemove(int usrId)
@@ -130,7 +131,7 @@ public sealed class UsrHub
                 }
             }
             //pubs.UsrRaise();
-            pubs.Publish(key: Constants.UsrChange, new { NOU = UsrD.Count, Sbj = $"#of Online Users : {UsrD.Count}" });
+            pubs.Publish(key: Cnst.UsrChangeEvnt, new { NOU = UsrD.Count, Sbj = $"#of Online Users : {UsrD.Count}" });
 
         }
     }
@@ -141,7 +142,7 @@ public sealed class UsrHub
             UsrD[usrId].Cnt++;
             
             var NOU = UsrD.Count(x => x.Value.isOnline);
-            pubs.Publish(key: Constants.UsrChange, new { UsrId = usrId, Ops = "E", NOU = NOU });
+            pubs.Publish(key: Cnst.UsrChangeEvnt, new { UsrId = usrId, Ops = "E", NOU = NOU });
         }
         else
         {
@@ -158,7 +159,7 @@ public sealed class UsrHub
             UsrD[usrId].Cnt--;
 
             var NOU = UsrD.Count(x => x.Value.isOnline);
-            pubs.Publish(key: Constants.UsrChange, new { UsrId = usrId, Ops = "X", NOU = NOU });
+            pubs.Publish(key: Cnst.UsrChangeEvnt, new { UsrId = usrId, Ops = "X", NOU = NOU });
         }
     }
     public void UsrModifed(int usrId)

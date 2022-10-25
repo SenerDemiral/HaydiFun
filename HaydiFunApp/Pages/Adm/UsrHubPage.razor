@@ -53,8 +53,10 @@
 <label>
     <label for="isOnline">Online olanlar</label>
     <input type="checkbox" @bind="isOnline" name="isOnline" />
-    Normal Blazor binding:
-    <input @bind="SrchValue" />
+    HepsiniAra:
+    <input @bind="SrchValueHepsi" />
+    HerhangiBiriniAra:
+    <input @bind="SrchValueBiri" />
 </label>
 <button @onclick="Srch">Search</button>
 
@@ -86,7 +88,7 @@
                     int NOU = 0;
                     int NOC = 0;
                     char Online;// = '✅'; // (char)0x2705;
-                                        //string aa = "📞☎✅";
+                    //string aa = "📞☎✅";
                 }
                 @foreach (var itm in UsrL)
                 //@foreach (var kv in UsrHub.UsrD)
@@ -153,25 +155,30 @@
 
 @code {
     [CascadingParameter] private UserStateProvider? USP { get; set; }
-    string SrchValue = "";
+    string SrchValueHepsi = "";
+    string SrchValueBiri = "1,55";
     bool isOnline = true;
 
     List<int> UsrL = new List<int>();
 
     public void Srch()
     {
-        HashSet<int> shs = new();
-        Constants.StringToHashSet(SrchValue, shs);
+        HashSet<int> hepsiHS = new();
+        HashSet<int> biriHS = new();
+        Cnst.StringToHashSet(SrchValueHepsi, hepsiHS);
+        Cnst.StringToHashSet(SrchValueBiri, biriHS);
 
         UsrL.Clear();
         foreach (var itm in UsrHub.UsrD.Values)
         {
             if (!isOnline || itm.isOnline)
             {
-                if (shs.Count == 0 || shs.IsProperSubsetOf(itm.LblH))
-                    UsrL.Add(itm.UTid);
+                if (biriHS.Count == 0 || biriHS.Overlaps(itm.LblH))
+                    if (hepsiHS.Count == 0 || hepsiHS.IsProperSubsetOf(itm.LblH))
+                        UsrL.Add(itm.UTid);
             }
         }
+        //Overlaps: true if the HashSet<T> object and other share at least one common element; otherwise, false.
     }
 
     public override async Task SetParametersAsync(ParameterView parameters)
@@ -187,27 +194,27 @@
     }
     protected override void OnParametersSet()
     {
+        // Usr degistiginde USP burayi refresh
         Srch();
     }
 
     protected override void OnInitialized()
     {
         // Subscribe olmaya gerek yok.
-        // UsrHub.UsrD degistiginde USP(parent) degistigi icin burayi StateHasChanged yapiyor
-        // (StateHasChanged de OnParameterSet cagriliyor)
+        // UsrHub.UsrD degistiginde USP(parent) degistigi icin burayi refresh ediyor (OnParameterSet)
         // https://learn.microsoft.com/en-us/aspnet/core/blazor/components/lifecycle?view=aspnetcore-6.0#after-parameters-are-set-onparameterssetasync
-        
-        //pubs.Subscribe(Constants.UsrChange, UsrChange);
+
+        //pubs.Subscribe(Cnst.UsrChangeEvnt, OnUsrChange);
     }
 
-    public void UsrCntChange(dynamic d)
+    public void OnUsrChange(dynamic d)
     {
         //InvokeAsync(StateHasChanged);
     }
 
     public void Dispose()
     {
-        //pubs.UnSubscribe(Constants.UsrChange, UsrChange);
+        //pubs.UnSubscribe(Constants.UsrChangeEvnt, OnUsrChange);
     }
 
 }

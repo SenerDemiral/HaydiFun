@@ -41,18 +41,18 @@ else
     {
         try
         {
-            var toto = await PLS.GetAsync<int>(Constants.BrowserUsrIdKey);
+            var toto = await PLS.GetAsync<int>(Cnst.BrowserUsrIdKey);
             if (toto.Success)
                 UsrId = toto.Value;
         }
         catch (Exception)
         {
             UsrId = 0;
-            await PLS.SetAsync(Constants.BrowserUsrIdKey, UsrId);
+            await PLS.SetAsync(Cnst.BrowserUsrIdKey, UsrId);
         }
         finally
         {
-            pubs.Subscribe(Constants.UsrChange, UsrCntChange);
+            pubs.Subscribe(Cnst.UsrChangeEvnt, UsrCntChange);
 
             NOU = UsrHub.UsrCnt();
 
@@ -101,7 +101,7 @@ else
         UsrTyp = "?";
         Usr = "";
         UsrAvatar = "";
-        await PLS.SetAsync(Constants.BrowserUsrIdKey, UsrId);
+        await PLS.SetAsync(Cnst.BrowserUsrIdKey, UsrId);
         //NavigationManager.NavigateTo("");
 
         GoHome();
@@ -114,7 +114,7 @@ else
         UsrTyp = usrTyp;
         Usr = usr;
         UsrAvatar = avatar;
-        await PLS.SetAsync(Constants.BrowserUsrIdKey, UsrId);
+        await PLS.SetAsync(Cnst.BrowserUsrIdKey, UsrId);
         //OnUsrChanged();
 
         pubs.Subscribe($"UT:{UsrId}", UsrPostBox);
@@ -128,7 +128,7 @@ else
 
     public void Dispose()
     {
-        pubs.UnSubscribe(Constants.UsrChange, UsrCntChange);
+        pubs.UnSubscribe(Cnst.UsrChangeEvnt, UsrCntChange);
         pubs.UnSubscribe($"UT:{UsrId}", UsrPostBox);
 
         UsrHub.UsrExit(UsrId);

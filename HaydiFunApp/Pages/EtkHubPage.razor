@@ -5,6 +5,7 @@
 @inject EtkHub EtkHub
 @inject UsrHub UsrHub
 @inject IDialogService DialogService
+
 @implements IDisposable
 
 <style>
@@ -147,7 +148,7 @@
 
 
 @code {
-    [CascadingParameter] private UserStateProvider? USP { get; set; }
+    [CascadingParameter] private UserStateProvider USP { get; set; }
     Dictionary<int, DateTime> ETD = new();
     List<EtkHub.EtkMdl> EtkL = new();
 
@@ -170,35 +171,27 @@
     protected override void OnInitialized()
     {
         // Subscribe olmaya gerek yok.
-        // UsrHub.UsrD degistiginde USP(parent) degistigi icin burayi StateHasChanged yapiyor
-        // (StateHasChanged de OnParameterSet cagriliyor)
+        // UsrHub.UsrD degistiginde USP(parent) degistigi icin burayi refresh ediyor (OnParameterSet)
         // https://learn.microsoft.com/en-us/aspnet/core/blazor/components/lifecycle?view=aspnetcore-6.0#after-parameters-are-set-onparameterssetasync
 
-        //pubs.Subscribe(Constants.UsrChange, OnUsrChange);
+        //pubs.Subscribe(Constants.UsrChangeEvnt, OnUsrChange);
 
         // Igili Etkinlik degisimlerini dinlemek gerek cunki USP yi etkilemiyor
 
         EtkL = EtkHub.GetUsrEtks(USP.UsrId);
-        pubs.Subscribe(Constants.EtkChange, OnEtkChange);
+        pubs.Subscribe(Cnst.EtkChangeEvnt, EtkChangeHandler);
     }
 
-    //public void OnUsrChange(dynamic d)
-    //{
-    //    InvokeAsync(StateHasChanged);
-    //}
-
-    public void OnEtkChange(dynamic d)
+    public void EtkChangeHandler(dynamic d)
     {
         int etId = d.ETid;
-        //if (EtkL.Any(x => x.ETid == etId))
         EtkL = EtkHub.GetUsrEtks(USP.UsrId);
         InvokeAsync(StateHasChanged);
     }
 
     public void Dispose()
     {
-        //pubs.UnSubscribe(Constants.UsrChange, OnUsrChange);
-        pubs.UnSubscribe(Constants.EtkChange, OnEtkChange);
+        pubs.UnSubscribe(Cnst.EtkChangeEvnt, EtkChangeHandler);
     }
 
 }
