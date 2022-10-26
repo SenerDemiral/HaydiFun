@@ -1,4 +1,5 @@
-﻿@page "/chathub/{etId:int}"
+﻿@page "/chathub"
+@page "/chathub/{etId:int}"
 
 @inject NavigationManager NavigationManager
 @inject IPubs pubs
@@ -76,7 +77,7 @@ HepsiniAra:
 
 @code {
     [CascadingParameter] private UserStateProvider USP { get; set; }
-    [Parameter] public int ETid { get; set; }
+    [Parameter] public int ETid { get; set; } = 12;
     List<ChatHub.ChatMdl> ChatL = new();
     private string ChatText { get; set; }
 
@@ -111,8 +112,11 @@ HepsiniAra:
         // Igili Etkinlik degisimlerini dinlemek gerek cunki USP yi etkilemiyor
 
         //ChatL = EtkHub.GetUsrEtks(USP.UsrId);
+        if (ETid == 0)
+            ETid = 12;
         ChatL = ChatHub.GetEtkChats(ETid);
         pubs.Subscribe($"Chat:{ETid}", ChatChangeHandler);
+        pubs.Publish(Cnst.EtkChangeEvnt, new { ETid = ETid });
     }
 
     public void ChatChangeHandler(dynamic d)

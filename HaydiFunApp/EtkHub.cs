@@ -180,6 +180,11 @@ public class EtkHub
         }
     }
 
+    public bool IsUsrEtkMember(int etId, int usrId)
+    {
+        // Member stu ya da bak
+        return EtkD[etId].MbrD.ContainsKey(usrId);
+    }
     public List<EtkMdl> GetUsrEtks(int mbr)
     {
         // Memberi oldugu veya Genel Davetleri (Katilmak isteyebilir) gorecek
@@ -200,6 +205,8 @@ public class EtkHub
             {
                 v.MbrD.Add(mbr, '!');
             }
+
+            v.hasChat = pubs.HasSubscription($"Chat:{v.ETid}");
 
             onlineMbrs.Clear();
             foreach (var key in v.MbrD.Keys)
@@ -248,6 +255,7 @@ public class EtkHub
         public int UsrId;
         public char UsrStu;
         public bool isOwnr;
+        public bool hasChat;
 
         //public bool isAktif => Aktif == 'E' ? true : false;
         // Unicode G yesil / Ozel kirmizi birsey bul

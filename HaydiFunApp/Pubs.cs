@@ -132,10 +132,16 @@ public sealed class Pubs : IPubs
                     {
                         var a = Services.GetRequiredService<ChatHub>();
                         a.RemoveChats(key);
+                        Publish(Cnst.EtkChangeEvnt, new { ETid = 0 });
                     }
                 }
             }
         }
+    }
+
+    public bool HasSubscription(string key)
+    {
+        return DynEvent.ContainsKey(key) && DynEvent[key] != null;
     }
     public void Publish(string key, dynamic prms)
     {
