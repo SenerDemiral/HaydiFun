@@ -20,9 +20,9 @@ public class ChatHub
         this.pubs = pubs;
     }
 
-    public void RemoveChats(string key)
+    public void RemoveChats(int etId)
     {
-        int etId = int.Parse(key.Replace("Chat:", ""));
+        //int etId = int.Parse(key.Replace("Chat:", ""));
         ChatD.Remove(etId, out _);
     }
     public void AddChat(int etId, int utId, string info)

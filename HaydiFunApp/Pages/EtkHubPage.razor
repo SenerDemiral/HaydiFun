@@ -1,4 +1,5 @@
 ﻿@page "/etkhub"
+@using System.Text;
 
 @inject NavigationManager NavigationManager
 @inject IPubs pubs
@@ -32,7 +33,10 @@
     .tal {
         text-align: left;
     }
-
+    .emoji{
+        font-size:large;
+        cursor:pointer;
+    }
     .tac {
         text-align: center;
     }
@@ -88,15 +92,17 @@
                 @foreach (var e in EtkL)
                 {
                     var o = UsrHub.UsrD[e.OwnId];
+                    Rune b = new Rune(0x1F535);
                     var oOnline = o.isOnline ? '✅' : ' ';
-                    var hasChat = e.hasChat ? '✅' : ' ';
+                    var hasChat = e.hasChat ? "😉" : "😴";// "💤"; // "⚪"; //"🟢" "\uD83D\uDDE3"
+                                                                           //hasChat = b.ToString();
                     <tr @key="e.ETid" class="@e.Typ">
                         <td>@e.ETid</td>
                         <td class="tac">@e.TypAd</td>
                         <td><b>@o.Usr</b> @oOnline</td>
                         <td class="px-0"><img src="@o.ImgUrl" style="display:block" /></td>
-                        <td class="tac">@e.MbrD[usrId]</td>
-                        <td>@hasChat</td>
+                        <td class="tac" @onclick="(()=> StuChange(e.ETid))"  style="cursor:pointer">@e.MbrD[usrId]</td>
+                        <td @onclick="(()=> GoChat(e.ETid))" class="emoji">@hasChat</td>
                     </tr>
                     <tr style="background-color: beige">
                         <td colspan="9">@e.Info</td>
@@ -158,6 +164,25 @@
     Dictionary<int, DateTime> ETD = new();
     List<EtkHub.EtkMdl> EtkL = new();
 
+    private void GoChat(int etId)
+    {
+        if (EtkHub.IsUsrEtkMember(etId, USP.UsrId))
+        {
+            char usrEtkStu = EtkHub.EtkD[etId].MbrD[USP.UsrId];
+            if (usrEtkStu == 'K' || usrEtkStu == 'k')
+                NavigationManager.NavigateTo($"chathub/{etId}");
+        }
+    }
+
+    private void StuChange(int etId)
+    {
+        var ok = EtkHub.ToggleEtkUsrStu(etId, USP.UsrId);
+        if(!ok)
+        {
+            // uyari ver
+        }
+    }
+    
     public override async Task SetParametersAsync(ParameterView parameters)
     {
         //if (parameters.TryGetValue<UserStateProvider>(nameof(USP), out var value))
@@ -167,6 +192,8 @@
         //  else
         //    await base.SetParametersAsync(parameters);  //Diger LifeCyle metodlarini cagiriyor
         //}
+
+
         await base.SetParametersAsync(parameters);  //Diger LifeCyle metodlarini cagiriyor
     }
 

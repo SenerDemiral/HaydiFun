@@ -131,8 +131,9 @@ public sealed class Pubs : IPubs
                     if (key.StartsWith("Chat:"))
                     {
                         var a = Services.GetRequiredService<ChatHub>();
-                        a.RemoveChats(key);
-                        Publish(Cnst.EtkChangeEvnt, new { ETid = 0 });
+                        int etId = int.Parse(key.Replace("Chat:", ""));
+                        a.RemoveChats(etId);
+                        Publish(Cnst.EtkChangeEvnt, new { ETid = etId });
                     }
                 }
             }

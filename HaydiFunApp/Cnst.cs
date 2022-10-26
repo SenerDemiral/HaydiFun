@@ -42,4 +42,12 @@ public static class Cnst
         }
 
     }
+    
+    public static char ToggleUsrStu(char oldStu) => oldStu switch
+    {
+        '?' => 'K',
+        'K' => 'R',
+        'R' => 'K',
+        _ => ' '
+    };
 }

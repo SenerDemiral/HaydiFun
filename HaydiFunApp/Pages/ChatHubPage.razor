@@ -5,6 +5,7 @@
 @inject IPubs pubs
 @inject UsrHub UsrHub
 @inject ChatHub ChatHub
+@inject EtkHub EtkHub
 @inject IDialogService DialogService
 
 @implements IDisposable
@@ -90,6 +91,13 @@ HepsiniAra:
         //  else
         //    await base.SetParametersAsync(parameters);  //Diger LifeCyle metodlarini cagiriyor
         //}
+
+        //   char usrEtkStu = EtkHub.EtkD[ETid].MbrD[USP.UsrId];
+        //   if (usrEtkStu == 'K' || usrEtkStu == 'k')
+        //       await base.SetParametersAsync(parameters);  //Diger LifeCyle metodlarini cagiriyor
+        //   else
+        //       NavigationManager.NavigateTo("/etkhub");
+        //
         await base.SetParametersAsync(parameters);  //Diger LifeCyle metodlarini cagiriyor
     }
 
@@ -112,11 +120,16 @@ HepsiniAra:
         // Igili Etkinlik degisimlerini dinlemek gerek cunki USP yi etkilemiyor
 
         //ChatL = EtkHub.GetUsrEtks(USP.UsrId);
-        if (ETid == 0)
-            ETid = 12;
-        ChatL = ChatHub.GetEtkChats(ETid);
-        pubs.Subscribe($"Chat:{ETid}", ChatChangeHandler);
-        pubs.Publish(Cnst.EtkChangeEvnt, new { ETid = ETid });
+        char usrEtkStu = EtkHub.EtkD[ETid].MbrD[USP.UsrId];
+        if (usrEtkStu == 'K' || usrEtkStu == 'k')
+        {
+            ChatL = ChatHub.GetEtkChats(ETid);
+            pubs.Subscribe($"Chat:{ETid}", ChatChangeHandler);
+            pubs.Publish(Cnst.EtkChangeEvnt, new { ETid = ETid });
+        }
+        else
+            NavigationManager.NavigateTo("/etkhub");
+
     }
 
     public void ChatChangeHandler(dynamic d)

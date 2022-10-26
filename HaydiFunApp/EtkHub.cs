@@ -1,6 +1,7 @@
 ﻿using DataLibrary;
 using System.Collections.Concurrent;
 using System.Text;
+using static MudBlazor.CategoryTypes;
 
 namespace HaydiFunApp;
 
@@ -180,9 +181,25 @@ public class EtkHub
         }
     }
 
+    public bool ToggleEtkUsrStu(int etId, int usrId)
+    {
+        char oldStu = EtkD[etId].MbrD[usrId];
+        char newStu = Cnst.ToggleUsrStu(oldStu);
+        if (newStu != ' ')
+        {
+            // Save to db
+            EtkD[etId].MbrD[usrId] = newStu;
+            pubs.Publish(Cnst.EtkChangeEvnt, new { ETid = etId });
+            return true;
+        }
+        return false;
+    }
+
     public bool IsUsrEtkMember(int etId, int usrId)
     {
         // Member stu ya da bak
+        if(etId == 0 || usrId == 0)
+            return false;
         return EtkD[etId].MbrD.ContainsKey(usrId);
     }
     public List<EtkMdl> GetUsrEtks(int mbr)
@@ -261,9 +278,9 @@ public class EtkHub
         // Unicode G yesil / Ozel kirmizi birsey bul
         public string TypAd => Typ switch
         {
-            'G' => "Gnl",
-            'O' => "Özl",
-            _ => "???"
+            'G' => " ",
+            'O' => "🔒",
+            _ => "X"
         };
     }
 
