@@ -126,11 +126,13 @@ public sealed class Pubs : IPubs
             DynEvent[key] -= handler!;
             if (DynEvent[key] == null)
             {
-                DynEvent.TryRemove(key, out _);
-                if (key.StartsWith("Chat:"))
+                if (DynEvent.TryRemove(key, out var aaaa))
                 {
-                    var a = Services.GetRequiredService<ChatHub>();
-                    a.RemoveChats(key);
+                    if (key.StartsWith("Chat:"))
+                    {
+                        var a = Services.GetRequiredService<ChatHub>();
+                        a.RemoveChats(key);
+                    }
                 }
             }
         }

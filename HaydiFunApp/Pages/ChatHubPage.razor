@@ -21,7 +21,11 @@ HepsiniAra:
 {
     <div style="margin:auto; width: fit-content;height:80vh;overflow:auto">
         <table>
-            <caption style="background-color: burlywood;">Etkinliklerim</caption>
+            <caption style="background-color: burlywood;">Chat Grup #@ETid</caption>
+            <colgroup>
+                <col style="width:35px">
+                <col>
+            </colgroup>
             <tbody>
                 @{
                     DateTime p = new(1, 1, 1);
@@ -43,6 +47,7 @@ HepsiniAra:
                     <tr @key="e.ECid">
                         @if (isOwn)
                         {
+                            <td></td>
                             <td class="info" data-kim="@kim">
                                 <div>@e.Info</div>
                                 <div class="saat">@e.EXD.ToString("HH:mm")</div>
@@ -51,10 +56,14 @@ HepsiniAra:
                         }
                         else
                         {
+                            <td class="px-0"><img src="@UsrHub.UsrD[e.UTid].ImgUrl" style="display:block" /></td>
                             <td class="info" data-kim="@kim">
-                                <div>@kim</div>
+                                <div style="display: flex; justify-content: space-between">
+                                    <div class="usr">@kim</div>
+                                    <div class="saat">@e.EXD.ToString("HH:mm")</div>
+                                </div>
                                 <div>@e.Info</div>
-                                <div class="saat">@e.EXD.ToString("HH:mm")</div>
+
                             </td>
                         }
                     </tr>
@@ -119,7 +128,7 @@ HepsiniAra:
 
     public void Dispose()
     {
-        pubs.UnSubscribe(Cnst.ChatChangeEvnt, ChatChangeHandler);
+        pubs.UnSubscribe($"Chat:{ETid}", ChatChangeHandler);
     }
 
 }
@@ -144,9 +153,15 @@ HepsiniAra:
         background-color: #edeeee;
     }
 
+    .usr {
+        color: orangered;
+        font-weight: bold;
+        font-size: x-small;
+    }
+
     [data-kim="Ben"] {
         background-color: beige;
-        margin-left: 50px;
+        /*margin-left: 50px;*/
     }
 
     .tarih {

@@ -22,7 +22,7 @@ public class ChatHub
 
     public void RemoveChats(string key)
     {
-        int etId = int.Parse(key.Replace("Chats:", ""));
+        int etId = int.Parse(key.Replace("Chat:", ""));
         ChatD.Remove(etId, out _);
     }
     public void AddChat(int etId, int utId, string info)
@@ -62,6 +62,7 @@ public class ChatHub
     {
         if (!ChatD.ContainsKey(etId))
             LoadEtkChats(etId);
+
         return ChatD[etId];
     }
 

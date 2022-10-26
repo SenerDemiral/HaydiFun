@@ -1,5 +1,6 @@
 ﻿using DataLibrary;
 using System.Collections.Concurrent;
+using System.Text;
 
 namespace HaydiFunApp;
 
@@ -8,14 +9,15 @@ public class EtkHub
     public ConcurrentDictionary<int, EtkMdl> EtkD;
     private readonly IPubs pubs;
     private readonly IDataAccess db;
+    private readonly UsrHub UsrHub;
 
-    public EtkHub(IPubs pubs, IDataAccess db)
+    public EtkHub(IPubs pubs, IDataAccess db, UsrHub usrHub)
     {
         this.db = db;
         int concurrencyLevel = Environment.ProcessorCount * 2;
         int initialCapacity = 101;  // 101,199,293,397,499,599,691,797,887,997 PrimeNumber
         EtkD = new(concurrencyLevel, initialCapacity);
-
+        UsrHub = usrHub;
         this.pubs = pubs;
 
         //long t1 = Environment.TickCount;
@@ -163,6 +165,7 @@ public class EtkHub
             };
             Cnst.StringToDictionary(itm.Mbrs, em.MbrD);
 
+
             EtkD.TryAdd(itm.ETid, em);
 
         }
@@ -181,20 +184,34 @@ public class EtkHub
     {
         // Memberi oldugu veya Genel Davetleri (Katilmak isteyebilir) gorecek
         // mbr.Stu ne olursa User gorecek?
+        List<string> onlineMbrs = new List<string>();
+        //.Where(x => x.Value.Typ == 'G' || x.Value.MbrD.ContainsKey(mbr))
+
         var bbb = EtkD
-            .Where(x => x.Value.Typ == 'G' || x.Value.MbrD.ContainsKey(mbr))
+            .Where(x => x.Value.MbrD.ContainsKey(mbr))
             .Select(x => x.Value)
             .OrderByDescending(x => x.LAD)
             .ToList();
 
         // Katilmak isteyecegi Genel etkinliklere yoksa member olarak ekle
-        foreach(var v in bbb)
+        foreach (var v in bbb)
         {
             if (!v.MbrD.ContainsKey(mbr))
             {
                 v.MbrD.Add(mbr, '!');
             }
+
+            onlineMbrs.Clear();
+            foreach (var key in v.MbrD.Keys)
+            {
+                if (UsrHub.UsrD[key].isOnline)
+                {
+                    onlineMbrs.Add(UsrHub.UsrD[key].Usr);
+                }
+            }
+            v.OnlineMbrs = string.Join(", ", onlineMbrs);
         }
+
         return bbb;
     }
 
@@ -227,6 +244,7 @@ public class EtkHub
         public string Mbrs;
 
         public Dictionary<int, char> MbrD = new();
+        public string OnlineMbrs = "";
         public int UsrId;
         public char UsrStu;
         public bool isOwnr;
@@ -237,7 +255,7 @@ public class EtkHub
         {
             'G' => "Gnl",
             'O' => "Özl",
-            _ => "???" 
+            _ => "???"
         };
     }
 
