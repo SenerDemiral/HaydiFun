@@ -1,5 +1,4 @@
-﻿@page "/chathub"
-@page "/chathub/{etId:int}"
+﻿@page "/chathub/{etId:int}"
 
 @inject NavigationManager NavigationManager
 @inject IPubs pubs
@@ -121,7 +120,7 @@ HepsiniAra:
 
         //ChatL = EtkHub.GetUsrEtks(USP.UsrId);
         char usrEtkStu = EtkHub.EtkD[ETid].MbrD[USP.UsrId];
-        if (usrEtkStu == 'K' || usrEtkStu == 'k')
+        if (Cnst.CanChat(usrEtkStu))
         {
             ChatL = ChatHub.GetEtkChats(ETid);
             pubs.Subscribe($"Chat:{ETid}", ChatChangeHandler);

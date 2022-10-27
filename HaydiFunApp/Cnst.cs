@@ -42,7 +42,15 @@ public static class Cnst
         }
 
     }
-    
+
+    public static bool CanChat(char usrStu) => usrStu switch
+    {
+        'O' => true,
+        'K' => true,
+        'k' => true,
+        _ => false
+    };
+
     public static char ToggleUsrStu(char oldStu) => oldStu switch
     {
         '?' => 'K',
@@ -50,4 +58,27 @@ public static class Cnst
         'R' => 'K',
         _ => ' '
     };
+    //Rune r = new Rune(0x1F535);
+    //emoji = r.ToString();
+    // "💤"; // "⚪"; //"🟢" "\uD83D\uDDE3"
+    //"📞☎✅"
+
+    public static string emjFanTyp(char typ) => typ switch
+    {
+        'T' => "✓",
+        'E' => "⛔"
+    };
+    public static string emjChatStu(bool hasChat) => hasChat switch
+    {
+        true => "😉",
+        false => "😴"
+    };
+
+    public static string emjOnlineStu(bool isOnline) => isOnline switch
+    {
+        true => emjOnline,
+        false => ""
+    };
+
+    public static string emjOnline = "✅";
 }

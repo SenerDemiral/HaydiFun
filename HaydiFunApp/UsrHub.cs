@@ -183,7 +183,7 @@ public sealed class UsrHub
         public string? Lbls;
         public string? LblAds;
         public string? Fans;
-        public string ImgUrl => $"uploads/{Avatar}?width=35&height=35";
+        public string ImgUrl => $"uploads/{Avatar}?width=50";
 
         public bool isOnline => Cnt == 0 ? false : true;
         public Dictionary<int, char> FanD = new();

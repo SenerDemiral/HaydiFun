@@ -116,13 +116,14 @@
 
     public override async Task SetParametersAsync(ParameterView parameters)
     {
-        if (parameters.TryGetValue<UserStateProvider>(nameof(USP), out var value))
-        {
-            if (value is null || value.UsrTyp != "2")
-                NavigationManager.NavigateTo("");
-            else
-                await base.SetParametersAsync(parameters);  //Diger LifeCyle metodlarini cagiriyor
-        }
+        //if (parameters.TryGetValue<UserStateProvider>(nameof(USP), out var value))
+        //{
+        //    if (value is null || value.UsrTyp != "2")
+        //        NavigationManager.NavigateTo("");
+        //    else
+        //        await base.SetParametersAsync(parameters);  //Diger LifeCyle metodlarini cagiriyor
+        //}
+        await base.SetParametersAsync(parameters);  //Diger LifeCyle metodlarini cagiriyor
     }
 
     protected override async Task OnInitializedAsync()
