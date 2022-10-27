@@ -76,7 +76,7 @@
 
             using (var image = await Image.LoadAsync(selectedFile.OpenReadStream()))
             {
-                image.Mutate(x => { if (x.GetCurrentSize().Width > 512) x.Resize(512, 0); }); //Resize(1024, 0));  //(256, 256));
+                image.Mutate(x => { if (x.GetCurrentSize().Width > 1024) x.Resize(1024, 0); }); //Resize(1024, 0));  //(256, 256));
                 image.Save(fileName);
                 Message = $"{selectedFile.Name} uploaded.";
             }

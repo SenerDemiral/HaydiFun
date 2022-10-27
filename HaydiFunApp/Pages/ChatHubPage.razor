@@ -9,23 +9,18 @@
 
 @implements IDisposable
 
-<MudFab StartIcon="@Icons.Material.Filled.Login"
-        Label="Yeni"
-        Color="Color.Error"
-        Size="Size.Small"
-        OnClick="deneme" />
-
-HepsiniAra:
-<input @bind="ChatText" />
 
 @if (USP.UsrId != 0)
 {
     <div style="margin:auto; width: fit-content;height:80vh;overflow:auto">
+        <span @onkeypress="@KeyHandler">
+            <input type="text" @bind="ChatText" @bind:event="oninput" class="txt" placeholder="Mesaj..." />
+        </span>
+
         <table>
             <caption style="background-color: burlywood;">Chat Grup #@ETid</caption>
             <colgroup>
-                <col style="width:35px">
-                <col>
+                <col style="min-width:200px">
             </colgroup>
             <tbody>
                 @{
@@ -48,7 +43,6 @@ HepsiniAra:
                     <tr @key="e.ECid">
                         @if (isOwn)
                         {
-                            <td></td>
                             <td class="info" data-kim="@kim">
                                 <div>@e.Info</div>
                                 <div class="saat">@e.EXD.ToString("HH:mm")</div>
@@ -57,13 +51,10 @@ HepsiniAra:
                         }
                         else
                         {
-                            <td class="px-0"><img src="@UsrHub.UsrD[e.UTid].ImgUrl" style="display:block" /></td>
                             <td class="info" data-kim="@kim">
-                                <div style="display: flex; justify-content: space-between">
-                                    <div class="usr">@kim</div>
-                                    <div class="saat">@e.EXD.ToString("HH:mm")</div>
-                                </div>
+                                <div class="usr" @onclick="(()=> UsrInfo(e.UTid))">@kim</div>
                                 <div>@e.Info</div>
+                                <div class="saat">@e.EXD.ToString("HH:mm")</div>
 
                             </td>
                         }
@@ -74,12 +65,54 @@ HepsiniAra:
     </div>
 }
 
+<MudPopover Open="@_isOpen" Fixed="true">
+    <div class="d-flex flex-column" style="max-width:360px">
+        <img src="@UsrImgUrl" style="display:block;" />
+        <div class="px-2">
+            <MudText>@Usr</MudText>
+            <MudText>@UsrLblAds</MudText>
+        </div>
+        <MudButton OnClick="@ToggleOpen" Class="mb-1" Color="Color.Error">Kapat</MudButton>
+    </div>
+</MudPopover>
 
 @code {
     [CascadingParameter] private UserStateProvider USP { get; set; }
     [Parameter] public int ETid { get; set; } = 12;
     List<ChatHub.ChatMdl> ChatL = new();
     private string ChatText { get; set; }
+
+
+    private string Usr;
+    private string UsrImgUrl;
+    private string UsrLblAds;
+
+    public bool _isOpen;
+
+    public void ToggleOpen()
+    {
+        _isOpen = !_isOpen;
+    }
+
+    private void KeyHandler(KeyboardEventArgs args)
+    {
+        if (args.Key == "Enter")
+        {
+            if (!string.IsNullOrWhiteSpace(ChatText))
+                ChatHub.AddChat(ETid, USP.UsrId, ChatText);
+
+            ChatText = "";
+            return;
+        }
+    }
+
+    private void UsrInfo(int utId)
+    {
+        Usr = UsrHub.UsrD[utId].Usr;
+        UsrImgUrl = UsrHub.UsrD[utId].ImgUrlBig;
+        UsrLblAds = UsrHub.UsrD[utId].LblAds;
+        _isOpen = true;
+    }
 
     public override async Task SetParametersAsync(ParameterView parameters)
     {
@@ -102,7 +135,8 @@ HepsiniAra:
 
     private void deneme()
     {
-        ChatHub.AddChat(ETid, USP.UsrId, ChatText);
+        if (!string.IsNullOrWhiteSpace(ChatText))
+            ChatHub.AddChat(ETid, USP.UsrId, ChatText);
     }
     protected override void OnParametersSet()
     {
@@ -162,6 +196,14 @@ HepsiniAra:
         /*overflow: auto;*/
     }
 
+    .txt {
+        border: 1px solid burlywood;
+        width: 100%;
+        margin-bottom: 4px;
+        width: 100%;
+        padding: 0 4px;
+    }
+
     .info {
         display: flex;
         flex-direction: column;
@@ -173,7 +215,12 @@ HepsiniAra:
         color: orangered;
         font-weight: bold;
         font-size: x-small;
+        cursor: pointer;
     }
+
+        .usr:hover {
+            font-size: large;
+        }
 
     [data-kim="Ben"] {
         background-color: beige;

@@ -1,7 +1,6 @@
 ﻿@page "/tsd"
 @inject IDataAccess db
 
-<h3>TagSeachDialog</h3>
 <style>
     .sener p::first-letter {
         font-weight: bold;
@@ -10,30 +9,38 @@
 <MudPaper>
     <MudList Clickable="true" Dense="true">
         <MudListSubheader DisableGutters="false">
-            <MudRadioGroup @bind-SelectedOption="@AndSelected">
-                <MudRadio Option="true" Color="Color.Primary" Dense="true">Bunların Hepsi</MudRadio>
+            @if (Typ == "S")
+            {
+                <MudRadioGroup @bind-SelectedOption="@AndSelected">
+                    <MudRadio Option="true" Color="Color.Primary" Dense="true">Bunların Hepsi</MudRadio>
                 <MudRadio Option="false" Color="Color.Secondary" Dense="true">Bunlardan Biri</MudRadio>
             </MudRadioGroup>
+            }
+            @if (Typ == "S" || Typ == "U")
+            {
+                <MudChipSet AllClosable="true" OnClose="@ClosedA">
+                    @foreach (var lbl in asLbls)
+                    {
+                        //var fullName = $"{Grps[lbl.LGid].NN}•{lbl.Name}";
 
-            <MudChipSet AllClosable="true" OnClose="@ClosedA">
-                @foreach (var lbl in asLbls)
-                {
-                    var fullName = $"{Grps[lbl.LGid].NN}•{lbl.Name}";
+                        <MudChip Text="@lbl.FullName" Value="@lbl" Color="Color.Primary" Size="Size.Small"></MudChip>
+                    }
+                </MudChipSet>
+            }
+            @if (Typ == "S" || Typ == "E")
+            {
+                AndSelected = false;
+                <MudChipSet AllClosable="true" OnClose="@ClosedO">
+                    @foreach (var lbl in osLbls)
+                    {
+                        var fullName = $"{Grps[lbl.LGid].NN}•{lbl.Name}";
 
-                    <MudChip Text="@fullName" Value="@lbl" Color="Color.Primary" Size="Size.Small"></MudChip>
-                }
-            </MudChipSet>
-
-            <MudChipSet AllClosable="true" OnClose="@ClosedO">
-                @foreach (var lbl in osLbls)
-                {
-                    var fullName = $"{Grps[lbl.LGid].NN}•{lbl.Name}";
-
-                    <MudChip Text="@fullName" Value="@lbl" Color="Color.Secondary" Size="Size.Small"></MudChip>
-                }
-            </MudChipSet>
-
+                        <MudChip Text="@fullName" Value="@lbl" Color="Color.Secondary" Size="Size.Small"></MudChip>
+                    }
+                </MudChipSet>
+            }
         </MudListSubheader>
+        <div style="max-height: 50vh; overflow:auto">
 
         @foreach (var grp in Grps)
         {
@@ -57,39 +64,30 @@
 
             </MudListItem>
         }
+        </div>
     </MudList>
 </MudPaper>
 
 
 @code {
+    [Parameter] public string Typ { get; set; }
     HashSet<int> aH = new();
     HashSet<int> oH = new();
 
-    List<LT> asLbls = new();    // AND search
-    List<LT> osLbls = new();    // OR  search
+    public List<LT> asLbls = new();    // AND search
+    public List<LT> osLbls = new();    // OR  search
     public bool AndSelected { get; set; } = true;    //Hepsi
     public bool expanded;
 
     Dictionary<int, LG> Grps = new();
-    //{
-    //    {1, new LG { LGid = 1, Name = "Sex", isMny = false } },
-    //    {2, new LG { LGid = 2, Name = "Hby", isMny = true } },
-    //};
     List<LT> Lbls = new();
-    //{
-    //    new LT { LTid = 1, Name = "Erkek", LGid = 1 },
-    //    new LT { LTid = 2, Name = "Kadin", LGid = 1 },
-
-    //    new LT { LTid = 3, Name = "Spor", LGid = 2 },
-    //    new LT { LTid = 4, Name = "Muzik", LGid = 2 },
-    //    new LT { LTid = 5, Name = "Resim", LGid = 2 },
-    //};
 
     protected override async Task OnInitializedAsync()
     {
         Lbls = (await db.LoadDataAsync<LT, dynamic>("select * from LT order by LGid, Name", new { })).ToList();
         Grps = (await db.LoadDataAsync<LG, dynamic>("select * from LG order by LGid", new { })).ToDictionary((x) => x.LGid);
     }
+
     private void ToggleExpanded(bool expanded, int key)
     {
         if (expanded)
@@ -158,7 +156,6 @@
         var ti = Lbls.FindIndex(x => x.LTid == lbl.LTid);
         if (ti != -1)
             Lbls[ti].isDisabled = false;
-
     }
 
     public void ClosedO(MudChip chip)
@@ -176,6 +173,7 @@
     {
         public int LTid { get; set; }
         public string? Name { get; set; }
+        public string? FullName { get; set; }
         public bool isDisabled { get; set; } = false;
         public int LGid { get; set; }
     }
@@ -188,7 +186,7 @@
         public bool isMny
         {
             get => Mny == "E" ? true : false;
-            set { }
+            set { Mny = value ? "E" : "H"; }
         }
         public bool isExpanded { get; set; }
         public string? NN

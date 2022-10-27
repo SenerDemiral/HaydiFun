@@ -9,26 +9,30 @@
         <MudDivider />
     </TitleContent>
     <DialogContent>
-        <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
-            <DataAnnotationsValidator />
-            <MudTextField Label="Açıklama" AutoFocus="true"
-                          HelperText="Açıklama"
-                          @bind-Value="model.Info"
-                          For="@(() => model.Info)" />
-            <MudRadioGroup @bind-SelectedOption="model.isOzl" Style="margin-left:6px">
-                <MudRadio Option="true" Color="Color.Secondary" Dense="true">Özel</MudRadio>
-                <MudRadio Option="false" Color="Color.Success" Dense="true">Genel</MudRadio>
-            </MudRadioGroup>
-            <br />
-            <MudButton ButtonType="ButtonType.Submit"
-                       Variant="Variant.Filled"
-                       Color="Color.Primary"
-                       Class="ml-auto">
-                Kaydet
-            </MudButton>
+            <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+                <DataAnnotationsValidator />
+                <MudTextField Label="Açıklama" AutoFocus="true"
+                              HelperText="Açıklama"
+                              @bind-Value="model.Info"
+                              For="@(() => model.Info)" />
+                <MudRadioGroup @bind-SelectedOption="model.isOzl" Style="margin-left:6px">
+                    <MudRadio Option="true" Color="Color.Secondary" Dense="true">Özel</MudRadio>
+                    <MudRadio Option="false" Color="Color.Success" Dense="true">Genel</MudRadio>
+                </MudRadioGroup>
+                <MudText>Aşağıdaki Etiketleri kullanarak Davetin özelliklerini belirleyin</MudText>
+                <TagSearchDialog @ref="TSG" Typ="E"></TagSearchDialog>
 
-            <MudButton OnClick="Cancel">İptal</MudButton>
-        </EditForm>
+
+                <MudButton ButtonType="ButtonType.Submit"
+                           Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           Class="ml-auto">
+                    Kaydet
+                </MudButton>
+
+                <MudButton OnClick="Cancel">İptal</MudButton>
+
+            </EditForm>
     </DialogContent>
     <DialogActions>
     </DialogActions>
@@ -38,14 +42,8 @@
     [CascadingParameter] private UserStateProvider? USP { get; set; }
     [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
     public bool success { get; set; } = false;
-
+    TagSearchDialog? TSG;
     private RegisterModel model { get; set; } = new();
-    public PatternMask mTelMask = new PatternMask("(###) ### ## ##")
-        {
-            MaskChars = new[] { new MaskChar('#', @"[0-9]") },
-            Placeholder = '_',
-            CleanDelimiters = true,
-        };
 
     private async Task OnValidSubmit(EditContext context)
     {
@@ -54,12 +52,15 @@
 
         model.ETid = 0;
         model.OwnId = USP.UsrId;
+        if (TSG?.osLbls.Count > 0)
+            model.Lbls = string.Join(',', TSG.osLbls.Select(x => x.LTid));
+
         var rtrn = await db.StoreProcAsync<dynamic, RegisterModel>("ET_MDF(@ETid, @OwnId, @Typ, @Info, @Lbls)", model);
 
         int rETid = rtrn.RETID;
         string Msj = rtrn.MSJ;
         EtkHub.RefreshEtk(rETid);
-
+        MudDialog?.Close(DialogResult.Ok(true));
         //if (rsp == 0)
         //{
         //    Snackbar.Add("OK", Severity.Success, config =>
@@ -95,8 +96,8 @@
             set { Typ = value ? "O" : "G"; }
         }
 
-        [Required(ErrorMessage = "Bu alan zorunludur")]
-        [StringLength(40, ErrorMessage = "Max 40")]
+        [Required(ErrorMessage = "Bu alan zorunludur.")]
+        [StringLength(250, MinimumLength = 10, ErrorMessage = "En az {2} en fazla {1} karakter.")]
         public string? Info { get; set; }
         public string? Lbls { get; set; }
 
