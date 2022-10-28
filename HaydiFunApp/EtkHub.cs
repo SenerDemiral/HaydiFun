@@ -73,7 +73,7 @@ public class EtkHub
 
     public void Deneme()
     {
-        LoadAllEtk();
+        LoadAll();
         //AddDeneme();
         //ChatD.Clear();
         //AddDeneme();
@@ -144,7 +144,7 @@ public class EtkHub
         pubs.Publish(Cnst.EtkChangeEvnt, new { ETid = itm.ETid });
     }
 
-    public void LoadAllEtk()
+    public void LoadAll()
     {
         EtkD.Clear();
         Task<IEnumerable<EtkMdl>> res = db.LoadDataAsync<EtkMdl, dynamic>("select * from ET_GETALL", new { });

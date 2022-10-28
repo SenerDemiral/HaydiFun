@@ -3,6 +3,7 @@
 @inject NavigationManager NavigationManager
 @inject IPubs pubs
 @inject UsrHub UsrHub
+@inject LblHub LblHub
 @inject ChatHub ChatHub
 @inject EtkHub EtkHub
 @inject IDialogService DialogService
@@ -68,9 +69,12 @@
 <MudPopover Open="@_isOpen" Fixed="true">
     <div class="d-flex flex-column" style="max-width:360px">
         <img src="@UsrImgUrl" style="display:block;" />
-        <div class="px-2">
-            <MudText>@Usr</MudText>
-            <MudText>@UsrLblAds</MudText>
+        <MudChip Label="true" Color="Color.Error">@Usr</MudChip>
+        <div class="px-0">
+            @foreach (var lbl in UsrLblL)
+            {
+                <MudChip Label="true" Color="Color.Info" Size="Size.Small">@lbl</MudChip>
+            }
         </div>
         <MudButton OnClick="@ToggleOpen" Class="mb-1" Color="Color.Error">Kapat</MudButton>
     </div>
@@ -82,10 +86,9 @@
     List<ChatHub.ChatMdl> ChatL = new();
     private string ChatText { get; set; }
 
-
     private string Usr;
     private string UsrImgUrl;
-    private string UsrLblAds;
+    private List<string> UsrLblL;
 
     public bool _isOpen;
 
@@ -110,7 +113,7 @@
     {
         Usr = UsrHub.UsrD[utId].Usr;
         UsrImgUrl = UsrHub.UsrD[utId].ImgUrlBig;
-        UsrLblAds = UsrHub.UsrD[utId].LblAds;
+        UsrLblL = LblHub.Lbls2List(UsrHub.UsrD[utId].Lbls);
         _isOpen = true;
     }
 

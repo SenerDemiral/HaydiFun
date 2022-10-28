@@ -1,0 +1,45 @@
+﻿@inject UsrHub UsrHub
+@inject LblHub LblHub
+
+<MudPopover Open="@isOpen" Fixed="true">
+    <div class="d-flex flex-column" style="max-width:360px">
+        <img src="@UsrImgUrl" style="display:block;" />
+        <MudChip Label="true" Color="Color.Error">@Usr</MudChip>
+        <MudTextField Lines="4" Class="px-2 mt-n4" @bind-Value="Info" Variant="Variant.Text" ReadOnly="true"/>
+        <div class="px-0">
+            @foreach (var lbl in UsrLblL)
+            {
+                    <MudChip Label="true" Color="Color.Info" Size="Size.Small">@lbl</MudChip>
+            }
+        </div>
+        <MudButton OnClick="@ToggleOpen" Class="mb-1" Color="Color.Error">Kapat</MudButton>
+    </div>
+</MudPopover>
+
+@code {
+    [Parameter] public int UTid { get; set; }
+    [Parameter] public bool isOpen { get; set; }
+
+    private string Usr;
+    private string Info;
+    private string UsrImgUrl;
+    private List<string> UsrLblL;
+
+    public void ToggleOpen()
+    {
+        isOpen = !isOpen;
+    }
+
+    protected override void OnParametersSet()
+    {
+        Usr = UsrHub.UsrD[UTid].Usr;
+        Info = UsrHub.UsrD[UTid].Info;
+        UsrImgUrl = UsrHub.UsrD[UTid].ImgUrlBig;
+        UsrLblL = LblHub.Lbls2List(UsrHub.UsrD[UTid].Lbls);
+        isOpen = true;
+    }
+    protected override void OnInitialized()
+    {
+    }
+
+}

@@ -33,9 +33,9 @@
                 <MudChipSet AllClosable="true" OnClose="@ClosedO">
                     @foreach (var lbl in osLbls)
                     {
-                        var fullName = $"{Grps[lbl.LGid].NN}•{lbl.Name}";
+                        //var fullName = $"{Grps[lbl.LGid].NN}•{lbl.Name}";
 
-                        <MudChip Text="@fullName" Value="@lbl" Color="Color.Secondary" Size="Size.Small"></MudChip>
+                        <MudChip Text="@lbl.FullName" Value="@lbl" Color="Color.Secondary" Size="Size.Small"></MudChip>
                     }
                 </MudChipSet>
             }

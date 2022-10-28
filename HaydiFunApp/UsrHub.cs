@@ -24,7 +24,7 @@ public sealed class UsrHub
         this.pubs = pubs;
         this.db = db;
     }
-    public void LoadAllUsr()
+    public void LoadAll()
     {
         UsrD.Clear();
         Task<IEnumerable<UsrMdl>> res = db.LoadDataAsync<UsrMdl, dynamic>("select * from UT_GETALL", new { });
@@ -35,6 +35,7 @@ public sealed class UsrHub
             {
                 UTid = itm.UTid,
                 Usr = itm.Usr,
+                Info = itm.Info,
                 Avatar = itm.Avatar,
                 Lbls = itm.Lbls,
                 LblAds = itm.LblAds,
@@ -63,6 +64,7 @@ public sealed class UsrHub
         {
             UsrD[utId].UTid = itm.UTid;
             UsrD[utId].Usr = itm.Usr;
+            UsrD[utId].Info = itm.Info;
             UsrD[utId].Avatar = itm.Avatar;
             UsrD[utId].Lbls = itm.Lbls;
             UsrD[utId].LblAds = itm.LblAds;
@@ -81,6 +83,7 @@ public sealed class UsrHub
             {
                 UTid = itm.UTid,
                 Usr = itm.Usr,
+                Info = itm.Info,
                 Avatar = itm.Avatar,
                 Lbls = itm.Lbls,
                 LblAds = itm.LblAds,
@@ -165,7 +168,7 @@ public sealed class UsrHub
     public void UsrModifed(int usrId)
     {
         // Yapildigi yerden Raise et
-        // Avatar, Lbls, Fans degisebilir
+        // Avatar, Lbls, Fans, Info degisebilir
         // Load UT rec
 
     }
@@ -179,6 +182,7 @@ public sealed class UsrHub
         public string? Usr;
         public DateTime? EXD;
         public int Cnt; // if 0 Offline
+        public string? Info;
         public string? Avatar;
         public string? Lbls;
         public string? LblAds;

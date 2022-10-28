@@ -23,9 +23,10 @@ builder.Services.AddSingleton<IEmailService, EmailService>();
 
 builder.Services.AddSingleton<IPubs, Pubs>();
 
+builder.Services.AddSingleton<LblHub>();
+builder.Services.AddSingleton<UsrHub>();
 builder.Services.AddSingleton<EtkHub>();
 builder.Services.AddSingleton<ChatHub>();
-builder.Services.AddSingleton<UsrHub>();
 builder.Services.AddSingleton<DataHub>();
 builder.Services.AddScoped<ClipboardService>();
 builder.Services.AddMudServices(config =>
@@ -61,8 +62,11 @@ app.UseRouting();
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
 
-app.Services.GetService<UsrHub>().LoadAllUsr();
-var someService = app.Services.GetService<EtkHub>();
-someService.LoadAllEtk();
+app.Services.GetService<LblHub>()?.LoadAll();
+app.Services.GetService<UsrHub>()?.LoadAll();
+app.Services.GetService<EtkHub>()?.LoadAll();
+
+//var someService = app.Services.GetService<EtkHub>();
+//someService?.LoadAll();
 
 app.Run();
