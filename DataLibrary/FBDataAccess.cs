@@ -100,13 +100,18 @@ namespace DataLibrary
             return cnct.QueryFirstOrDefault<T>("execute procedure " + storeProc, parameters);
         }
 
-        public async Task<bool> SaveData<T>(string sql, T parameters)
+        public bool SaveRec<T>(string sql, T parameters)
+        {
+            using IDbConnection cnct = new FbConnection(cnctStr);
+            var nora = cnct.Execute(sql, parameters);
+            return nora == 0 ? false: true ;   // Affected NOR yoksa(0), Save edilemedi
+        }
+
+        public async Task<bool> SaveDataAsync<T>(string sql, T parameters)
         {
             using IDbConnection cnct = new FbConnection(cnctStr);
             var nora = await cnct.ExecuteAsync(sql, parameters);
-            if (nora == 0)
-                return false;   // Affected NOR yok, Save edilemedi
-            return true;
+            return nora == 0 ? false: true ;   // Affected NOR yoksa(0), Save edilemedi
         }
         public async Task SaveDataProc<T>(string sp, T parameters)
         {

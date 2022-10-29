@@ -45,7 +45,7 @@ public static class Cnst
 
     public static bool CanChat(char usrStu) => usrStu switch
     {
-        'O' => true,
+        '*' => true,
         'K' => true,
         'k' => true,
         _ => false
@@ -61,7 +61,7 @@ public static class Cnst
     //Rune r = new Rune(0x1F535);
     //emoji = r.ToString();
     // "💤"; // "⚪"; //"🟢" "\uD83D\uDDE3"
-    //"📞☎✅"
+    //"📞☎✅✔✓"
 
     public static string emjFanTyp(char typ) => typ switch
     {

@@ -14,7 +14,9 @@ namespace DataLibrary
         T StoreProc<T, U>(string storeProc, U parameters);
         Task<T> StoreProcAsync<T, U>(string storeProc, U parameters);
         //Task<dynamic> StoreProc2<T>(string storeProc, T parameters);
-        Task<bool> SaveData<T>(string sql, T parameters);
+        Task<bool> SaveDataAsync<T>(string sql, T parameters);
+        bool SaveRec<T>(string sql, T parameters);
+
         int GetTablePK(string tblName);
     }
 }

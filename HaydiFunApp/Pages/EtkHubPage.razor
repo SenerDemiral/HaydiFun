@@ -38,9 +38,11 @@
         font-size: large;
         cursor: pointer;
     }
-    .info, .lbl, .mbr{
-        font-size:x-small;
+
+    .info, .lbl, .mbr {
+        font-size: x-small;
     }
+
     .imj {
         display: block;
     }
@@ -68,7 +70,7 @@
 
 @if (USP.UsrId != 0)
 {
-    <div style="margin:auto; width: fit-content;">
+    <div style="margin:auto; width: fit-content; max-height:80vh; overflow:auto">
         <table>
             <caption style="background-color: burlywood;">Etkinliklerim</caption>
             <colgroup>
@@ -91,11 +93,7 @@
                 @{
                     int NOU = 0;
                     var usrId = USP.UsrId;
-                    int etkId;
                     EtkHub.EtkMdl etk;
-                }
-                @{
-
                 }
                 @foreach (var e in EtkL)
                 {
@@ -107,7 +105,7 @@
                         <td>@e.ETid</td>
                         <td class="tac emoji">@e.TypAd</td>
                         <td><b>@o.Usr</b> @oOnline</td>
-                        <td class="px-0"><img src="@o.ImgUrl" class="imj"/></td>
+                        <td class="px-0"><img src="@o.ImgUrl" class="imj" /></td>
                         <td class="tac emoji" @onclick="(()=> StuChange(e.ETid))">@e.MbrD[usrId]</td>
                         <td class="emoji" @onclick="(()=> GoChat(e.ETid))">@hasChat</td>
                     </tr>
@@ -125,35 +123,6 @@
                     NOU++;
                 }
 
-                @* @foreach (var kv in EtkHub.EtkD)
-            {
-            etkId = kv.Key;
-            etk = kv.Value;
-
-            if (etk.MbrD.ContainsKey(usrId))
-            {
-            var ownId = etk.OwnId;
-            var own = UsrHub.UsrD[ownId];
-            var usr = UsrHub.UsrD[usrId];
-            char mbrStu = etk.MbrD[usrId];
-            var ownOnline = own.isOnline ? '✅' : ' ';
-
-            <tr @key="etkId" class="@etk.Typ">
-            <td>@etkId</td>
-            <td class="tac">@etk.TypAd</td>
-            <td><b>@own.Usr</b> @ownOnline</td>
-            <td class="px-0"><img src="@own.ImgUrl" style="display:block" /></td>
-            <td class="tac">@mbrStu</td>
-            </tr>
-            <tr style="background-color: beige">
-            <td colspan="9">@etk.Info</td>
-            </tr>
-            <tr style="background-color: beige">
-            <td colspan="9">@etk.LblAds</td>
-            </tr>
-            NOU++;
-            }
-            }*@
             </tbody>
             <tfoot style="background-color: burlywood;">
                 <tr>

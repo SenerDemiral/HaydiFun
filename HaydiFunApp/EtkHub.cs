@@ -188,6 +188,7 @@ public class EtkHub
         if (newStu != ' ')
         {
             // Save to db
+            db.SaveRec("update EM set Stu = @Stu where ETid = @ETid and UTid = @UTid", new { ETid = etId, UTid = usrId, Stu = newStu });
             EtkD[etId].MbrD[usrId] = newStu;
             pubs.Publish(Cnst.EtkChangeEvnt, new { ETid = etId });
             return true;
