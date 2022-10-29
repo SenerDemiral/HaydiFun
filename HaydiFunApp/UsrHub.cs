@@ -68,7 +68,7 @@ public sealed class UsrHub
             UsrD[utId].Avatar = itm.Avatar;
             UsrD[utId].Lbls = itm.Lbls;
             UsrD[utId].LblAds = itm.LblAds;
-            if(cnt > 0)
+            if (cnt > 0)
             {
                 UsrD[utId].Cnt = cnt;
             }
@@ -138,12 +138,34 @@ public sealed class UsrHub
 
         }
     }
+
+    public bool ToggleFanTyp(int mstId, int dtyId)
+    {
+        if (UsrD[mstId].FanD.TryGetValue(dtyId, out var oldTyp))
+        {
+            char newTyp = Cnst.ToggleFanTyp(oldTyp);
+
+            // Save to db
+            db.SaveRec("update UF set Typ = @Typ where MstId = @MstId and DtyId = @DtyId", new { MstId = mstId, DtyId = dtyId, Typ = newTyp });
+            UsrD[mstId].FanD[dtyId] = newTyp;
+            pubs.Publish(Cnst.UsrChangeEvnt, new { NOU = 0 });
+            return true;
+        }
+        else
+        {
+            char newTyp = Cnst.ToggleFanTyp(' ');
+            db.SaveRec("insert into UF (MstId, DtyId, Typ) values(@MstId, @DtyId, @Typ)", new { MstId = mstId, DtyId = dtyId, Typ = newTyp });
+            UsrD[mstId].FanD.Add(dtyId, newTyp);
+        }
+        return false;
+    }
+
     public void UsrEnter(int usrId)
     {
         if (UsrD.ContainsKey(usrId))
         {
             UsrD[usrId].Cnt++;
-            
+
             var NOU = UsrD.Count(x => x.Value.isOnline);
             pubs.Publish(key: Cnst.UsrChangeEvnt, new { UsrId = usrId, Ops = "E", NOU = NOU });
         }

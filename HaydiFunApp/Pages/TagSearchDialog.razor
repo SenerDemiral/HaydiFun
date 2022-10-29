@@ -29,7 +29,8 @@
             }
             @if (Typ == "S" || Typ == "E")
             {
-                AndSelected = false;
+                if(Typ == "E")
+                    AndSelected = false;
                 <MudChipSet AllClosable="true" OnClose="@ClosedO">
                     @foreach (var lbl in osLbls)
                     {
@@ -70,7 +71,7 @@
 
 
 @code {
-    [Parameter] public string Typ { get; set; }
+    [Parameter] public string Typ { get; set; } = "S";
     HashSet<int> aH = new();
     HashSet<int> oH = new();
 

@@ -127,7 +127,7 @@
                         <td>@usr.EXD</td>
                         <td class="px-0"><img src="@usr.ImgUrl" class="imj" /></td>
                         <td class="emj">@Takipcim</td>
-                        <td class="emj">@Izliyorum</td>
+                        <td class="emj" @onclick="(()=> ToggleFanTyp(usr.UTid))" style="cursor:pointer">@Izliyorum</td>
                     </tr>
                     <tr style="background-color: beige">
                         <td colspan="9">@usr.LblAds</td>
@@ -169,6 +169,13 @@
         UTid = utId;
         isOpen = true;
     }
+
+    private void ToggleFanTyp(int utId)
+    {
+        if (USP.UsrId != utId)
+            UsrHub.ToggleFanTyp(USP.UsrId, utId);
+    }
+ 
     public void Srch()
     {
         HashSet<int> hepsiHS = new();

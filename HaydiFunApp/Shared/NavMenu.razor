@@ -10,32 +10,13 @@
             Yeni Üyelik
         </MudNavLink>
     }
-    else if (USP.UsrTyp == "A")
-    {
-        <MudNavLink Href="adm/home" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Home">Admin</MudNavLink>
-        <MudNavLink Href="adm/ut" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Person">Kullanıcı</MudNavLink>
-        <MudNavLink Href="adm/ah" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Campaign">Duyuru</MudNavLink>
-        <MudNavLink Href="/tsd" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Campaign">TagSearchDialog dnm</MudNavLink>
-        <MudNavLink Href="adm/usrhub" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.HowToReg">Üyeler</MudNavLink>
-        <MudNavLink Href="usr/ut" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Edit">Profil</MudNavLink>
-        <MudNavLink Href="etkhub" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.HowToReg">Etkinliker</MudNavLink>
-        <MudNavLink Href="chathub" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.HowToReg">Etkinlik Chat</MudNavLink>
-        <MudNavLink Icon="@Icons.Filled.CloudUpload" OnClick="@(() => DialogService.Show<UploadDialog>())">
-            Upload Image
-        </MudNavLink>
-    }
     else
     {
-        <MudNavLink Href="usr/home" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Home">User</MudNavLink>
-        <MudNavLink Href="mgz/mgt" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.FamilyRestroom">Davetlerim</MudNavLink>
-        <MudNavLink Href="mgz/mgk" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Sell">İlgilendigim Davetler</MudNavLink>
-        <MudNavLink Href="mgz/mks" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.List">Davet Ara</MudNavLink>
-        <MudNavLink Href="mgz/mh" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Money">Takipcilerim</MudNavLink>
-        <MudNavLink Href="mgz/ah" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Campaign">Takiptekilerim</MudNavLink>
-        <MudNavLink Href="usr/ut" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Edit">Profil</MudNavLink>
-        <MudNavLink Href="adm/usrhub" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.HowToReg">Üyeler</MudNavLink>
         <MudNavLink Href="etkhub" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.HowToReg">Etkinliker</MudNavLink>
-        <MudNavLink Href="chathub" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.HowToReg">Etkinlik Chat</MudNavLink>
+        <MudNavLink Href="mgz/mks" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.List">Davet Ara</MudNavLink>
+        <MudNavLink Href="adm/usrhub" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Person">Üyeler</MudNavLink>
+        <MudNavLink Href="usr/ut" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Edit">Profil</MudNavLink>
+        <MudNavLink Href="/tsd" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Campaign">TagSearchDialog dnm</MudNavLink>
     }
 
     <MudDivider Class="my-2" />

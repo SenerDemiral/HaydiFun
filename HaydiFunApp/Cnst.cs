@@ -51,6 +51,14 @@ public static class Cnst
         _ => false
     };
 
+    public static char ToggleFanTyp(char oldStu) => oldStu switch
+    {
+        ' ' => 'T',
+        'T' => 'E',
+        'E' => ' ',
+        _ => ' '
+    };
+
     public static char ToggleUsrStu(char oldStu) => oldStu switch
     {
         '?' => 'K',
@@ -61,12 +69,23 @@ public static class Cnst
     //Rune r = new Rune(0x1F535);
     //emoji = r.ToString();
     // "💤"; // "⚪"; //"🟢" "\uD83D\uDDE3"
-    //"📞☎✅✔✓"
+    //"📞☎✅✔✓➕"
 
+    public static string emjUsrStu(char stu) => stu switch
+    {
+        '?' => "❔",
+        'K' => "👍",
+        'R' => "👎",
+        '+' => "➕",
+        'k' => "👍",
+        'r' => "👎",
+        _ => "*"
+    };
     public static string emjFanTyp(char typ) => typ switch
     {
         'T' => "✓",
-        'E' => "⛔"
+        'E' => "⛔",
+        _ => " "
     };
     public static string emjChatStu(bool hasChat) => hasChat switch
     {
