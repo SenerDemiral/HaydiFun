@@ -1,10 +1,8 @@
-﻿@using HaydiFunApp.Login;
-@inherits LayoutComponentBase
+﻿@inherits LayoutComponentBase
 @inject NavigationManager NavigationManager
 @inject IDialogService DialogService
 @inject IPubs pubs
 @inject ISnackbar Snackbar
-@implements IDisposable
 
 <MudThemeProvider />
 <MudDialogProvider />
@@ -78,9 +76,9 @@
 
     protected override void OnInitialized()
     {
-        pubs.AdmMsgChanged += OnAdmMsgChanged!;
+        //pubs.AdmMsgChanged += OnAdmMsgChanged!;
     }
 
-    public void Dispose() => pubs.AdmMsgChanged -= OnAdmMsgChanged!;
+    //public void Dispose() => pubs.AdmMsgChanged -= OnAdmMsgChanged!;
 
 }

@@ -139,25 +139,38 @@ public sealed class UsrHub
         }
     }
 
-    public bool ToggleFanTyp(int mstId, int dtyId)
+    public void ToggleFanTyp(int mstId, int dtyId)
     {
+        char newTyp = Cnst.ToggleFanTyp(' ');
         if (UsrD[mstId].FanD.TryGetValue(dtyId, out var oldTyp))
-        {
-            char newTyp = Cnst.ToggleFanTyp(oldTyp);
-
-            // Save to db
-            db.SaveRec("update UF set Typ = @Typ where MstId = @MstId and DtyId = @DtyId", new { MstId = mstId, DtyId = dtyId, Typ = newTyp });
-            UsrD[mstId].FanD[dtyId] = newTyp;
-            pubs.Publish(Cnst.UsrChangeEvnt, new { NOU = 0 });
-            return true;
-        }
+            newTyp = Cnst.ToggleFanTyp(oldTyp);
+        
+        db.SaveRec("execute procedure UF_MDF(@MstId, @DtyId, @Typ)", new { MstId = mstId, DtyId = dtyId, Typ = newTyp });
+        
+        if(newTyp == ' ')
+            UsrD[mstId].FanD.Remove(dtyId);
         else
-        {
-            char newTyp = Cnst.ToggleFanTyp(' ');
-            db.SaveRec("insert into UF (MstId, DtyId, Typ) values(@MstId, @DtyId, @Typ)", new { MstId = mstId, DtyId = dtyId, Typ = newTyp });
-            UsrD[mstId].FanD.Add(dtyId, newTyp);
-        }
-        return false;
+            UsrD[mstId].FanD[dtyId] = newTyp;
+
+        pubs.Publish(Cnst.UsrChangeEvnt, new { NOU = 0, utId=dtyId });  // Sadece dtyId yi refresh etmeli, hepsine gondermek gereksiz
+
+        //if (UsrD[mstId].FanD.TryGetValue(dtyId, out var oldTyp))
+        //{
+        //    char newTyp = Cnst.ToggleFanTyp(oldTyp);
+
+        //    // Save to db
+        //    db.SaveRec("update UF set Typ = @Typ where MstId = @MstId and DtyId = @DtyId", new { MstId = mstId, DtyId = dtyId, Typ = newTyp });
+        //    UsrD[mstId].FanD[dtyId] = newTyp;
+        //    pubs.Publish(Cnst.UsrChangeEvnt, new { NOU = 0 });  ????
+        //    return true;
+        //}
+        //else
+        //{
+        //    char newTyp = Cnst.ToggleFanTyp(' ');
+        //    db.SaveRec("insert into UF (MstId, DtyId, Typ) values(@MstId, @DtyId, @Typ)", new { MstId = mstId, DtyId = dtyId, Typ = newTyp });
+        //    UsrD[mstId].FanD.Add(dtyId, newTyp);
+        //}
+        //return false;
     }
 
     public void UsrEnter(int usrId)

@@ -199,7 +199,7 @@ public class EtkHub
     public bool IsUsrEtkMember(int etId, int usrId)
     {
         // Member stu ya da bak
-        if(etId == 0 || usrId == 0)
+        if (etId == 0 || usrId == 0)
             return false;
         return EtkD[etId].MbrD.ContainsKey(usrId);
     }
@@ -211,9 +211,18 @@ public class EtkHub
         //.Where(x => x.Value.Typ == 'G' || x.Value.MbrD.ContainsKey(mbr))
 
         var bbb = EtkD
-            .Where(x => x.Value.MbrD.ContainsKey(mbr))
             .Select(x => x.Value)
-            .OrderByDescending(x => x.LAD)
+            .Where(x => x.MbrD.ContainsKey(mbr))
+            .OrderBy(x => x.MbrD[mbr] switch
+            {
+                'K' => 1,
+                'k' => 1,
+                '?' => 1,
+                '+' => 1,
+                '*' => 1,
+                _ => 9  // R/r
+            })
+            .ThenByDescending(x => x.LAD)
             .ToList();
 
         // Katilmak isteyecegi Genel etkinliklere yoksa member olarak ekle
@@ -224,7 +233,7 @@ public class EtkHub
                 v.MbrD.Add(mbr, '!');
             }
 
-            v.hasChat = pubs.HasSubscription($"Chat:{v.ETid}");
+            v.hasChat = pubs.HasSubscription($"EC:{v.ETid}");
 
             onlineMbrs.Clear();
             foreach (var key in v.MbrD.Keys)

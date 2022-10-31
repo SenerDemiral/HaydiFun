@@ -1,6 +1,5 @@
 ﻿@inject ProtectedLocalStorage PLS
 @inject UsrHub UsrHub
-@inject DataHub DataHub
 @inject IPubs pubs
 @inject IDataAccess db
 @inject NavigationManager NavigationManager
@@ -85,10 +84,15 @@ else
     private void UsrCntChange(dynamic prms)
     {
         NOU = prms.NOU;
-        InvokeAsync(StateHasChanged);
+        int? utId = null;
+        if (prms.GetType().GetProperty("utId") != null) // Varsa sadece ilgili usr refresh
+            utId = prms.utId;
+
+        if (utId == null || utId == UsrId)
+            InvokeAsync(StateHasChanged);
     }
 
-    
+
     public async Task Logout()
     {
         UsrHub.UsrExit(UsrId);

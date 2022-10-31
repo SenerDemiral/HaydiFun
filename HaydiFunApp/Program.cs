@@ -27,11 +27,10 @@ builder.Services.AddSingleton<LblHub>();
 builder.Services.AddSingleton<UsrHub>();
 builder.Services.AddSingleton<EtkHub>();
 builder.Services.AddSingleton<ChatHub>();
-builder.Services.AddSingleton<DataHub>();
 builder.Services.AddScoped<ClipboardService>();
 builder.Services.AddMudServices(config =>
 {
-  config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomCenter;
+  config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomRight;
 
   config.SnackbarConfiguration.PreventDuplicates = false;
   config.SnackbarConfiguration.NewestOnTop = false;

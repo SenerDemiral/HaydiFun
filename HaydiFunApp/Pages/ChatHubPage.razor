@@ -162,7 +162,8 @@
         if (Cnst.CanChat(usrEtkStu))
         {
             ChatL = ChatHub.GetEtkChats(ETid);
-            pubs.Subscribe($"Chat:{ETid}", ChatChangeHandler);
+            pubs.Subscribe($"EC:{ETid}", ChatChangeHandler);
+
             pubs.Publish(Cnst.EtkChangeEvnt, new { ETid = ETid });
         }
         else
@@ -183,7 +184,7 @@
 
     public void Dispose()
     {
-        pubs.UnSubscribe($"Chat:{ETid}", ChatChangeHandler);
+        pubs.UnSubscribe($"EC:{ETid}", ChatChangeHandler);
     }
 
 }

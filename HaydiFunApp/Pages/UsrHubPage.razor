@@ -46,19 +46,6 @@
     }
 </style>
 
-@*<div class="ug">
-    <div>Usr</div>
-    <div>Cnt</div>
-    <div>InsTS</div>
-    @foreach (var kv in UsrHub.Usrs)
-    {
-        <div>@kv.Value.UsrNN</div>
-        <div>@kv.Value.Cnt</div>
-        <div>@kv.Value.EXD</div>
-    }
-
-</div>*@
-
 <label>
     <label for="isOnline">Online olanlar</label>
     <input type="checkbox" @bind="isOnline" name="isOnline" />

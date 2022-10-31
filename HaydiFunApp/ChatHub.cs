@@ -23,7 +23,7 @@ public class ChatHub
 
     public void RemoveChats(int etId)
     {
-        //int etId = int.Parse(key.Replace("Chat:", ""));
+        //int etId = int.Parse(key.Replace("EC:", ""));
         ChatD.Remove(etId, out _);
     }
     public void AddChat(int etId, int utId, string info)
@@ -39,7 +39,7 @@ public class ChatHub
             EtkHub.EtkD[etId].LAD = res.EXD;    // EtkHub LAD a gore diziliyor
 
             // Sadece bunu dinleyenlere gidecek, dinleyen kalmadiginda ChatD[etId].Remove ???
-            pubs.Publish($"Chat:{etId}", new { ETid = etId, UTid = utId, Info = info });
+            pubs.Publish($"EC:{etId}", new { ETid = etId, UTid = utId, Info = info });
             //pubs.Publish(Cnst.ChatChangeEvnt, new { ETid = etId });
             pubs.Publish(Cnst.EtkChangeEvnt, new { ETid = etId, LAD = res.EXD });
         }

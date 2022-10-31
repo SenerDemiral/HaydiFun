@@ -7,15 +7,7 @@ namespace HaydiFunApp;
 
 public sealed class Pubs : IPubs
 {
-    private class DENEME
-    {
-        public Action<dynamic> Handler { get; set; }
-        public List<int> UsrIds { get; set; }
-    }
     private ConcurrentDictionary<string, Action<dynamic>> DynEvent;
-    private ConcurrentDictionary<string, DENEME> Deneme;
-    private readonly ChatHub ChatHub;
-
     public IServiceProvider Services { get; }
 
     public Pubs(IServiceProvider services)
@@ -24,43 +16,8 @@ public sealed class Pubs : IPubs
         int initialCapacity = 101;  // 101,199,293,397,499,599,691,797,887,997 PrimeNumber
         DynEvent = new(concurrencyLevel, initialCapacity);
         
-        Deneme = new(concurrencyLevel, initialCapacity);
         Services = services;
     }
-    #region DenemeHadler
-    public event EventHandler? XxChanged; // Subscribe to this
-    public void XxRaise()
-    {
-        XxChanged?.Invoke(this, EventArgs.Empty);
-    }
-    //-------------------------
-    public event EventHandler<AdmMsgEventArgs>? AdmMsgChanged;
-    public void AdmMsgRaise(string who, string msg)
-    {
-        // who: H/A/M/T/#  Herkes, Adm, Mgz, Tnt veya number olabilir
-        var args = new AdmMsgEventArgs();
-        args.Who = who.ToUpper();
-        args.Msg = $"Admin'den duyuru<br/>{msg}";
-
-        AdmMsgChanged?.Invoke(this, args);
-    }
-    //-------------------------
-    public event EventHandler<ChatEventArgs>? ChatChanged;
-    public void ChatRaise(int grp)
-    {
-        var args = new ChatEventArgs();
-        args.Grp = grp;
-        ChatChanged?.Invoke(this, args);
-    }
-    //-------------------------
-    public event EventHandler? UsrChanged;
-    public void UsrRaise()
-    {
-        // Kimin geldigi/gittigi onemli degil
-        // Bir kisi birden cok Login olabilir
-        UsrChanged?.Invoke(this, EventArgs.Empty);
-    }
-    #endregion DenemeHandler
 
     /// <summary>
     /// Key: UsrCntChanged  handler: UsrCntChanged Enter/Exit/Login/Logout for every user
@@ -73,44 +30,6 @@ public sealed class Pubs : IPubs
     /// Key: ET:{ETid}      handler: ChatChanged for Davet/Etkinlik
     /// </summary>
     //-------------------------------------
-    public void AddDeneme(string key, Action<dynamic> handler, int usrId)
-    {
-        if (Deneme.ContainsKey(key))
-        {
-            Deneme[key].Handler += handler;
-            Deneme[key].UsrIds.Add(usrId);
-        }
-        else
-        {
-            //DENEME d = new();
-            //d.Handler = handler;
-            //d.UsrIds = new List<int> { usrId };
-            Deneme.TryAdd(key, new DENEME
-            {
-                Handler = handler,
-                UsrIds = new List<int> { usrId }
-            });
-        }
-    }
-    public void RemoveDeneme(string key, Action<dynamic> handler, int usrId)
-    {
-        if (Deneme.ContainsKey(key))
-        {
-            Deneme[key].Handler -= handler!;
-            Deneme[key].UsrIds.Remove(usrId);
-            if (Deneme[key].Handler == null)
-            {
-                DENEME ot;
-                Deneme.TryRemove(key, out ot);
-            }
-        }
-    }
-    public void RaiseDeneme(string key, dynamic prms)
-    {
-        if (Deneme.ContainsKey(key))
-            Deneme[key].Handler?.Invoke(prms);
-    }
-
     public void Subscribe(string key, Action<dynamic> handler)
     {
         if (DynEvent.ContainsKey(key))
@@ -128,10 +47,10 @@ public sealed class Pubs : IPubs
             {
                 if (DynEvent.TryRemove(key, out var aaaa))
                 {
-                    if (key.StartsWith("Chat:"))
+                    if (key.StartsWith("EC:"))
                     {
                         var a = Services.GetRequiredService<ChatHub>();
-                        int etId = int.Parse(key.Replace("Chat:", ""));
+                        int etId = int.Parse(key.Replace("EC:", ""));
                         a.RemoveChats(etId);
                         Publish(Cnst.EtkChangeEvnt, new { ETid = etId });
                     }

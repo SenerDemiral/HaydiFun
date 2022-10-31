@@ -30,6 +30,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Login\" />
     <Folder Include="wwwroot\is-cache\" />
   </ItemGroup>
 

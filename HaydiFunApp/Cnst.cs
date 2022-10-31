@@ -61,9 +61,9 @@ public static class Cnst
 
     public static char ToggleUsrStu(char oldStu) => oldStu switch
     {
-        '?' => 'K',
-        'K' => 'R',
-        'R' => 'K',
+        '?' => 'K',     // Davet edildim -> Katiliyorum
+        'K' => 'R',     // Katiliyorum -> Katilamiyorum Red (Bunlari listenin sonuna atmak gerek)
+        'R' => 'K',     // Katilamiyorum -> Katiliyorum
         _ => ' '
     };
     //Rune r = new Rune(0x1F535);
@@ -83,8 +83,8 @@ public static class Cnst
     };
     public static string emjFanTyp(char typ) => typ switch
     {
-        'T' => "✓",
-        'E' => "⛔",
+        'T' => "✓",     // Takip ediyorum
+        'E' => "⛔",    // Engelledim
         _ => " "
     };
     public static string emjChatStu(bool hasChat) => hasChat switch
