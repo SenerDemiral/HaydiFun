@@ -1,6 +1,7 @@
 ﻿using DataLibrary;
 using static HaydiFunApp.UsrHub;
 using System.Collections.Concurrent;
+using System.Reflection;
 
 namespace HaydiFunApp;
 
@@ -33,10 +34,47 @@ public sealed class LblHub
             lst.Add(LblD[key].FullName);
         }
         return lst;
+        //if (TSG?.osLbls.Count > 0)
+        //model.Lbls = string.Join(',', TSG.osLbls.Select(x => x.LTid));
+    }
+
+    public List<LT> Lbls2LTlst(string lbls)
+    {
+        List<LT> lst = new();
+        int key;
+
+        foreach (var itm in lbls.Split(",", StringSplitOptions.RemoveEmptyEntries))
+        {
+            key = Int32.Parse(itm);
+            lst.Add(LblD[key]);
+        }
+        return lst;
+    }
+
+    public Dictionary<int, string> Lbls2Dict(string lbls)
+    {
+        Dictionary<int, string> dict = new();
+        int key;
+
+        foreach (var itm in lbls.Split(",", StringSplitOptions.RemoveEmptyEntries))
+        {
+            key = Int32.Parse(itm);
+            dict.Add(key, LblD[key].FullName);
+        }
+        return dict;
+    }
+
+    public string DictList2Lbls(Dictionary<int, string> dict)
+    {
+        if (dict.Count > 0)
+        {
+            return string.Join(',', dict.Keys);
+        }
+        return string.Empty;
     }
 }
 
-public sealed class LT
+public sealed record LT
 {
     public int LTid { get; set; }
     public string? Name { get; set; }

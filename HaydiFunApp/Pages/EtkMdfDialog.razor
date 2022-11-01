@@ -20,8 +20,7 @@
                     <MudRadio Option="false" Color="Color.Success" Dense="true">Genel</MudRadio>
                 </MudRadioGroup>
                 <MudText>Aşağıdaki Etiketleri kullanarak Davetin özelliklerini belirleyin</MudText>
-                <TagSearchDialog @ref="TSG" Typ="E"></TagSearchDialog>
-
+                <LblHubComp @ref="LHC" Typ="E" osLblTxt="1,60"></LblHubComp>
 
                 <MudButton ButtonType="ButtonType.Submit"
                            Variant="Variant.Filled"
@@ -42,7 +41,8 @@
     [CascadingParameter] private UserStateProvider? USP { get; set; }
     [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
     public bool success { get; set; } = false;
-    TagSearchDialog? TSG;
+    //TagSearchDialog? TSG;
+    LblHubComp? LHC;
     private RegisterModel model { get; set; } = new();
 
     private async Task OnValidSubmit(EditContext context)
@@ -52,8 +52,8 @@
 
         model.ETid = 0;
         model.OwnId = USP.UsrId;
-        if (TSG?.osLbls.Count > 0)
-            model.Lbls = string.Join(',', TSG.osLbls.Select(x => x.LTid));
+        if (LHC?.osLblL.Count > 0)
+            model.Lbls = string.Join(',', LHC.osLblL.Select(x => x.LTid));
 
         var rtrn = await db.StoreProcAsync<dynamic, RegisterModel>("ET_MDF(@ETid, @OwnId, @Typ, @Info, @Lbls)", model);
 

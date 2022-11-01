@@ -37,6 +37,9 @@
         <MudImage Src="@($"uploads/{model.Avatar}?width=200")" Elevation="2" Class="rounded-lg" @onclick="Upload" Style="cursor: pointer;" />
     </div>
 
+    <MudText>Aşağıdaki Etiketleri kullanarak özelliklerinizi belirleyin</MudText>
+    <LblHubComp @ref="LHC" Typ="U" asLblTxt="@model.Lbls"></LblHubComp>
+
     @if (isEditable)
     {
         <MudDivider Class="my-3" />
@@ -49,6 +52,7 @@
 
 @code {
     [CascadingParameter] private UserStateProvider? USP { get; set; }
+    LblHubComp? LHC;
 
     private UT model { get; set; } = new();
     private bool success { get; set; } = false;
@@ -126,6 +130,11 @@
         await base.SetParametersAsync(parameters);  //Diger LifeCyle metodlarini cagiriyor
     }
 
+    protected override void OnParametersSet()
+    {
+       // LHC.asLblTxt = model.Lbls;
+    }
+
     protected override async Task OnInitializedAsync()
     {
         isEditable = true;
@@ -154,6 +163,8 @@
             model.Avatar = newAvatar;
             imgChanged = false;
         }
+        if (LHC?.asLblL.Count > 0)
+            model.Lbls = string.Join(',', LHC.asLblL.Select(x => x.LTid));
 
         string sql = "UT_MDF(@UTid, @Name, @MailAdr, @Tel, @Avatar, @Lbls, @Info)";
         var rtrn = await db.StoreProcAsync<UT, UT>(sql, model);

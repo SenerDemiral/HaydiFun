@@ -39,6 +39,13 @@
         text-align: right;
     }
 
+    .inp {
+        border: 1px solid burlywood;
+        width: 100%;
+        margin-bottom: 4px;
+        padding: 0 4px;
+    }
+
     table, th, td {
         border: 1px solid burlywood;
         border-collapse: collapse;
@@ -49,10 +56,8 @@
 <label>
     <label for="isOnline">Online olanlar</label>
     <input type="checkbox" @bind="isOnline" name="isOnline" />
-    HepsiniAra:
-    <input @bind="SrchValueHepsi" />
-    HerhangiBiriniAra:
-    <input @bind="SrchValueBiri" />
+    <input type="text" @bind="SrchValueHepsi" class="inp" placeholder="Hepsi.." />
+    <input type="text" @bind="SrchValueBiri" class="inp" placeholder="Biri" />
 </label>
 <button @onclick="Srch">Search</button>
 

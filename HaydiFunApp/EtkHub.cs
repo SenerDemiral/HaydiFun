@@ -249,20 +249,6 @@ public class EtkHub
         return bbb;
     }
 
-    public Dictionary<int, char> AAA(string str)
-    {
-        Dictionary<int, char> dst = new();
-        char c;
-        int i;
-        string[] sa = str.Split(",", StringSplitOptions.RemoveEmptyEntries);
-        foreach (var m in sa)
-        {
-            c = m[0];
-            i = Int32.Parse(m.Substring(1));
-            dst[i] = c;
-        }
-        return dst;
-    }
     public sealed class EtkMdl
     {
         public int ETid;

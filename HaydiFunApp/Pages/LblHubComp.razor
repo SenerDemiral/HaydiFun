@@ -1,0 +1,199 @@
+﻿@page "/tsd"
+@inject LblHub LblHub
+@inject IDataAccess db
+
+<style>
+    .sener p::first-letter {
+        font-weight: bold;
+    }
+</style>
+<MudPaper>
+    <MudList Clickable="true" Dense="true">
+        <MudListSubheader DisableGutters="false">
+            @if (Typ == "S")
+            {
+                <MudRadioGroup @bind-SelectedOption="@AndSelected">
+                    <MudRadio Option="true" Color="Color.Primary" Dense="true">Bunların Hepsi</MudRadio>
+                    <MudRadio Option="false" Color="Color.Secondary" Dense="true">Bunlardan Biri</MudRadio>
+                </MudRadioGroup>
+            }
+            @if (Typ == "S" || Typ == "U")
+            {
+                <MudChipSet AllClosable="true" OnClose="@ClosedA">
+                    @foreach (var lbl in asLblL)
+                    {
+                        <MudChip Text="@lbl.FullName" Value="@lbl" Color="Color.Primary" Size="Size.Small"></MudChip>
+                    }
+                </MudChipSet>
+            }
+            @if (Typ == "S" || Typ == "E")
+            {
+                if (Typ == "E")
+                    AndSelected = false;
+                <MudChipSet AllClosable="true" OnClose="@ClosedO">
+                    @foreach (var lbl in osLblL)
+                    {
+                        <MudChip Text="@lbl.FullName" Value="@lbl" Color="Color.Secondary" Size="Size.Small"></MudChip>
+                    }
+                </MudChipSet>
+            }
+        </MudListSubheader>
+        <div style="max-height: 50vh; overflow:auto">
+
+        @foreach (var grp in GrpD)
+        {
+            var grpVal = grp.Value as LG;
+            <MudListItem Text="@grpVal.Name"
+                     Class="sener"
+                     Dense="true"
+                     Expanded="@grpVal.isExpanded"
+                     ExpandedChanged="@(e => this.ToggleExpanded(e, grp.Key))">
+
+                    <NestedList>
+                        @foreach (var lbl in LblL.Where(x => x.LGid == grp.Key))
+                        {
+                            <MudListItem Disabled="@lbl.isDisabled"
+                                 Dense="true"
+                                 Text="@lbl.Name"
+                                 Value="@lbl"
+                                 OnClick="@(() => OnClick(lbl))" />
+                        }
+                    </NestedList>
+                </MudListItem>
+            }
+        </div>
+    </MudList>
+</MudPaper>
+
+
+@code {
+    [Parameter] public string Typ { get; set; } = "S";
+    [Parameter] public string asLblTxt { get; set; } = "";
+    [Parameter] public string osLblTxt { get; set; } = "";
+
+    public List<LT> asLblL = new();    // AND search
+    public List<LT> osLblL = new();    // OR  search
+    public bool AndSelected { get; set; } = true;    //Hepsi
+    public bool expanded;
+
+    Dictionary<int, LG> GrpD = new();
+    List<LT> LblL = new();
+
+    protected override void OnParametersSet()
+    {
+        //base.OnParametersSet();
+
+        asLblL = LblHub.Lbls2LTlst(asLblTxt);
+        osLblL = LblHub.Lbls2LTlst(osLblTxt);
+    }
+    protected override void OnInitialized()
+    {
+        LblL = LblHub.LblD.Values.ToList(); //(await db.LoadDataAsync<LT, dynamic>("select * from LT order by LGid, Name", new { })).ToList();
+        GrpD = LblHub.LblGD; //(await db.LoadDataAsync<LG, dynamic>("select * from LG order by LGid", new { })).ToDictionary((x) => x.LGid);
+    }
+
+    private void ToggleExpanded(bool expanded, int key)
+    {
+        if (expanded)
+        {
+            foreach (var entry in GrpD.Where(entry => entry.Key != key))
+            {
+                entry.Value.isExpanded = false;
+            }
+        }
+        GrpD[key].isExpanded = expanded;
+    }
+
+    private void OnClick(LT lbl)
+    {
+        // Disabled olanlar buraya zaten gelmez
+        var gId = lbl.LGid;
+
+        if (!GrpD[gId].isMny)   // Single
+        {
+            if (AndSelected)
+            {
+                // Zaten varsa cik
+                if (asLblL.Count((x) => x.LGid == gId) > 0)
+                    return;
+
+                // or dakileri sil, Lbls.isDisable lari false yap
+                var bb = osLblL.FindAll(x => x.LGid == gId);
+                if (bb.Count() > 0)
+                {
+                    foreach (var b in bb)
+                        osLblL.Remove(b);
+                    foreach (var c in LblL.FindAll(x => x.LGid == gId))
+                        c.isDisabled = false;
+                }
+            }
+            else // Or selected
+            {
+                // Bu grupdaki biri a da varsa yapma
+                if (asLblL.Count(x => x.LGid == gId) > 0)
+                {
+                    return;
+                }
+            }
+        }
+
+        LT nTag = lbl with { isDisabled = false };
+        if (AndSelected) // Hepsi
+        {
+            asLblL.Add(nTag);
+            asLblL = asLblL.OrderBy(x => x.LGid).ToList();
+        }
+        else // Biri
+        {
+            osLblL.Add(nTag);
+            osLblL = osLblL.OrderBy(x => x.LGid).ToList();
+        }
+        lbl.isDisabled = true;
+    }
+
+    public void ClosedA(MudChip chip)
+    {
+        var lbl = chip.Value as LT;
+        // burdan sil
+        asLblL.Remove(lbl);
+        // Lbl enable
+        var ti = LblL.FindIndex(x => x.LTid == lbl.LTid);
+        if (ti != -1)
+            LblL[ti].isDisabled = false;
+    }
+
+    public void ClosedO(MudChip chip)
+    {
+        var lbl = chip.Value as LT;
+        // burdan sil
+        osLblL.Remove(lbl);
+        // Lbl enable
+        var ti = LblL.FindIndex(x => x.LTid == lbl.LTid);
+        if (ti != -1)
+            LblL[ti].isDisabled = false;
+    }
+
+    //public record LT
+    //{
+    //    public int LTid { get; set; }
+    //    public string? Name { get; set; }
+    //    public string? FullName { get; set; }
+    //    public bool isDisabled { get; set; } = false;
+    //    public int LGid { get; set; }
+    //}
+
+    //public sealed class LG
+    //{
+    //    public int LGid { get; set; }
+    //    public string? Name { get; set; }
+    //    public string? Mny { get; set; }
+    //    public bool isMny
+    //    {
+    //        get => Mny == "E" ? true : false;
+    //        set { Mny = value ? "E" : "H"; }
+    //    }
+    //    public bool isExpanded { get; set; }
+    //}
+}
+
+

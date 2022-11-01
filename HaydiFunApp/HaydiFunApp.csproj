@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <Content Update="wwwroot\uploads\**\*.*" CopyToPublishDirectory="Never" />
+	<Content Update="wwwroot\is-cache\**\*.*" CopyToPublishDirectory="Never" />
   </ItemGroup>
 
   <ItemGroup>
@@ -27,11 +28,6 @@
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Login\" />
-    <Folder Include="wwwroot\is-cache\" />
   </ItemGroup>
 
 </Project>
