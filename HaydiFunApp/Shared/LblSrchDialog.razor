@@ -1,0 +1,40 @@
+﻿@inject ISnackbar Snackbar
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">Search</MudText>
+    </TitleContent>
+    <DialogContent>
+        <LblHubComp @ref="LHC" Typ="S" asLblTxt="@andTxt" osLblTxt="@orTxt"></LblHubComp>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Error" OnClick="TryLogin">Search</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+    [Parameter] public string andTxt { get; set; }
+    [Parameter] public string orTxt { get; set; }
+    LblHubComp? LHC;
+
+    private async Task TryLogin()
+    {
+        // SP input params db de tanimlandigi sirasiyla gelmeli.
+        SrchTxt srchTxt = new();
+        srchTxt.andTxt = string.Join(',', LHC.asLblL.Select(x => x.LTid));
+        srchTxt.orTxt = string.Join(',', LHC.osLblL.Select(x => x.LTid));
+        srchTxt.andTxtName = string.Join(", ", LHC.asLblL.Select(x => x.FullName));
+        srchTxt.orTxtName = string.Join(", ", LHC.osLblL.Select(x => x.FullName));
+
+        MudDialog.Close(DialogResult.Ok(srchTxt));
+
+    }
+    
+    private void Cancel()
+    {
+        MudDialog?.Cancel();
+    }
+
+}

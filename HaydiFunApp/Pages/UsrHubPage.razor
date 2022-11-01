@@ -3,6 +3,8 @@
 @inject NavigationManager NavigationManager
 @inject IPubs pubs
 @inject UsrHub UsrHub
+@inject IDialogService DialogService
+
 @implements IDisposable
 
 <style>
@@ -56,10 +58,10 @@
 <label>
     <label for="isOnline">Online olanlar</label>
     <input type="checkbox" @bind="isOnline" name="isOnline" />
-    <input type="text" @bind="SrchValueHepsi" class="inp" placeholder="Hepsi.." />
-    <input type="text" @bind="SrchValueBiri" class="inp" placeholder="Biri" />
+    <input type="text" @bind="SrchValueHepsiName" class="inp" placeholder="Hepsi.." />
+    <input type="text" @bind="SrchValueBiriName" class="inp" placeholder="Biri" />
 </label>
-<button @onclick="Srch">Search</button>
+<button @onclick="SrchClick">Search</button>
 
 @if (USP.UsrId != 0)
 {
@@ -150,6 +152,8 @@
     [CascadingParameter] private UserStateProvider? USP { get; set; }
     string SrchValueHepsi = "";
     string SrchValueBiri = "";
+    string SrchValueHepsiName = "";
+    string SrchValueBiriName = "";
     bool isOnline = true;
     int UTid;
     bool isOpen;
@@ -167,9 +171,34 @@
         if (USP.UsrId != utId)
             UsrHub.ToggleFanTyp(USP.UsrId, utId);
     }
- 
+
+    public async Task SrchClick()
+    {
+        //var prms = new DialogParameters();
+        //prms.Add("andTxt", SrchValueHepsi);
+        //prms.Add("orTxt", SrchValueBiri);
+
+        var prms = new DialogParameters { ["andTxt"] = SrchValueHepsi, ["orTxt"] = SrchValueBiri };
+
+        var dialog = DialogService.Show<LblSrchDialog>("baslik", prms);
+        var result = await dialog.Result;
+
+        if (!result.Cancelled)
+        {
+            if(result.Data is SrchTxt srchTxt )
+            {
+                SrchValueHepsi = srchTxt.andTxt;
+                SrchValueHepsiName = srchTxt.andTxtName;
+                SrchValueBiri = srchTxt.orTxt;
+                SrchValueBiriName = srchTxt.orTxtName;
+                Srch();
+            }
+        }
+    }
+
     public void Srch()
     {
+
         HashSet<int> hepsiHS = new();
         HashSet<int> biriHS = new();
         Cnst.StringToHashSet(SrchValueHepsi, hepsiHS);

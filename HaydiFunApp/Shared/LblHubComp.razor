@@ -14,12 +14,12 @@
             {
                 <MudRadioGroup @bind-SelectedOption="@AndSelected">
                     <MudRadio Option="true" Color="Color.Primary" Dense="true">Bunların Hepsi</MudRadio>
-                    <MudRadio Option="false" Color="Color.Secondary" Dense="true">Bunlardan Biri</MudRadio>
+                    <MudRadio Option="false" Color="Color.Warning" Dense="true">Bunlardan Biri</MudRadio>
                 </MudRadioGroup>
             }
             @if (Typ == "S" || Typ == "U")
             {
-                <MudChipSet AllClosable="true" OnClose="@ClosedA">
+                <MudChipSet AllClosable="true" OnClose="@ClosedA" >
                     @foreach (var lbl in asLblL)
                     {
                         <MudChip Text="@lbl.FullName" Value="@lbl" Color="Color.Primary" Size="Size.Small"></MudChip>
@@ -28,12 +28,10 @@
             }
             @if (Typ == "S" || Typ == "E")
             {
-                if (Typ == "E")
-                    AndSelected = false;
                 <MudChipSet AllClosable="true" OnClose="@ClosedO">
                     @foreach (var lbl in osLblL)
                     {
-                        <MudChip Text="@lbl.FullName" Value="@lbl" Color="Color.Secondary" Size="Size.Small"></MudChip>
+                        <MudChip Text="@lbl.FullName" Value="@lbl" Color="Color.Warning" Size="Size.Small"></MudChip>
                     }
                 </MudChipSet>
             }
@@ -82,6 +80,8 @@
     protected override void OnParametersSet()
     {
         //base.OnParametersSet();
+        if (Typ == "E")
+            AndSelected = false;
 
         asLblL = LblHub.Lbls2LTlst(asLblTxt);
         osLblL = LblHub.Lbls2LTlst(osLblTxt);

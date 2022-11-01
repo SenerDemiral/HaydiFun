@@ -37,7 +37,7 @@
         <MudImage Src="@($"uploads/{model.Avatar}?width=200")" Elevation="2" Class="rounded-lg" @onclick="Upload" Style="cursor: pointer;" />
     </div>
 
-    <MudText>Aşağıdaki Etiketleri kullanarak özelliklerinizi belirleyin</MudText>
+    <MudText>Etiketleri kullanarak özelliklerinizi belirleyin</MudText>
     <LblHubComp @ref="LHC" Typ="U" asLblTxt="@model.Lbls"></LblHubComp>
 
     @if (isEditable)
