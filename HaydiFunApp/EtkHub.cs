@@ -208,6 +208,7 @@ public class EtkHub
         // Memberi oldugu veya Genel Davetleri (Katilmak isteyebilir) gorecek
         // mbr.Stu ne olursa User gorecek?
         List<string> onlineMbrs = new List<string>();
+        List<string> MbrAds = new List<string>();
         //.Where(x => x.Value.Typ == 'G' || x.Value.MbrD.ContainsKey(mbr))
 
         var bbb = EtkD
@@ -236,14 +237,19 @@ public class EtkHub
             v.hasChat = pubs.HasSubscription($"EC:{v.ETid}");
 
             onlineMbrs.Clear();
+            MbrAds.Clear();
             foreach (var key in v.MbrD.Keys)
             {
                 if (UsrHub.UsrD[key].isOnline)
                 {
                     onlineMbrs.Add(UsrHub.UsrD[key].Usr);
                 }
+                if(v.Typ == 'O')
+                    MbrAds.Add(UsrHub.UsrD[key].Usr);
             }
             v.OnlineMbrs = string.Join(", ", onlineMbrs);
+            v.MbrAds = string.Join(", ", MbrAds);
+
         }
 
         return bbb;
@@ -262,6 +268,7 @@ public class EtkHub
         public string? Lbls;
         public string? LblAds;
         public string Mbrs;
+        public string? MbrAds;
 
         public Dictionary<int, char> MbrD = new();
         public string OnlineMbrs = "";

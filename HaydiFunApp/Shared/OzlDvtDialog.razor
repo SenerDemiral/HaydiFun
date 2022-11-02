@@ -1,0 +1,64 @@
+﻿@inject ISnackbar Snackbar
+@inject IDataAccess db
+@inject EtkHub EtkHub
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">Özel Davet</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudTextField AutoFocus="true"
+                      @bind-Value="Info"
+                      Label="Info"
+                      Variant="Variant.Text" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Error" OnClick="TryLogin">Login</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+    [CascadingParameter] private UserStateProvider? USP { get; set; }
+    [Parameter] public int UTid { get; set; } = 0;
+
+    private string Info { get; set; } = "";
+
+    private async Task TryLogin()
+    {
+        var rtrn = db.StoreProc<dynamic, dynamic>("ET_INS_OZL(@OwnId, @UTid, @Info)", new { OwnId = USP.UsrId, UTid = UTid, Info = Info });
+        int etId = rtrn.ETID;
+        if (etId > 0)
+        {
+            Snackbar.Add("OK", Severity.Success);
+            MudDialog?.Close(DialogResult.Ok("OK"));
+            EtkHub.RefreshEtk(etId);
+        }
+        else
+        {
+            Snackbar.Add(rtrn.Msg, Severity.Error);
+        }
+    }
+
+    private void Cancel()
+    {
+        MudDialog?.Cancel();
+    }
+
+    private sealed class InputModel
+    {
+        public string? LgnNme { get; set; }
+        public string? LgnPwd { get; set; }
+    }
+
+    private sealed class OutputModel
+    {
+        public string Stu { get; set; }
+        public int UTid { get; set; }
+        public string? Usr { get; set; }
+        public string? Typ { get; set; }
+        public string? Avatar { get; set; }
+        public string? Msg { get; set; }
+    }
+}

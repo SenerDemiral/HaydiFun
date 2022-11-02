@@ -55,17 +55,21 @@
     }
 </style>
 
-<label>
+@*<label>
     <label for="isOnline">Online olanlar</label>
     <input type="checkbox" @bind="isOnline" name="isOnline" />
     <input type="text" @bind="SrchValueHepsiName" class="inp" placeholder="Hepsi.." />
     <input type="text" @bind="SrchValueBiriName" class="inp" placeholder="Biri" />
 </label>
 <button @onclick="SrchClick">Search</button>
-
+*@
 @if (USP.UsrId != 0)
 {
-    <div style="margin:auto; width: fit-content;">
+    <div style="margin:auto; width: min-content;">
+        <label for="isOnline">Online olanlar</label>
+        <input type="checkbox" @bind="isOnline" name="isOnline" />
+        <input type="text" @bind="SrchValueHepsiName" class="inp" placeholder="Hepsi.." @onclick="SrchClick" readonly />
+        <input type="text" @bind="SrchValueBiriName" class="inp" placeholder="Biri" @onclick="SrchClick" readonly />
         <table>
             <caption style="background-color: burlywood;">Üyeler</caption>
             <colgroup>
@@ -116,10 +120,10 @@
                         Izliyorum = Cnst.emjFanTyp(fv);
                     Online = Cnst.emjOnlineStu(usr.isOnline);
                     <tr>
-                        <td @onclick="(()=> UsrInfo(usr.UTid))" style="cursor:pointer"><b>@usr.Usr @Online</b></td>
+                        <td @onclick="(()=> OzelDavet(usr.UTid))" style="cursor:pointer"><b>@usr.Usr @Online</b></td>
                         <td class="tac">@usr.Cnt.ToString("#")</td>
                         <td>@usr.EXD</td>
-                        <td class="px-0"><img src="@usr.ImgUrl" class="imj" /></td>
+                        <td @onclick="(()=> UsrInfo(usr.UTid))" class="px-0"><img src="@usr.ImgUrl" class="imj" /></td>
                         <td class="emj">@Takipcim</td>
                         <td class="emj" @onclick="(()=> ToggleFanTyp(usr.UTid))" style="cursor:pointer">@Izliyorum</td>
                     </tr>
@@ -159,6 +163,14 @@
     bool isOpen;
 
     List<int> UsrL = new List<int>();
+
+    public async Task OzelDavet(int utId)
+    {
+        var prms = new DialogParameters { ["UTid"] = utId };
+
+        var dialog = DialogService.Show<OzlDvtDialog>("baslik", prms);
+        var result = await dialog.Result;
+    }
 
     public void UsrInfo(int utId)
     {

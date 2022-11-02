@@ -9,7 +9,7 @@
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">Cancel</MudButton>
-        <MudButton Color="Color.Error" OnClick="TryLogin">Search</MudButton>
+        <MudButton Color="Color.Error" OnClick="OnSearch">Search</MudButton>
     </DialogActions>
 </MudDialog>
 
@@ -19,16 +19,15 @@
     [Parameter] public string orTxt { get; set; }
     LblHubComp? LHC;
 
-    private async Task TryLogin()
+    private void OnSearch()
     {
-        // SP input params db de tanimlandigi sirasiyla gelmeli.
         SrchTxt srchTxt = new();
         srchTxt.andTxt = string.Join(',', LHC.asLblL.Select(x => x.LTid));
         srchTxt.orTxt = string.Join(',', LHC.osLblL.Select(x => x.LTid));
         srchTxt.andTxtName = string.Join(", ", LHC.asLblL.Select(x => x.FullName));
         srchTxt.orTxtName = string.Join(", ", LHC.osLblL.Select(x => x.FullName));
 
-        MudDialog.Close(DialogResult.Ok(srchTxt));
+        MudDialog?.Close(DialogResult.Ok(srchTxt));
 
     }
     
