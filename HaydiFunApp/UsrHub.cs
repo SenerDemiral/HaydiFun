@@ -223,7 +223,7 @@ public sealed class UsrHub
         public string? LblAds;
         public string? Fans;
         public string ImgUrl => $"uploads/{Avatar}?width=50";
-        public string ImgUrlBig => $"uploads/{Avatar}?width=360";
+        public string ImgUrlBig => $"uploads/{Avatar}?width=200";
 
         public bool isOnline => Cnt == 0 ? false : true;
         public Dictionary<int, char> FanD = new();

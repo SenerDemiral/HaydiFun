@@ -5,7 +5,6 @@
     @if (USP.UsrTyp == "?")
     {
         <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">Home</MudNavLink>
-        <MudNavLink Href="adm/usrhub" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.HowToReg">OnLine User</MudNavLink>
         <MudNavLink Icon="@Icons.Filled.CloudUpload" OnClick="@(() => DialogService.Show<RegisterDialog>())">
             Yeni Üyelik
         </MudNavLink>
@@ -14,9 +13,8 @@
     {
         <MudNavLink Href="etkhub" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.HowToReg">Etkinliker</MudNavLink>
         <MudNavLink Href="mgz/mks" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.List">Davet Ara</MudNavLink>
-        <MudNavLink Href="adm/usrhub" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Person">Üyeler</MudNavLink>
-        <MudNavLink Href="usr/ut" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Edit">Profil</MudNavLink>
-        <MudNavLink Href="/tsd" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Campaign">TagSearchDialog dnm</MudNavLink>
+        <MudNavLink Href="usrhub" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Person">Üyeler</MudNavLink>
+        <MudNavLink Href="ut" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Edit">Profil</MudNavLink>
     }
 
     <MudDivider Class="my-2" />

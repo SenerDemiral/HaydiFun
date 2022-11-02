@@ -244,8 +244,13 @@ public class EtkHub
                 {
                     onlineMbrs.Add(UsrHub.UsrD[key].Usr);
                 }
-                if(v.Typ == 'O')
-                    MbrAds.Add(UsrHub.UsrD[key].Usr);
+                if (v.Typ == 'O')
+                {
+                    if (UsrHub.UsrD[key].isOnline)
+                        MbrAds.Add(UsrHub.UsrD[key].Usr + "✅");
+                    else
+                        MbrAds.Add(UsrHub.UsrD[key].Usr);
+                }
             }
             v.OnlineMbrs = string.Join(", ", onlineMbrs);
             v.MbrAds = string.Join(", ", MbrAds);
