@@ -4,7 +4,7 @@ namespace HaydiFunApp;
 
 public static class Cnst
 {
-    public const string PublishVersion = "HaydiFun© v0.1 Şener Demiral®";
+    public const string PublishVersion = "HaydiFun© v0.5 Şener Demiral®";
     public const string BrowserUsrIdKey = "haydifun";
     public const string Height = "calc(100vh - 140px)";
     public const string UsrChangeEvnt = "UsrChangeEvnt";
