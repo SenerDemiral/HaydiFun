@@ -1,6 +1,6 @@
 ﻿namespace HaydiFunApp;
 
-public class SrchTxt
+public class LblSrchMdl
 {
     public string andTxt;
     public string andTxtName;

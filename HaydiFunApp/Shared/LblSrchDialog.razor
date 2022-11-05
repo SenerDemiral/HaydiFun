@@ -21,7 +21,7 @@
 
     private void OnSearch()
     {
-        SrchTxt srchTxt = new();
+        LblSrchMdl srchTxt = new();
         srchTxt.andTxt = string.Join(',', LHC.asLblL.Select(x => x.LTid));
         srchTxt.orTxt = string.Join(',', LHC.osLblL.Select(x => x.LTid));
         srchTxt.andTxtName = string.Join(", ", LHC.asLblL.Select(x => x.FullName));

@@ -226,7 +226,7 @@ public class EtkHub
             .ThenByDescending(x => x.LAD)
             .ToList();
 
-        // Katilmak isteyecegi Genel etkinliklere yoksa member olarak ekle
+        // Katilmak isteyecegi Genel etkinliklere yoksa member olarak ekle ????
         foreach (var v in bbb)
         {
             if (!v.MbrD.ContainsKey(mbr))

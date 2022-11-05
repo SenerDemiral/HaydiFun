@@ -1,0 +1,269 @@
+﻿@using System.Globalization;
+@using static HaydiFunApp.UsrHub;
+@inject ISnackbar Snackbar
+@inject IDataAccess db
+@inject EtkHub EtkHub
+@inject UsrHub UsrHub
+
+<style>
+    td[data-sil=" "]{
+        text-decoration: line-through;
+    }
+
+    td[data-sil="!"] {
+        /*text-decoration: line-through solid red 2px;*/
+        background-color: red;
+    }
+
+    .txt {
+        border: 1px solid burlywood;
+        width: 100%;
+        margin-bottom: 4px;
+        padding: 0 4px;
+    }
+</style>
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">Davetliler</MudText>
+        <MudDivider />
+    </TitleContent>
+    <DialogContent>
+        <div style="display: grid; gap:8px; grid-template-columns: 1fr 1fr">
+            <div>Davetliler</div>
+            <div><input class="txt" @bind="searchText" @bind:after="PerformSearch" @bind:event="oninput" placeholder="Üye ara 🔍" /></div>
+
+            <div style="max-height: 50vh; overflow:auto">
+                <table>
+                    <colgroup>
+                        <col>
+                        <col style="width:50px">
+                    </colgroup>
+
+                    <tbody>
+                        @foreach (var itm in EMD.Values)
+                        {
+                            <tr>
+                                <td data-sil="@itm.newStu">@itm.Usr</td>
+                                <td class="tac" @onclick="(()=> ToggleStu(itm))" style="cursor:pointer">@itm.newStu</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div style="max-height: 50vh; overflow:auto">
+                <table style="align-self: baseline">
+                    <tbody>
+                        @foreach (var itm in UTL)
+                        {
+                            <tr>
+                                <td class="emj" style="cursor:pointer" @onclick="(()=> AddUsr(itm))">@itm.Usr</td>
+                                <td class="emj">@itm.Takipcim</td>
+                                <td class="emj">@itm.Izliyorum</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+
+        @*<input @bind="searchText" @bind:after="PerformSearch" @bind:event="oninput" placeholder="Uye ara" />*@
+        @*<input @bind="searchText" @bind:after="PerformSearch" @bind:event="oninput" />*@
+
+
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Ok</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private UserStateProvider? USP { get; set; }
+    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+    [Parameter] public int ETid { get; set; } = 0;
+    Dictionary<int, EM> EMD = new();
+    List<UT> UTL = new();
+    private string? searchText;
+
+    private async Task PerformSearch()
+    {
+        if (searchText.Length > 1)
+        {
+            UTL.Clear();
+            searchText = searchText.ToUpper(Cnst.trCI);
+            var aaa = UsrHub.UsrD.Values.Where(y => y.Usr.StartsWith(searchText));
+            foreach (var itm in aaa)
+            {
+                var ut = new UT();
+                ut.UTid = itm.UTid;
+                ut.Usr = itm.Usr;
+                if (itm.UTid == USP.UsrId)
+                {
+                    ut.Takipcim = "★";
+                    ut.Izliyorum = "★";
+                }
+                if (UsrHub.UsrD[itm.UTid].FanD.TryGetValue(USP.UsrId, out char tv))
+                    ut.Takipcim = Cnst.emjFanTyp(tv);
+                if (UsrHub.UsrD[USP.UsrId].FanD.TryGetValue(itm.UTid, out char fv))
+                    ut.Izliyorum = Cnst.emjFanTyp(fv);
+
+                UTL.Add(ut);
+            }
+        }
+
+        //var aaa = await SearchService.FetchAsync(searchText);
+    }
+
+    private void AddUsr(UT itm)
+    {
+        if (!EMD.ContainsKey(itm.UTid))
+        {
+            if (itm.Takipcim != "⛔")
+            {
+                EMD[itm.UTid] = new EM
+                    {
+                        UTid = itm.UTid,
+                        oldStu = ' ',
+                        newStu = '?',
+                        Usr = UsrHub.UsrD[itm.UTid].Usr
+                    };
+            }
+        }
+    }
+
+    protected override void OnParametersSet()
+    {
+        foreach (var itm in EtkHub.EtkD[ETid].MbrD)
+        {
+            EMD[itm.Key] = new EM
+                {
+                    UTid = itm.Key,
+                    oldStu = itm.Value,
+                    newStu = itm.Value,
+                    Usr = UsrHub.UsrD[itm.Key].Usr
+                };
+        }
+    }
+
+    private void ToggleStu(EM itm)
+    {
+        //itm.newStu = ToggleMbrStu(itm.newStu);
+        itm.newStu = ToggleMbrStu2(itm.oldStu, itm.newStu);
+    }
+
+    private async Task Submit()
+    {
+        bool refresh = false;
+        foreach (var itm in EMD.Values)
+        {
+            if (itm.oldStu != itm.newStu)
+            {
+                db.SaveRec<dynamic>("execute procedure EM_MDF(@ETid, @UTid, @Stu)", new { ETid = ETid, UTid = itm.UTid, Stu = itm.newStu });
+                itm.oldStu = itm.newStu;
+                refresh = true;
+            }
+        }
+        if (refresh)
+            EtkHub.RefreshEtk(ETid);
+
+        MudDialog?.Close(DialogResult.Ok(true));
+    }
+
+    private async Task OnValidSubmit(EditContext context)
+    {
+        var rtrn = await db.StoreProcAsync<dynamic, dynamic>("EM_MDF(@ETid, @UTid, @Stu)", new { });
+
+        int rETid = rtrn.RETID;
+        string Msj = rtrn.MSJ;
+        EtkHub.RefreshEtk(rETid);
+        MudDialog?.Close(DialogResult.Ok(true));
+        //if (rsp == 0)
+        //{
+        //    Snackbar.Add("OK", Severity.Success, config =>
+        //        {
+        //            config.RequireInteraction = true;
+        //            config.ShowCloseIcon = true;
+        //        });
+
+        //    MudDialog?.Close(DialogResult.Ok(true));
+        //}
+        //else
+        //{
+        //    Snackbar.Add("HATA", Severity.Warning);
+        //}
+    }
+
+    private void Cancel()
+    {
+        Snackbar.Add("İşlem iptal edildi", Severity.Warning);
+        MudDialog?.Cancel();
+    }
+
+    private sealed class EM
+    {
+        public int UTid;
+        public string Usr;
+        public char oldStu;
+        public char newStu;
+    }
+    private sealed class UT
+    {
+        public int UTid;
+        public string Usr;
+        public string Takipcim = "⚪";
+        public string Izliyorum = "⚪";
+    }
+
+    private char ToggleMbrStu(char oldStu) => oldStu switch
+    {
+        '+' => 'k',     // katilmak istiyor katilsin
+        'k' => 'r',     // red
+        'r' => 'k',     // Katilsin
+        '?' => ' ',     // Davetten vazgectim silinecek
+        ' ' => '?',
+        _ => oldStu
+    };
+
+    private char ToggleMbrStu2(char frsStu, char oldStu)
+    {
+        if (frsStu == '+' || frsStu == 'r') // Genel davetime katilmak istiyor
+        {
+            switch (oldStu)
+            {
+                case '+': return 'k';
+                case 'k': return 'r';
+                case 'r': return 'k';
+            }
+        }
+        else if (frsStu == 'k' || frsStu == '!') // Genel davete katilsin dedim sonra Banned
+        {
+            switch (oldStu)
+            {
+                case 'k': return '!';
+                case '!': return 'k';
+            }
+        }
+        else if (frsStu == ' ' || frsStu == '?') // Ozel davetime Yeni ekledim / Kararimi degistirdim
+        {
+            switch (oldStu)
+            {
+                case ' ': return '?';
+                case '?': return ' ';
+            }
+        }
+        else if (frsStu == 'K') // Ozel davetini kabul etmis, banned edebilir
+        {
+            switch (oldStu)
+            {
+                case 'K': return '!';
+                case '!': return 'K';
+            }
+        }
+        
+        return frsStu;
+    }
+
+}

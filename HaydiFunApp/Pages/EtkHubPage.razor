@@ -103,7 +103,7 @@
                     var usrStu = Cnst.emjUsrStu(e.MbrD[usrId]);
 
                     <tr @key="e.ETid" class="@e.Typ">
-                        <td>@e.ETid</td>
+                        <td class="emoji" @onclick="(()=> EditMbr(e.ETid))">@e.ETid</td>
                         <td class="tac emoji">@e.TypAd</td>
                         <td><b>@o.Usr</b> @oOnline</td>
                         <td class="px-0"><img src="@o.ImgUrl" class="imj" /></td>
@@ -149,6 +149,14 @@
     [CascadingParameter] private UserStateProvider USP { get; set; }
     Dictionary<int, DateTime> ETD = new();
     List<EtkHub.EtkMdl> EtkL = new();
+
+    private async Task EditMbr(int etId)
+    {
+        var prms = new DialogParameters { ["ETid"] = etId };
+
+        var dialog = DialogService.Show<EtkMbrDialog>("baslik", prms);
+        var result = await dialog.Result;
+    }
 
     private void GoChat(int etId)
     {

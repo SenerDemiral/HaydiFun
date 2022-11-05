@@ -1,4 +1,5 @@
 ﻿using HashidsNet;
+using System.Globalization;
 
 namespace HaydiFunApp;
 
@@ -10,6 +11,7 @@ public static class Cnst
     public const string UsrChangeEvnt = "UsrChangeEvnt";
     public const string EtkChangeEvnt = "EtkChangeEvnt";
     public const string ChatChangeEvnt = "ChatChangeEvnt";
+    public static CultureInfo trCI = new("tr-TR", false);
 
     public static Hashids hashIds0 = new Hashids("this is my salt", 0);   // Nekadar gerekiyorsa
     public static Hashids hashIds5 = new Hashids("this is my salt", 5);
@@ -59,6 +61,11 @@ public static class Cnst
         _ => ' '
     };
 
+    /// <summary>
+    /// Usr Davetliyse yapar 
+    /// </summary>
+    /// <param name="oldStu"></param>
+    /// <returns></returns>
     public static char ToggleUsrStu(char oldStu) => oldStu switch
     {
         '?' => 'K',     // Davet edildim -> Katiliyorum
@@ -83,9 +90,9 @@ public static class Cnst
     };
     public static string emjFanTyp(char typ) => typ switch
     {
-        'T' => "✓",     // Takip ediyorum
-        'E' => "⛔",    // Engelledim
-        _ => " "
+        'T' => "🟢",     // Takip ediyorum/ediliyorum (Yeşil yuvarlak)
+        'E' => "⛔",    // Engelledim/Engellendim
+        _ => "_"
     };
     public static string emjChatStu(bool hasChat) => hasChat switch
     {
