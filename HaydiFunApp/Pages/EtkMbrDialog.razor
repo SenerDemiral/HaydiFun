@@ -24,14 +24,14 @@
 </style>
 
 <MudDialog>
-    <TitleContent>
+    @*<TitleContent>
         <MudText Typo="Typo.h6">Davetliler</MudText>
         <MudDivider />
-    </TitleContent>
+    </TitleContent>*@
     <DialogContent>
         <div style="display: grid; gap:8px; grid-template-columns: 1fr 1fr">
             <div>Davetliler</div>
-            <div><input class="txt" @bind="searchText" @bind:after="PerformSearch" @bind:event="oninput" placeholder="Üye ara 🔍" /></div>
+            <div><input class="txt" @bind="searchText" @bind:after="PerformSearch" @bind:event="oninput" placeholder="Üye ara & ekle    🔍" /></div>
 
             <div style="max-height: 50vh; overflow:auto">
                 <table>
@@ -45,7 +45,7 @@
                         {
                             <tr>
                                 <td data-sil="@itm.newStu">@itm.Usr</td>
-                                <td class="tac" @onclick="(()=> ToggleStu(itm))" style="cursor:pointer">@itm.newStu</td>
+                                <td class="tac" @onclick="(()=> ToggleStu(itm))" style="cursor:pointer">@itm.emoji</td>
                             </tr>
                         }
                     </tbody>
@@ -75,8 +75,7 @@
 
     </DialogContent>
     <DialogActions>
-        <MudButton OnClick="Cancel">Cancel</MudButton>
-        <MudButton Color="Color.Primary" OnClick="Submit">Ok</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Kaydet</MudButton>
     </DialogActions>
 </MudDialog>
 
@@ -121,14 +120,15 @@
     {
         if (!EMD.ContainsKey(itm.UTid))
         {
-            if (itm.Takipcim != "⛔")
+            if (itm.Izliyorum != "⛔")
             {
                 EMD[itm.UTid] = new EM
                     {
                         UTid = itm.UTid,
                         oldStu = ' ',
                         newStu = '?',
-                        Usr = UsrHub.UsrD[itm.UTid].Usr
+                        Usr = UsrHub.UsrD[itm.UTid].Usr,
+                        emoji = Cnst.emjUsrStu('?')
                     };
             }
         }
@@ -143,7 +143,8 @@
                     UTid = itm.Key,
                     oldStu = itm.Value,
                     newStu = itm.Value,
-                    Usr = UsrHub.UsrD[itm.Key].Usr
+                    Usr = UsrHub.UsrD[itm.Key].Usr,
+                    emoji = Cnst.emjUsrStu(itm.Value)
                 };
         }
     }
@@ -152,6 +153,7 @@
     {
         //itm.newStu = ToggleMbrStu(itm.newStu);
         itm.newStu = ToggleMbrStu2(itm.oldStu, itm.newStu);
+        itm.emoji = Cnst.emjUsrStu(itm.newStu);
     }
 
     private async Task Submit()
@@ -208,6 +210,7 @@
         public string Usr;
         public char oldStu;
         public char newStu;
+        public string emoji = "";
     }
     private sealed class UT
     {

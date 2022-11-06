@@ -81,11 +81,13 @@ public static class Cnst
     public static string emjUsrStu(char stu) => stu switch
     {
         '?' => "❔",
-        'K' => "👍",
-        'R' => "👎",
-        '+' => "➕",
+        'K' => "😃",
+        'R' => "😔",
+        '+' => "📌", //"➕",
         'k' => "👍",
         'r' => "👎",
+        '!' => "🚫",
+        ' ' => " ",
         _ => "*"
     };
     public static string emjFanTyp(char typ) => typ switch

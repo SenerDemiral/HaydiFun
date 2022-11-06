@@ -121,6 +121,7 @@ public class EtkHub
             EtkD[etId].LAD = itm.LAD;
             EtkD[etId].Info = itm.Info;
             EtkD[etId].Lbls = itm.Lbls;
+            EtkD[etId].LblAds = itm.LblAds;
             Cnst.StringToDictionary(itm.Mbrs, EtkD[etId].MbrD);
         }
         else

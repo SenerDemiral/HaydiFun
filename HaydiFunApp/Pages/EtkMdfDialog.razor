@@ -21,7 +21,7 @@
                 </MudRadioGroup>
                 <MudText>Davet özelliklerini belirleyin</MudText>
 
-                <LblHubComp @ref="LHC" Typ="E" osLblTxt=""></LblHubComp>
+                <LblHubComp @ref="LHC" Typ="E" osLblTxt="@Lbls"></LblHubComp>
 
                 <MudButton ButtonType="ButtonType.Submit"
                            Variant="Variant.Filled"
@@ -41,17 +41,30 @@
 @code {
     [CascadingParameter] private UserStateProvider? USP { get; set; }
     [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+    [Parameter] public int ETid { get; set; } = 0;
     public bool success { get; set; } = false;
     //TagSearchDialog? TSG;
     LblHubComp? LHC;
     private RegisterModel model { get; set; } = new();
+    private string Lbls = "";
+
+    protected override void OnParametersSet()
+    {
+        if(ETid != 0)
+        {
+            model.ETid = ETid;
+            model.Info = EtkHub.EtkD[ETid].Info;
+            model.Typ = EtkHub.EtkD[ETid].Typ;
+            Lbls = EtkHub.EtkD[ETid].Lbls;
+        }
+    }
 
     private async Task OnValidSubmit(EditContext context)
     {
         success = true;
         StateHasChanged();
 
-        model.ETid = 0;
+        model.ETid = ETid;  // 0 insert else update
         model.OwnId = USP.UsrId;
         if (LHC?.osLblL.Count > 0)
             model.Lbls = string.Join(',', LHC.osLblL.Select(x => x.LTid));
@@ -89,12 +102,12 @@
         public int ETid { get; set; }
         public int OwnId { get; set; }
 
-        public string Typ { get; set; } = "O";
+        public char Typ { get; set; } = 'O';
 
         public bool isOzl
         {
-            get { return Typ == "O" ? true : false; }
-            set { Typ = value ? "O" : "G"; }
+            get { return Typ == 'O' ? true : false; }
+            set { Typ = value ? 'O' : 'G'; }
         }
 
         [Required(ErrorMessage = "Bu alan zorunludur.")]

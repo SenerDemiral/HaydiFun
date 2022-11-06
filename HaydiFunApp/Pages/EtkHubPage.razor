@@ -45,6 +45,12 @@
 
     .imj {
         display: block;
+        cursor: pointer;
+    }
+
+    .info {
+        cursor: pointer;
+        font-weight:bold;
     }
 
     .tac {
@@ -62,17 +68,12 @@
     }
 </style>
 
-<MudFab StartIcon="@Icons.Material.Filled.Login"
-        Label="Yeni"
-        Color="Color.Error"
-        Size="Size.Small"
-        OnClick="@(() => DialogService.Show<EtkMdfDialog>())" />
 
 @if (USP.UsrId != 0)
 {
     <div style="margin:auto; width: fit-content; max-height:80vh; overflow:auto">
         <table>
-            <caption style="background-color: burlywood;">Etkinliklerim</caption>
+            <caption style="background-color: burlywood;">Etkinliklerim <span class="emoji" @onclick="@(() => DialogService.Show<EtkMdfDialog>())">➕</span></caption>
             <colgroup>
                 <col>
                 <col>
@@ -103,15 +104,16 @@
                     var usrStu = Cnst.emjUsrStu(e.MbrD[usrId]);
 
                     <tr @key="e.ETid" class="@e.Typ">
-                        <td class="emoji" @onclick="(()=> EditMbr(e.ETid))">@e.ETid</td>
+                        <td class="emoji" @onclick="(()=> EditMbr(e))">@e.ETid ✏ 🛗</td>
                         <td class="tac emoji">@e.TypAd</td>
                         <td><b>@o.Usr</b> @oOnline</td>
-                        <td class="px-0"><img src="@o.ImgUrl" class="imj" /></td>
+                        <td class="px-0" @onclick="(()=> UsrInfo(o.UTid))"><img src="@o.ImgUrl" class="imj" /></td>
+
                         <td class="tac emoji" @onclick="(()=> StuChange(e.ETid))">@usrStu</td>
                         <td class="emoji" @onclick="(()=> GoChat(e.ETid))">@hasChat</td>
                     </tr>
                     <tr style="background-color: beige">
-                        <td colspan="9" class="info">@e.Info</td>
+                        <td colspan="9" class="info" @onclick="(()=> EditEtk(e))">@e.Info</td>
                     </tr>
                     <tr style="background-color: beige">
                         <td colspan="9" class="lbl">@e.LblAds</td>
@@ -144,17 +146,32 @@
     </div>
 }
 
-
 @code {
     [CascadingParameter] private UserStateProvider USP { get; set; }
     Dictionary<int, DateTime> ETD = new();
     List<EtkHub.EtkMdl> EtkL = new();
 
-    private async Task EditMbr(int etId)
+    public async Task UsrInfo(int utId)
     {
-        var prms = new DialogParameters { ["ETid"] = etId };
+        var prms = new DialogParameters { ["UTid"] = utId };
 
-        var dialog = DialogService.Show<EtkMbrDialog>("baslik", prms);
+        var dialog = DialogService.Show<UsrInfoDialog>("Üye", prms);
+        var result = await dialog.Result;
+    }
+
+    private async Task EditMbr(EtkHub.EtkMdl itm)
+    {
+        var prms = new DialogParameters { ["ETid"] = itm.ETid };
+
+        var dialog = DialogService.Show<EtkMbrDialog>($"Davetliler {itm.TypAd} #{itm.ETid}", prms);
+        var result = await dialog.Result;
+    }
+
+    private async Task EditEtk(EtkHub.EtkMdl itm)
+    {
+        var prms = new DialogParameters { ["ETid"] = itm.ETid };
+
+        var dialog = DialogService.Show<EtkMdfDialog>($"Davetliler {itm.TypAd} #{itm.ETid}", prms);
         var result = await dialog.Result;
     }
 

@@ -1,0 +1,48 @@
+﻿@inject UsrHub UsrHub
+@inject LblHub LblHub
+
+<style>
+    img {
+        display: block;
+        object-fit: none;
+        object-position: top;
+        height: fit-content;
+        cursor: pointer;
+    }
+
+</style>
+
+<MudDialog >
+    <DialogContent>
+        <div class="d-flex flex-column" style="max-width:360px">
+            <img src="@UsrImgUrl" />
+            <MudChip Label="true" Color="Color.Error" Size="Size.Small">@Usr</MudChip>
+            <MudTextField Lines="4" Class="px-2 mt-n4" @bind-Value="Info" Variant="Variant.Text" ReadOnly="true" />
+            <div class="px-0">
+                @foreach (var lbl in UsrLblL)
+                {
+                    <MudChip Label="true" Color="Color.Info" Size="Size.Small">@lbl</MudChip>
+                }
+            </div>
+        </div>
+    </DialogContent>
+
+</MudDialog>
+
+@code {
+    [Parameter] public int UTid { get; set; }
+
+    private string Usr;
+    private string Info;
+    private string UsrImgUrl;
+    private List<string> UsrLblL;
+
+    protected override void OnParametersSet()
+    {
+        Usr = UsrHub.UsrD[UTid].Usr;
+        Info = UsrHub.UsrD[UTid].Info;
+        UsrImgUrl = UsrHub.UsrD[UTid].ImgUrlBig;
+        UsrLblL = LblHub.Lbls2List(UsrHub.UsrD[UTid].Lbls);
+    }
+
+}
