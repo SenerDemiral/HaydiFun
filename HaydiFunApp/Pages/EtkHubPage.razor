@@ -104,9 +104,9 @@
                     var usrStu = Cnst.emjUsrStu(e.MbrD[usrId]);
 
                     <tr @key="e.ETid" class="@e.Typ">
-                        <td class="emoji" @onclick="(()=> EditMbr(e))">@e.ETid ✏ 🛗</td>
+                        <td class="emoji" @onclick="(()=> EditMbr(e))">@e.ETid 🚧 👥 🧑‍🤝‍🧑 📢</td>
                         <td class="tac emoji">@e.TypAd</td>
-                        <td><b>@o.Usr</b> @oOnline</td>
+                        <td><b>@o.Usr</b>@oOnline</td>
                         <td class="px-0" @onclick="(()=> UsrInfo(o.UTid))"><img src="@o.ImgUrl" class="imj" /></td>
 
                         <td class="tac emoji" @onclick="(()=> StuChange(e.ETid))">@usrStu</td>
