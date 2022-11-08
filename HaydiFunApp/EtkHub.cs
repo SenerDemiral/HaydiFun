@@ -186,7 +186,7 @@ public class EtkHub
     {
         char oldStu = EtkD[etId].MbrD[usrId];
         char newStu = Cnst.ToggleUsrStu(oldStu);
-        if (newStu != ' ')
+        if (newStu != ' ' && oldStu != newStu)
         {
             // Save to db
             db.SaveRec("update EM set Stu = @Stu where ETid = @ETid and UTid = @UTid", new { ETid = etId, UTid = usrId, Stu = newStu });

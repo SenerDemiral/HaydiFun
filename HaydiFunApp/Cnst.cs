@@ -71,7 +71,7 @@ public static class Cnst
         '?' => 'K',     // Davet edildim -> Katiliyorum
         'K' => 'R',     // Katiliyorum -> Katilamiyorum Red (Bunlari listenin sonuna atmak gerek)
         'R' => 'K',     // Katilamiyorum -> Katiliyorum
-        _ => ' '
+        _ => oldStu
     };
     //Rune r = new Rune(0x1F535);
     //emoji = r.ToString();

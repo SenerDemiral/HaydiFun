@@ -9,12 +9,11 @@
     <DialogContent>
         <MudTextField AutoFocus="true"
                       @bind-Value="Info"
-                      Label="Info"
+                      Label="Açıklama"
                       Variant="Variant.Text" />
     </DialogContent>
     <DialogActions>
-        <MudButton OnClick="Cancel">Cancel</MudButton>
-        <MudButton Color="Color.Error" OnClick="TryLogin">Login</MudButton>
+        <MudButton Color="Color.Error" OnClick="Kaydet">Kaydet</MudButton>
     </DialogActions>
 </MudDialog>
 
@@ -25,13 +24,19 @@
 
     private string Info { get; set; } = "";
 
-    private async Task TryLogin()
+    private async Task Kaydet()
     {
+        if(string.IsNullOrWhiteSpace(Info))
+        {
+            Snackbar.Add("Açıklama girin", Severity.Error);
+            return;
+        }
+
         var rtrn = db.StoreProc<dynamic, dynamic>("ET_INS_OZL(@OwnId, @UTid, @Info)", new { OwnId = USP.UsrId, UTid = UTid, Info = Info });
         int etId = rtrn.ETID;
         if (etId > 0)
         {
-            Snackbar.Add("OK", Severity.Success);
+            Snackbar.Add($"Davet eklendi #{etId}", Severity.Success);
             MudDialog?.Close(DialogResult.Ok("OK"));
             EtkHub.RefreshEtk(etId);
         }

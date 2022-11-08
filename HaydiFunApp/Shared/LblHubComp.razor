@@ -36,7 +36,7 @@
                 </MudChipSet>
             }
         </MudListSubheader>
-        <div style="max-height: 50vh; overflow:auto">
+        @*<div style="max-height: 50vh; overflow:auto">*@
 
         @foreach (var grp in GrpD)
         {
@@ -59,7 +59,7 @@
                     </NestedList>
                 </MudListItem>
             }
-        </div>
+        @*</div>*@
     </MudList>
 </MudPaper>
 
@@ -85,6 +85,10 @@
 
         asLblL = LblHub.Lbls2LTlst(asLblTxt);
         osLblL = LblHub.Lbls2LTlst(osLblTxt);
+
+        // Listedekiler Enable olmali
+        foreach (var itm in LblL)
+            itm.isDisabled = false;
     }
     protected override void OnInitialized()
     {

@@ -34,23 +34,36 @@
         text-align: left;
     }
 
-    .emoji {
+    .emj {
         font-size: large;
-        cursor: pointer;
     }
+
+    .edt {
+        font-size: large;
+        background-color: olive;
+        color: white;
+        cursor: pointer;
+        width: 5em;
+    }
+
+        .edt::before {
+            content: "🚧";
+        }
 
     .lbl, .mbr {
         font-size: x-small;
     }
 
-    .imj {
-        display: block;
+    .cp {
         cursor: pointer;
     }
 
+    .imj {
+        display: block;
+    }
+
     .info {
-        cursor: pointer;
-        font-weight:bold;
+        font-weight: bold;
     }
 
     .tac {
@@ -73,17 +86,20 @@
 {
     <div style="margin:auto; width: fit-content; max-height:80vh; overflow:auto">
         <table>
-            <caption style="background-color: burlywood;">Etkinliklerim <span class="emoji" @onclick="@(() => DialogService.Show<EtkMdfDialog>())">➕</span></caption>
+            @*<caption style="background-color: burlywood;">Etkinliklerim <span class="emj cp" @onclick="@(() => DialogService.Show<EtkMdfDialog>())">➕</span></caption>*@
+            <caption style="background-color: burlywood;">Etkinliklerim <span class="emj cp" @onclick="(()=> EditEtk())">➕</span></caption>
             <colgroup>
-                <col>
+                <col style="width:fit-content">
                 <col>
                 <col>
                 <col style="width:50px">
                 <col>
+                <col>
             </colgroup>
             <thead>
                 <tr>
-                    <th class="tal">ID</th>
+                    <th>ID</th>
+                    <th></th>
                     <th>Typ</th>
                     <th>Owner</th>
                     <th>Avtr</th>
@@ -104,16 +120,17 @@
                     var usrStu = Cnst.emjUsrStu(e.MbrD[usrId]);
 
                     <tr @key="e.ETid" class="@e.Typ">
-                        <td class="emoji" @onclick="(()=> EditMbr(e))">@e.ETid 🚧 👥 🧑‍🤝‍🧑 📢</td>
-                        <td class="tac emoji">@e.TypAd</td>
+                        <td class="edt" @onclick="(()=> EditEtk(e))">@e.ETid</td>
+                        <td class="cp emj" @onclick="(()=> EditMbr(e))">🧑‍🤝‍🧑</td>
+                        <td class="tac emj">@e.TypAd</td>
                         <td><b>@o.Usr</b>@oOnline</td>
-                        <td class="px-0" @onclick="(()=> UsrInfo(o.UTid))"><img src="@o.ImgUrl" class="imj" /></td>
+                        <td class="px-0" @onclick="(()=> UsrInfo(o.UTid))"><img src="@o.ImgUrl" class="imj cp" /></td>
 
-                        <td class="tac emoji" @onclick="(()=> StuChange(e.ETid))">@usrStu</td>
-                        <td class="emoji" @onclick="(()=> GoChat(e.ETid))">@hasChat</td>
+                        <td class="tac emj cp" @onclick="(()=> StuChange(e))">@usrStu</td>
+                        <td class="tac emj cp" @onclick="(()=> GoChat(e.ETid))">@hasChat</td>
                     </tr>
                     <tr style="background-color: beige">
-                        <td colspan="9" class="info" @onclick="(()=> EditEtk(e))">@e.Info</td>
+                        <td colspan="9" class="info">@e.Info</td>
                     </tr>
                     <tr style="background-color: beige">
                         <td colspan="9" class="lbl">@e.LblAds</td>
@@ -161,18 +178,32 @@
 
     private async Task EditMbr(EtkHub.EtkMdl itm)
     {
-        var prms = new DialogParameters { ["ETid"] = itm.ETid };
+        if (USP.UsrId == itm.OwnId) // Ownr
+        {
+            var prms = new DialogParameters { ["ETid"] = itm.ETid };
 
-        var dialog = DialogService.Show<EtkMbrDialog>($"Davetliler {itm.TypAd} #{itm.ETid}", prms);
+            var dialog = DialogService.Show<EtkMbrDialog>($"Davetliler {itm.TypAd} #{itm.ETid}", prms);
+            var result = await dialog.Result;
+        }
+    }
+
+    private async Task EditEtk()
+    {
+        var prms = new DialogParameters { ["ETid"] = 0 };
+
+        var dialog = DialogService.Show<EtkMdfDialog>($"Yeni Etkinlik", prms);
         var result = await dialog.Result;
     }
 
     private async Task EditEtk(EtkHub.EtkMdl itm)
     {
-        var prms = new DialogParameters { ["ETid"] = itm.ETid };
+        if (USP.UsrId == itm.OwnId) // Ownr
+        {
+            var prms = new DialogParameters { ["ETid"] = itm.ETid };
 
-        var dialog = DialogService.Show<EtkMdfDialog>($"Davetliler {itm.TypAd} #{itm.ETid}", prms);
-        var result = await dialog.Result;
+            var dialog = DialogService.Show<EtkMdfDialog>($"Düzenle {itm.TypAd} #{itm.ETid}", prms);
+            var result = await dialog.Result;
+        }
     }
 
     private void GoChat(int etId)
@@ -185,12 +216,15 @@
         }
     }
 
-    private void StuChange(int etId)
+    private void StuChange(EtkHub.EtkMdl itm)
     {
-        var ok = EtkHub.ToggleEtkUsrStu(etId, USP.UsrId);
-        if (!ok)
+        if (itm.UsrId != USP.UsrId)
         {
-            // uyari ver
+            var ok = EtkHub.ToggleEtkUsrStu(itm.ETid, USP.UsrId);
+            if (!ok)
+            {
+                // uyari ver
+            }
         }
     }
 

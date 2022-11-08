@@ -5,7 +5,9 @@
         <MudText Typo="Typo.h6">Search</MudText>
     </TitleContent>
     <DialogContent>
+        <div style="max-height: 30vh; overflow:auto">
         <LblHubComp @ref="LHC" Typ="S" asLblTxt="@andTxt" osLblTxt="@orTxt"></LblHubComp>
+        </div>
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">Cancel</MudButton>

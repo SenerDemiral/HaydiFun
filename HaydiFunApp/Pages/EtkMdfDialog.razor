@@ -4,38 +4,35 @@
 @inject EtkHub EtkHub
 
 <MudDialog>
-    <TitleContent>
-        <MudText Typo="Typo.h6">Etkinlik</MudText>
-        <MudDivider />
-    </TitleContent>
     <DialogContent>
-            <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
-                <DataAnnotationsValidator />
-                <MudTextField Label="Açıklama" AutoFocus="true"
-                              HelperText="Açıklama"
-                              @bind-Value="model.Info"
-                              For="@(() => model.Info)" />
-                <MudRadioGroup @bind-SelectedOption="model.isOzl" Style="margin-left:6px">
-                    <MudRadio Option="true" Color="Color.Secondary" Dense="true">Özel</MudRadio>
-                    <MudRadio Option="false" Color="Color.Success" Dense="true">Genel</MudRadio>
-                </MudRadioGroup>
-                <MudText>Davet özelliklerini belirleyin</MudText>
+        <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
 
+            <DataAnnotationsValidator />
+            <MudTextField Label="Açıklama" AutoFocus="true"
+                          HelperText="Açıklama"
+                          @bind-Value="model.Info"
+                          For="@(() => model.Info)" />
+            <MudRadioGroup @bind-SelectedOption="model.isOzl" Style="margin-left:6px">
+                <MudRadio Option="true" Color="Color.Secondary" Dense="true">Özel</MudRadio>
+                <MudRadio Option="false" Color="Color.Success" Dense="true">Genel</MudRadio>
+            </MudRadioGroup>
+            <MudText>Davet özelliklerini belirleyin</MudText>
+            
+            <div style="max-height: 30vh; overflow:auto">
                 <LblHubComp @ref="LHC" Typ="E" osLblTxt="@Lbls"></LblHubComp>
+            </div>
+            
+            <MudButton ButtonType="ButtonType.Submit"
+                       Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       Class="ml-auto">
+                Kaydet
+            </MudButton>
 
-                <MudButton ButtonType="ButtonType.Submit"
-                           Variant="Variant.Filled"
-                           Color="Color.Primary"
-                           Class="ml-auto">
-                    Kaydet
-                </MudButton>
-
-                <MudButton OnClick="Cancel">İptal</MudButton>
-
-            </EditForm>
+        </EditForm>
     </DialogContent>
-    <DialogActions>
-    </DialogActions>
+    @*<DialogActions>
+    </DialogActions>*@
 </MudDialog>
 
 @code {
@@ -50,7 +47,7 @@
 
     protected override void OnParametersSet()
     {
-        if(ETid != 0)
+        if (ETid != 0)
         {
             model.ETid = ETid;
             model.Info = EtkHub.EtkD[ETid].Info;
