@@ -9,7 +9,7 @@
 </style>
 <MudPaper>
     <MudList Clickable="true" Dense="true">
-        <MudListSubheader DisableGutters="false">
+        <MudListSubheader DisableGutters="true">
             @if (Typ == "S")
             {
                 <MudRadioGroup @bind-SelectedOption="@AndSelected">
@@ -48,7 +48,8 @@
                      ExpandedChanged="@(e => this.ToggleExpanded(e, grp.Key))">
 
                     <NestedList>
-                        @foreach (var lbl in LblL.Where(x => x.LGid == grp.Key))
+                        @*@foreach (var lbl in LblL.Where(x => x.LGid == grp.Key))*@
+                        @foreach (var lbl in LblD.Values.Where(x => x.LGid == grp.Key))
                         {
                             <MudListItem Disabled="@lbl.isDisabled"
                                  Dense="true"
@@ -75,7 +76,8 @@
     public bool expanded;
 
     Dictionary<int, LG> GrpD = new();
-    List<LT> LblL = new();
+    //List<LT> LblL = new();
+    Dictionary<int, LT> LblD = new();
 
     protected override void OnParametersSet()
     {
@@ -87,12 +89,32 @@
         osLblL = LblHub.Lbls2LTlst(osLblTxt);
 
         // Listedekiler Enable olmali
-        foreach (var itm in LblL)
-            itm.isDisabled = false;
+        //foreach (var itm in LblL)
+        //    itm.isDisabled = false;
+
+        foreach (var itm in LblD)
+            itm.Value.isDisabled = false;
+
+        int key;
+        foreach (var itm in asLblTxt.Split(",", StringSplitOptions.RemoveEmptyEntries))
+        {
+            key = Int32.Parse(itm);
+            LblD[key].isDisabled = true;
+        }
+
+        foreach (var itm in osLblTxt.Split(",", StringSplitOptions.RemoveEmptyEntries))
+        {
+            key = Int32.Parse(itm);
+            LblD[key].isDisabled = true;
+        }
+
+        //LblL = LblD.Values.ToList();
     }
+
     protected override void OnInitialized()
     {
-        LblL = LblHub.LblD.Values.ToList(); //(await db.LoadDataAsync<LT, dynamic>("select * from LT order by LGid, Name", new { })).ToList();
+        //LblL = LblHub.LblD.Values.ToList(); //(await db.LoadDataAsync<LT, dynamic>("select * from LT order by LGid, Name", new { })).ToList();
+        LblD = LblHub.LblD;
         GrpD = LblHub.LblGD; //(await db.LoadDataAsync<LG, dynamic>("select * from LG order by LGid", new { })).ToDictionary((x) => x.LGid);
     }
 
@@ -127,7 +149,10 @@
                 {
                     foreach (var b in bb)
                         osLblL.Remove(b);
-                    foreach (var c in LblL.FindAll(x => x.LGid == gId))
+                    //foreach (var c in LblL.FindAll(x => x.LGid == gId))
+                    //    c.isDisabled = false;
+
+                    foreach (var c in LblD.Values.Where(x => x.LGid == gId))
                         c.isDisabled = false;
                 }
             }
@@ -161,9 +186,11 @@
         // burdan sil
         asLblL.Remove(lbl);
         // Lbl enable
-        var ti = LblL.FindIndex(x => x.LTid == lbl.LTid);
-        if (ti != -1)
-            LblL[ti].isDisabled = false;
+        //var ti = LblL.FindIndex(x => x.LTid == lbl.LTid);
+        //if (ti != -1)
+        //    LblL[ti].isDisabled = false;
+    
+        LblD[lbl.LTid].isDisabled = false;
     }
 
     public void ClosedO(MudChip chip)
@@ -172,9 +199,11 @@
         // burdan sil
         osLblL.Remove(lbl);
         // Lbl enable
-        var ti = LblL.FindIndex(x => x.LTid == lbl.LTid);
-        if (ti != -1)
-            LblL[ti].isDisabled = false;
+        //var ti = LblL.FindIndex(x => x.LTid == lbl.LTid);
+        //if (ti != -1)
+        //    LblL[ti].isDisabled = false;
+
+        LblD[lbl.LTid].isDisabled = false;
     }
 
     //public record LT

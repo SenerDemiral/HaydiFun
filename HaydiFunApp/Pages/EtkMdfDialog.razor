@@ -5,34 +5,30 @@
 
 <MudDialog>
     <DialogContent>
-        <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+        <MudTextField Label="Açıklama" AutoFocus="true" Lines="2" Style="width:300px"
+                      HelperText="Açıklama"
+                      @bind-Value="model.Info"
+                      For="@(() => model.Info)" />
+        <MudRadioGroup @bind-SelectedOption="model.isOzl" Style="margin-left:6px">
+            <MudRadio Option="true" Color="Color.Secondary" Dense="true">Özel</MudRadio>
+            <MudRadio Option="false" Color="Color.Success" Dense="true">Genel</MudRadio>
+        </MudRadioGroup>
+        <div>Davet özelliklerini seçin:</div>
 
-            <DataAnnotationsValidator />
-            <MudTextField Label="Açıklama" AutoFocus="true"
-                          HelperText="Açıklama"
-                          @bind-Value="model.Info"
-                          For="@(() => model.Info)" />
-            <MudRadioGroup @bind-SelectedOption="model.isOzl" Style="margin-left:6px">
-                <MudRadio Option="true" Color="Color.Secondary" Dense="true">Özel</MudRadio>
-                <MudRadio Option="false" Color="Color.Success" Dense="true">Genel</MudRadio>
-            </MudRadioGroup>
-            <MudText>Davet özelliklerini belirleyin</MudText>
-            
-            <div style="max-height: 30vh; overflow:auto">
-                <LblHubComp @ref="LHC" Typ="E" osLblTxt="@Lbls"></LblHubComp>
-            </div>
-            
-            <MudButton ButtonType="ButtonType.Submit"
-                       Variant="Variant.Filled"
-                       Color="Color.Primary"
-                       Class="ml-auto">
-                Kaydet
-            </MudButton>
+        <div style="max-height: 30vh; overflow:auto">
+            <LblHubComp @ref="LHC" Typ="E" osLblTxt="@Lbls"></LblHubComp>
+        </div>
 
-        </EditForm>
     </DialogContent>
-    @*<DialogActions>
-    </DialogActions>*@
+    <DialogActions>
+        <MudButton ButtonType="ButtonType.Submit"
+                   Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   Class="ml-auto"
+                   OnClick="OnValidSubmit">
+            Kaydet
+        </MudButton>
+    </DialogActions>
 </MudDialog>
 
 @code {
@@ -56,10 +52,13 @@
         }
     }
 
-    private async Task OnValidSubmit(EditContext context)
+    private async Task OnValidSubmit()
     {
-        success = true;
-        StateHasChanged();
+        if (string.IsNullOrWhiteSpace(model.Info))
+        {
+            Snackbar.Add("Açıklama girin", Severity.Error);
+            return;
+        }
 
         model.ETid = ETid;  // 0 insert else update
         model.OwnId = USP.UsrId;

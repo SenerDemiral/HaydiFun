@@ -70,11 +70,15 @@ width: min-content;
 *@
 @if (USP.UsrId != 0)
 {
-    <div style="margin:auto; max-height: 90vh; max-width: fit-content; overflow: auto;">
+    <div style="max-height:90vh; overflow:auto; display: grid; grid-template-columns:minmax(min-content,0.6fr); justify-content: center;">
+
+    @*<div style="margin:auto; max-height: 90vh; max-width: fit-content; overflow: auto;">*@
+        <div>
         <label for="isOnline">Online olanlar</label>
         <input type="checkbox" @bind="isOnline" name="isOnline" />
         <input type="text" @bind="SrchValueHepsiName" class="inp" placeholder="Hepsi.." @onclick="SrchClick" readonly />
         <input type="text" @bind="SrchValueBiriName" class="inp" placeholder="Biri" @onclick="SrchClick" readonly />
+        </div>
         <table>
             <caption style="background-color: burlywood;">Üyeler</caption>
             <colgroup>

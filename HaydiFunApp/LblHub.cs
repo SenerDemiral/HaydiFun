@@ -26,9 +26,8 @@ public sealed class LblHub
     {
         List<string> lst = new();
         int key;
-        string[] sa = lbls.Split(",", StringSplitOptions.RemoveEmptyEntries);
         
-        foreach (var itm in sa)
+        foreach (var itm in lbls.Split(",", StringSplitOptions.RemoveEmptyEntries))
         {
             key = Int32.Parse(itm);
             lst.Add(LblD[key].FullName);

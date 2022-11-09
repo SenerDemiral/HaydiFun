@@ -4,97 +4,98 @@
 @inject IEmailService EmailService
 
 <MudDialog>
-  <TitleContent>
-    <MudText Typo="Typo.h6">Üye olmak istiyorum</MudText>
-    <MudDivider />
-  </TitleContent>
-  <DialogContent>
-    <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
-      <DataAnnotationsValidator />
-      <MudTextField Label="İsim" AutoFocus="true"
-                    HelperText="Ad Soyad"
-                    @bind-Value="model.Name"
-                    For="@(() => model.Name)" />
-      <MudTextField Label="Email" Class="mt-3"
-                    @bind-Value="model.MailAdr"
-                    For="@(() => model.MailAdr)" />
-      <br />
-      <MudButton ButtonType="ButtonType.Submit"
-                 Variant="Variant.Filled"
-                 Color="Color.Primary"
-                 Class="ml-auto">
-        Register
-      </MudButton>
-      <MudButton OnClick="Cancel">Cancel</MudButton>
-    </EditForm>
-  </DialogContent>
-  <DialogActions>
-  </DialogActions>
+    <TitleContent>
+        <MudText Typo="Typo.h6">Üye olmak istiyorum</MudText>
+        <MudDivider />
+    </TitleContent>
+    <DialogContent>
+        <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+            <DataAnnotationsValidator />
+            <MudTextField Label="İsim" AutoFocus="true"
+                          HelperText="Ad Soyad"
+                          @bind-Value="model.Name"
+                          For="@(() => model.Name)" />
+            <MudTextField Label="Email" Class="mt-3"
+                          @bind-Value="model.MailAdr"
+                          For="@(() => model.MailAdr)" />
+            <br />
+            <MudButton ButtonType="ButtonType.Submit"
+                       Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       Class="ml-auto">
+                Register
+            </MudButton>
+            <MudButton OnClick="Cancel">Cancel</MudButton>
+        </EditForm>
+    </DialogContent>
+    <DialogActions>
+    </DialogActions>
 </MudDialog>
 
 @code {
-  [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
-  public bool success { get; set; } = false;
+    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+    public bool success { get; set; } = false;
 
-  private RegisterModel model { get; set; } = new();
-  public PatternMask mTelMask = new PatternMask("(###) ### ## ##")
+    private RegisterModel model { get; set; } = new();
+    public PatternMask mTelMask = new PatternMask("(###) ### ## ##")
+        {
+            MaskChars = new[] { new MaskChar('#', @"[0-9]") },
+            Placeholder = '_',
+            CleanDelimiters = true,
+        };
+
+    private async Task OnValidSubmit(EditContext context)
     {
-      MaskChars = new[] { new MaskChar('#', @"[0-9]") },
-      Placeholder = '_',
-      CleanDelimiters = true,
-    };
+        success = true;
+        StateHasChanged();
 
-  private async Task OnValidSubmit(EditContext context)
-  {
-    success = true;
-    StateHasChanged();
+        var rtrn = await db.StoreProcAsync<dynamic, RegisterModel>("UT_NEW(@Name, @MailAdr)", model);
 
-    var rtrn = await db.StoreProcAsync<dynamic, RegisterModel>("UT_NEW(@Name, @MailAdr)", model);
+        int rsp = rtrn.RSP;
+        string msg = rtrn.MSG;
+        string sbj = rtrn.SBJ;
+        string bdy = rtrn.BDY;
 
-    int rsp = rtrn.RSP;
-    string msg = rtrn.MSG;
-    string sbj = rtrn.SBJ;
-    string bdy = rtrn.BDY;
+        if (rsp == 0)
+        {
+            //await EmailService.SendEmailAsync(model.MailAdr, sbj, bdy).ConfigureAwait(false);
 
-    if (rsp == 0)
-    {
-      //await EmailService.SendEmailAsync(model.MailAdr, sbj, bdy).ConfigureAwait(false);
+            // Deneme
+            //string body = "Sayın <b>[USRNAME]</b><br/><br/><a href='http://haydi.fun'>haydi.fun</a> siteye giriş bilgilerin aşağıda belirtimiştir.<br/><br/>UTid: <b>[USRID]</b><br/><br/>Pwd: <b>[USRPWD]</b><br/><br/>Lütfen bu maile yanıt vermeyin (no-reply).";
+            //await EmailService.SendEmailAsync("sener.demiral@gmail.com", sbj, bdy);//.ConfigureAwait(false);
 
-      // Deneme
-      //string body = "Sayın <b>[USRNAME]</b><br/><br/><a href='http://haydi.fun'>haydi.fun</a> siteye giriş bilgilerin aşağıda belirtimiştir.<br/><br/>UTid: <b>[USRID]</b><br/><br/>Pwd: <b>[USRPWD]</b><br/><br/>Lütfen bu maile yanıt vermeyin (no-reply).";
-      //await EmailService.SendEmailAsync("sener.demiral@gmail.com", sbj, bdy);//.ConfigureAwait(false);
+            Snackbar.Add(msg, Severity.Success, config =>
+                {
+                    config.RequireInteraction = true;
+                    config.ShowCloseIcon = true;
+                });
 
-      Snackbar.Add(msg, Severity.Success, config =>
-          {
-            config.RequireInteraction = true;
-            config.ShowCloseIcon = true;
-          });
-
-      MudDialog?.Close(DialogResult.Ok(true));
-      await EmailService.SendEmailAsync("sener.demiral@gmail.com", sbj, bdy);//.ConfigureAwait(false);
+            MudDialog?.Close(DialogResult.Ok(true));
+            //await EmailService.SendEmailAsync("sener.demiral@gmail.com", sbj, bdy);//.ConfigureAwait(false);
+            await EmailService.SendEmailAsync(model.MailAdr, sbj, bdy);//.ConfigureAwait(false);
+        }
+        else
+        {
+            Snackbar.Add(msg, Severity.Warning);
+        }
     }
-    else
+
+    private void Cancel()
     {
-      Snackbar.Add(msg, Severity.Warning);
+        Snackbar.Add("İşlem iptal edildi", Severity.Warning);
+        MudDialog?.Cancel();
     }
-  }
 
-  private void Cancel()
-  {
-    Snackbar.Add("İşlem iptal edildi", Severity.Warning);
-    MudDialog?.Cancel();
-  }
+    private class RegisterModel
+    {
+        [Required(ErrorMessage = "Bu alan zorunludur")]
+        [StringLength(40, ErrorMessage = "Max 40")]
+        public string Name { get; set; }
 
-  private class RegisterModel
-  {
-    [Required(ErrorMessage = "Bu alan zorunludur")]
-    [StringLength(40, ErrorMessage = "Max 40")]
-    public string Name { get; set; }
+        [Required(ErrorMessage = "Bu alan zorunludur")]
+        [EmailAddress(ErrorMessage = "Hata")]
+        [StringLength(40, ErrorMessage = "Max 40")]
+        public string MailAdr { get; set; }
 
-    [Required(ErrorMessage = "Bu alan zorunludur")]
-    [EmailAddress(ErrorMessage = "Hata")]
-    [StringLength(40, ErrorMessage = "Max 40")]
-    public string MailAdr { get; set; }
-
-  }
+    }
 }
