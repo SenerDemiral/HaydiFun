@@ -13,16 +13,20 @@
 
 @if (USP.UsrId != 0)
 {
-    <div style="margin:auto; width:fit-content; ">
-        <div @onkeypress="@KeyHandler" style="position:relative">
-            <input type="text" @bind="ChatText" @bind:event="oninput" class="txt" placeholder="Mesaj..." />
+    <div style="max-height:90vh; overflow:auto; display: grid; grid-template-columns:minmax(min-content,0.6fr); justify-content: center;">
+
+        @*<div style="margin:auto; width:fit-content; ">*@
+        <div style="position:relative">
+            <textarea rows="@tar" style="width:100%;font-weight:bold;resize: vertical;" placeholder="Mesaj..."
+            @bind="ChatText"
+            @onkeypress="@KeyHandler"
+            @bind:event="oninput" />
             <div class="txtBaslik">Chat Grup #@ETid</div>
         </div>
-        <div style="height:80vh; overflow:auto">
         <table>
             @*<caption style="background-color: burlywood;">Chat Grup #@ETid</caption>*@
             <colgroup>
-                <col style="min-width:200px">
+                <col>
             </colgroup>
             <tbody>
                 @{
@@ -46,7 +50,7 @@
                         @if (isOwn)
                         {
                             <td class="info" data-kim="@kim">
-                                <div>@e.Info</div>
+                                <textarea rows="2" disabled style="width:100%;font-weight:bold;resize:vertical; ">@e.Info</textarea>
                                 <div class="saat">@e.EXD.ToString("HH:mm")</div>
                             </td>
 
@@ -64,7 +68,6 @@
                 }
             </tbody>
         </table>
-        </div>
     </div>
 }
 
@@ -94,6 +97,15 @@
 
     public bool _isOpen;
 
+    public int _tar;
+    public int tar
+    {
+        get => _tar < 2 ? 2 : _tar;
+        set
+        {
+            _tar = value > 4 ? 5 : value;
+        }
+    }
     public void ToggleOpen()
     {
         _isOpen = !_isOpen;
@@ -103,10 +115,19 @@
     {
         if (args.Key == "Enter")
         {
+            if (args.CtrlKey)
+            {
+                ChatText += Environment.NewLine;
+
+                tar = ChatText.Count(x => x == '\n') + 1;
+                return;
+            }
+
             if (!string.IsNullOrWhiteSpace(ChatText))
                 ChatHub.AddChat(ETid, USP.UsrId, ChatText);
 
             ChatText = "";
+            tar = 2;
             return;
         }
     }
@@ -208,20 +229,22 @@
         margin-bottom: 4px;
         padding: 0 4px;
     }
-    .txtBaslik{
+
+    .txtBaslik {
         position: absolute;
         right: 4px;
-        top: -6px;
+        top: -2px;
         font-size: x-small;
         background-color: burlywood;
         padding: 0 2px;
     }
+
     .info {
         display: flex;
         flex-direction: column;
         justify-content: space-between;
         background-color: #edeeee;
-        word-wrap:anywhere;
+        word-wrap: anywhere;
     }
 
     .usr {
@@ -257,18 +280,6 @@
 
     .O {
         background-color: bisque;
-    }
-
-    .tal {
-        text-align: left;
-    }
-
-    .tac {
-        text-align: center;
-    }
-
-    .tar {
-        text-align: right;
     }
 
     table, th, td {
