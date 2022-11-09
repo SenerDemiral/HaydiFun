@@ -6,7 +6,7 @@
 @inject UsrHub UsrHub
 
 <style>
-    td[data-sil=" "]{
+    td[data-sil=" "] {
         text-decoration: line-through;
     }
 
@@ -25,13 +25,16 @@
 
 <MudDialog>
     @*<TitleContent>
-        <MudText Typo="Typo.h6">Davetliler</MudText>
-        <MudDivider />
+    <MudText Typo="Typo.h6">Davetliler</MudText>
+    <MudDivider />
     </TitleContent>*@
     <DialogContent>
         <div style="display: grid; gap:8px; grid-template-columns: 1fr 1fr">
             <div>Davetliler</div>
-            <div><input class="txt" @bind="searchText" @bind:after="PerformSearch" @bind:event="oninput" placeholder="Üye ara & ekle    🔍" /></div>
+            <div>
+                <input class="txt" placeholder="Üye ara & ekle    🔍"
+                @bind="searchText" @bind:event="oninput" @bind:after="PerformSearch" />
+            </div>
 
             <div style="max-height: 50vh; overflow:auto">
                 <table>
@@ -87,9 +90,12 @@
     List<UT> UTL = new();
     private string? searchText;
 
-    private async Task PerformSearch()
+    private void PerformSearch()
     {
-        if (searchText.Length > 1)
+        //<input class="txt" placeholder="Üye ara & ekle    🔍"
+        //@bind="searchText" @bind:event="oninput" @bind:after="PerformSearch" />
+
+        if (searchText?.Length > 1)
         {
             UTL.Clear();
             searchText = searchText.ToUpper(Cnst.trCI);
@@ -265,7 +271,7 @@
                 case '!': return 'K';
             }
         }
-        
+
         return frsStu;
     }
 

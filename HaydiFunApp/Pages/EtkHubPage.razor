@@ -10,32 +10,13 @@
 @implements IDisposable
 
 <style>
-    .ug {
-        display: grid;
-        grid-gap: 4px;
-        grid-template-columns: 100px 50px 200px;
-        background-color: burlywood;
-        /*color: #444;*/
-        justify-content: center;
-        align-content: center;
-        /*height: 100px;*/
-        /*overflow: auto;*/
-    }
-
+    
     .G {
         background-color: aliceblue;
     }
 
     .O {
         background-color: bisque;
-    }
-
-    .tal {
-        text-align: left;
-    }
-
-    .emj {
-        font-size: large;
     }
 
     td[data-edt] {
@@ -67,25 +48,10 @@
         max-width: 50vw;
     }
 
-    .cp {
-        cursor: pointer;
-    }
-
-    .imj {
-        display: block;
-    }
 
     .info {
         font-weight: bold;
         max-width: 50vw;
-    }
-
-    .tac {
-        text-align: center;
-    }
-
-    .tar {
-        text-align: right;
     }
 
     table, th, td {
@@ -99,7 +65,7 @@
 @if (USP.UsrId != 0)
 {
     <div style="max-height:90vh; overflow:auto; display: grid; grid-template-columns:minmax(min-content,0.6fr); justify-content: center;">
-        <table>
+        <table style="background-color: snow">
             @*<caption style="background-color: burlywood;">Etkinliklerim <span class="emj cp" @onclick="@(() => DialogService.Show<EtkMdfDialog>())">➕</span></caption>*@
             <caption style="background-color: burlywood;">Etkinliklerim <span class="emj cp" @onclick="(()=> EditEtk())">➕</span></caption>
             <colgroup>
@@ -135,13 +101,13 @@
 
                     <tr @key="e.ETid" class="@e.Typ">
                         <td data-edt="@e.isOwnr" @onclick="(()=> EditEtk(e))">@e.ETid</td>
-                        <td data-mbr="@e.isOwnr" class="tac emj cp" @onclick="(()=> EditMbr(e))"></td>
-                        <td class="tac emj">@e.TypAd</td>
+                        <td data-mbr="@e.isOwnr" class="emj cp" @onclick="(()=> EditMbr(e))"></td>
+                        <td class="emj">@e.TypAd</td>
                         <td><b>@o.Usr</b>@oOnline</td>
                         <td class="px-0" @onclick="(()=> UsrInfo(o.UTid))"><img src="@o.ImgUrl" class="imj cp" /></td>
 
-                        <td class="tac emj cp" @onclick="(()=> StuChange(e))">@usrStu</td>
-                        <td class="tac emj cp" @onclick="(()=> GoChat(e.ETid))">@hasChat</td>
+                        <td class="emj cp" @onclick="(()=> StuChange(e))">@usrStu</td>
+                        <td class="emj cp" @onclick="(()=> GoChat(e.ETid))">@hasChat</td>
                     </tr>
                     <tr style="background-color: beige">
                         @*<td colspan="9" class="info">@e.Info</td>*@

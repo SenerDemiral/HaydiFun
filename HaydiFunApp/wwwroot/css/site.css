@@ -66,3 +66,39 @@ a, .btn-link {
     .blazor-error-boundary::after {
         content: "An error has occurred."
     }
+
+
+body {
+    background-image: url('/bg9.jpg');
+}
+
+.imj {
+    display: block;
+    cursor: pointer;
+}
+
+.emj {
+    font-size: large;
+    text-align: center;
+}
+
+.cp {
+    cursor: pointer;
+}
+
+.imj {
+    display: block;
+}
+
+.tal {
+    text-align: left;
+}
+
+.tac {
+    text-align: center;
+}
+
+.tar {
+    text-align: right;
+}
+
