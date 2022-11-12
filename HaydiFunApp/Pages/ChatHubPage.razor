@@ -17,7 +17,7 @@
 
         @*<div style="margin:auto; width:fit-content; ">*@
         <div style="position:relative" >
-            <textarea rows="@tar"  style="width:100%;font-weight:bold;resize: vertical;" placeholder="Mesaj..."
+            <textarea rows="@tar" style="width:100%;font-weight:bold;resize: vertical;" placeholder="Mesaj..."
             @bind="ChatText"
             @onkeypress="@KeyHandler"
             @bind:event="oninput" />
@@ -121,7 +121,8 @@
         {
             if (args.CtrlKey)
             {
-                ChatText += Environment.NewLine;
+                //ChatText += Environment.NewLine;
+                ChatText += "aaa ";
 
                 tar = ChatText.Count(x => x == '\n') + 1;
                 return;

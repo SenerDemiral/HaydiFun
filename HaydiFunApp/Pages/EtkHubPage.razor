@@ -16,43 +16,127 @@
     }
 
     .O {
-        background-color: bisque;
+        background-color: maroon;
+        color: whitesmoke;
     }
 
-    td[data-edt] {
-        /*text-decoration: line-through solid red 2px;*/
-        background-color: olive;
-        color: white;
+    .box {
+        background-color: orange;
+        color: black;
+        border-radius: 5px;
+        padding: 20px;
+        font-size: 100%;
+    }
+
+    .wrapper {
+        display: grid;
+        align-items: center;
+        grid-gap: 4px;
+        grid-template-columns: 1fr 50px 50px 50px 50px;
+        /*grid-template-rows: min-content;*/
+        grid-template-areas:
+            "IDE  MBRE OWNA STU  CHAT"
+            "OWN  OWN  OWNA STU  CHAT"
+            "INF  INF  INF  INF  INF"
+            "LBLS LBLS LBLS LBLS LBLS"
+            "MBRS MBRS MBRS MBRS MBRS";
+        /*background-color: white;*/
+        /*color: #444;*/
+        /*padding: 4px;*/
+        margin: 0 12px 0 0;
+        box-shadow: 4px 4px 8px grey;
+    }
+
+    .main {
+        max-height: 90vh;
+        overflow: auto;
+        display: flex;
+        flex-direction: column;
+        row-gap: 10px;
+    }
+
+    @@media only screen and (width > 500px) { /* Level4 */
+        .main {
+            max-width: 50vw;
+            margin: auto;
+        }
+    }
+
+
+    .IDE {
+        grid-area: IDE;
+        /*cursor: pointer;*/
+        padding: 0 4px;
+        font-weight: 800;
+        font-size: medium;
+    }
+
+    .MBRE {
+        grid-area: MBRE;
         cursor: pointer;
-        width: 5em;
     }
 
-    td[data-mbr]::before {
-        content: "🧑‍🤝‍🧑";
+    .OWN {
+        grid-area: OWN;
+        padding: 0 4px;
+    }
+
+    .OWNA {
+        grid-area: OWNA;
         cursor: pointer;
     }
 
-    .edt {
+    .STU {
+        grid-area: STU;
         font-size: large;
-        background-color: olive;
-        color: white;
+        text-align: center;
         cursor: pointer;
-        width: 5em;
     }
 
-        .edt::before {
-            content: "🚧";
+    .CHAT {
+        grid-area: CHAT;
+        font-size: large;
+        text-align: center;
+        cursor: pointer;
+    }
+
+    .INF {
+        grid-area: INF;
+        padding: 0 4px;
+        /*background-color: aqua !important;*/
+    }
+
+    .INFA {
+        grid-area: INFA;
+    }
+
+    .LBLS {
+        grid-area: LBLS;
+        padding: 0 4px;
+    }
+
+    .MBRS {
+        grid-area: MBRS;
+        padding: 0 4px;
+        text-align: right;
+    }
+
+
+
+    div[data-ide] {
+        /*text-decoration: line-through solid red 2px;*/
+        /*background-color: olive;*/
+        /*color: white;*/
+    }
+
+        div[data-ide]::after {
+            content: " 🚧";
+            cursor: pointer;
         }
 
-    .lbl, .mbr {
-        /*font-size: x-small;*/
-        max-width: 50vw;
-    }
 
-
-    .info {
-        font-weight: bold;
-        max-width: 50vw;
+    div[data-mbr]::before {
+        content: "🧑‍🤝‍🧑";
     }
 
     .txta {
@@ -64,109 +148,45 @@
         font-weight: bold;
         resize: vertical;
         background-color: inherit;
-        scrollbar-color: whitesmoke transparent;
+        color: inherit;
+        /*scrollbar-color: whitesmoke transparent;*/
     }
 
-    table, th, td {
-        /*border: 1px solid burlywood;*/
-        /*border-collapse: collapse;*/
-        padding: 0 4px;
-        /*background-color: beige;*/
-    }
-
-       /* td:empty::after {
-            content: "\00a0";
-        }*/
 </style>
 
 
 @if (USP.UsrId != 0)
 {
-    <div style="max-height:90vh; overflow:auto; display: grid; grid-template-columns:minmax(min-content,0.6fr); justify-content: center;">
-        <table style="background-color: snow">
-            @*<caption style="background-color: burlywood;">Etkinliklerim <span class="emj cp" @onclick="@(() => DialogService.Show<EtkMdfDialog>())">➕</span></caption>*@
-            <caption style="background-color: burlywood;">Etkinliklerim <span class="emj cp" @onclick="(()=> EditEtk())">➕</span></caption>
-            <colgroup>
-                <col style="width:fit-content">
-                <col>
-                <col>
-                <col>
-                <col style="width:50px">
-                <col>
-                <col>
-            </colgroup>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th></th>
-                    <th>Typ</th>
-                    <th>Owner</th>
-                    <th>Avtr</th>
-                    <th>Stu</th>
-                    <th>Chat</th>
-                </tr>
-            </thead>
-            <tbody>
-                @{
-                    int NOU = 0;
-                    var usrId = USP.UsrId;
-                    EtkHub.EtkMdl etk;
-                }
-                @foreach (var e in EtkL)
-                {
-                    var o = UsrHub.UsrD[e.OwnId];
-                    var oOnline = Cnst.emjOnlineStu(o.isOnline);
-                    var hasChat = Cnst.emjChatStu(e.hasChat);
-                    var usrStu = Cnst.emjUsrStu(e.MbrD[usrId]);
+    <div class="main">
+        @{
+            int NOU = 0;
+            var usrId = USP.UsrId;
+            EtkHub.EtkMdl etk;
+        }
+        @foreach (var e in EtkL)
+        {
+            var o = UsrHub.UsrD[e.OwnId];
+            var oOnline = Cnst.emjOnlineStu(o.isOnline);
+            var hasChat = Cnst.emjChatStu(e.hasChat);
+            var usrStu = Cnst.emjUsrStu(e.MbrD[usrId]);
 
-                    <tr @key="e.ETid" class="@e.Typ">
-                        <td data-edt="@e.isOwnr" @onclick="(()=> EditEtk(e))">@e.ETid</td>
-                        <td data-mbr="@e.isOwnr" class="emj" @onclick="(()=> EditMbr(e))"></td>
-                        <td class="emj">@e.TypAd</td>
-                        <td><b>@o.Usr</b>@oOnline</td>
-                        <td class="px-0" @onclick="(()=> UsrInfo(o.UTid))"><img src="@o.ImgUrl" class="imj cp" /></td>
+            <div class="wrapper @e.Typ">
+                <div class="IDE" data-ide="@e.isOwnr" @onclick="(()=> EditEtk(e))">@e.ETid</div>
+                <div class="MBRE emj" data-mbr="@e.isOwnr" @onclick="(()=> EditMbr(e))"></div>
+                @*<div class="emj">@e.TypAd</div>*@
+                <div class="OWN">@o.Usr @oOnline</div>
+                <div class="OWNA" @onclick="(()=> UsrInfo(o.UTid))"><img src="@o.ImgUrl" /></div>
+                <div class="STU" @onclick="(()=> StuChange(e))">@usrStu</div>
+                <div class="CHAT" @onclick="(()=> GoChat(e.ETid))">@hasChat</div>
+                <div class="INF">
+                    <textarea rows="@e.InfoNOL" disabled class="txta">@e.Info</textarea>
+                </div>
+                <div class="MBRS">@e.OnlineMbrs</div>
+                <div class="LBLS">@e.LblAds</div>
 
-                        <td class="emj cp" @onclick="(()=> StuChange(e))">@usrStu</td>
-                        <td class="emj cp" @onclick="(()=> GoChat(e.ETid))">@hasChat</td>
-                    </tr>
-                    <tr class="@e.Typ">
-                        @*<td colspan="9" class="info">@e.Info</td>*@
-                        <td colspan="9" style="padding-top:4px">
-                            <textarea rows="@e.InfoNOL" disabled class="txta">@e.Info</textarea>
-                        </td>
-                    </tr>
-                    <tr class="@e.Typ">
-                        <td colspan="9" class="lbl">@e.LblAds</td>
-                    </tr>
-                    @if (e.Typ == 'G')
-                    {
-                        <tr class="@e.Typ">
-                            <td colspan="9" class="mbr">@Cnst.emjOnline @e.OnlineMbrs</td>
-                        </tr>
-                    }
-                    else
-                    {
-                        <tr class="@e.Typ">
-                            <td colspan="9" class="mbr">@e.MbrAds</td>
-                        </tr>
-                    }
-                    <tr class="@e.Typ">
-                        <td colspan="9" >
-                            <div style="box-shadow: 0px 1px 8px gray;padding: 2px 0;background-color: black;"></div>
-                        </td>
-                     </tr>
 
-                    NOU++;
-                }
-
-            </tbody>
-            <tfoot style="background-color: burlywood;">
-                <tr>
-                    <td class="tac">@NOU</td>
-                    <td colspan="9"></td>
-                </tr>
-            </tfoot>
-        </table>
+            </div>
+        }
     </div>
 }
 
