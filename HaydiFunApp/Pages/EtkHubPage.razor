@@ -10,7 +10,7 @@
 @implements IDisposable
 
 <style>
-    
+
     .G {
         background-color: aliceblue;
     }
@@ -29,6 +29,7 @@
 
     td[data-mbr]::before {
         content: "🧑‍🤝‍🧑";
+        cursor: pointer;
     }
 
     .edt {
@@ -44,7 +45,7 @@
         }
 
     .lbl, .mbr {
-        font-size: x-small;
+        /*font-size: x-small;*/
         max-width: 50vw;
     }
 
@@ -54,11 +55,28 @@
         max-width: 50vw;
     }
 
+    .txta {
+        /*box-shadow: rgba(14, 30, 37, 0.12) 0px 2px 4px 0px, rgba(14, 30, 37, 0.32) 0px 2px 16px 0px;*/
+        /*box-shadow: rgba(0, 0, 0, 0.45) 0px 25px 20px -20px;*/
+        box-shadow: 4px 4px 8px grey;
+        padding: 4px;
+        width: 100%;
+        font-weight: bold;
+        resize: vertical;
+        background-color: inherit;
+        scrollbar-color: whitesmoke transparent;
+    }
+
     table, th, td {
         /*border: 1px solid burlywood;*/
         /*border-collapse: collapse;*/
         padding: 0 4px;
+        /*background-color: beige;*/
     }
+
+       /* td:empty::after {
+            content: "\00a0";
+        }*/
 </style>
 
 
@@ -70,6 +88,7 @@
             <caption style="background-color: burlywood;">Etkinliklerim <span class="emj cp" @onclick="(()=> EditEtk())">➕</span></caption>
             <colgroup>
                 <col style="width:fit-content">
+                <col>
                 <col>
                 <col>
                 <col style="width:50px">
@@ -84,6 +103,7 @@
                     <th>Owner</th>
                     <th>Avtr</th>
                     <th>Stu</th>
+                    <th>Chat</th>
                 </tr>
             </thead>
             <tbody>
@@ -101,7 +121,7 @@
 
                     <tr @key="e.ETid" class="@e.Typ">
                         <td data-edt="@e.isOwnr" @onclick="(()=> EditEtk(e))">@e.ETid</td>
-                        <td data-mbr="@e.isOwnr" class="emj cp" @onclick="(()=> EditMbr(e))"></td>
+                        <td data-mbr="@e.isOwnr" class="emj" @onclick="(()=> EditMbr(e))"></td>
                         <td class="emj">@e.TypAd</td>
                         <td><b>@o.Usr</b>@oOnline</td>
                         <td class="px-0" @onclick="(()=> UsrInfo(o.UTid))"><img src="@o.ImgUrl" class="imj cp" /></td>
@@ -109,26 +129,32 @@
                         <td class="emj cp" @onclick="(()=> StuChange(e))">@usrStu</td>
                         <td class="emj cp" @onclick="(()=> GoChat(e.ETid))">@hasChat</td>
                     </tr>
-                    <tr style="background-color: beige">
+                    <tr class="@e.Typ">
                         @*<td colspan="9" class="info">@e.Info</td>*@
-                        <td colspan="9" ><textarea rows="2" disabled style="width:100%;font-weight:bold; ">@e.Info</textarea></td>
+                        <td colspan="9" style="padding-top:4px">
+                            <textarea rows="@e.InfoNOL" disabled class="txta">@e.Info</textarea>
+                        </td>
                     </tr>
-                    <tr style="background-color: beige">
+                    <tr class="@e.Typ">
                         <td colspan="9" class="lbl">@e.LblAds</td>
                     </tr>
                     @if (e.Typ == 'G')
                     {
-                        <tr style="background-color: beige">
+                        <tr class="@e.Typ">
                             <td colspan="9" class="mbr">@Cnst.emjOnline @e.OnlineMbrs</td>
                         </tr>
                     }
                     else
                     {
-                        <tr style="background-color: beige">
+                        <tr class="@e.Typ">
                             <td colspan="9" class="mbr">@e.MbrAds</td>
                         </tr>
                     }
-                    <br />
+                    <tr class="@e.Typ">
+                        <td colspan="9" >
+                            <div style="box-shadow: 0px 1px 8px gray;padding: 2px 0;background-color: black;"></div>
+                        </td>
+                     </tr>
 
                     NOU++;
                 }
@@ -228,8 +254,7 @@
         EtkL = EtkHub.GetUsrEtks(USP.UsrId);
         foreach (var itm in EtkL)
         {
-            if (itm.OwnId == USP.UsrId)
-                itm.isOwnr = true;
+            itm.isOwnr = itm.OwnId == USP.UsrId ? true : false;
         }
     }
 

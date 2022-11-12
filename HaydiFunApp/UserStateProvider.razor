@@ -3,7 +3,7 @@
 @inject IPubs pubs
 @inject IDataAccess db
 @inject NavigationManager NavigationManager
-@implements IDisposable
+@implements IAsyncDisposable
 
 @if (isLoaded)
 {
@@ -132,10 +132,17 @@ else
 
     public void Dispose()
     {
+        //UsrHub.UsrExit(UsrId);
+        //Console.WriteLine($"User exit: {UsrId}");
+        //pubs.UnSubscribe(Cnst.UsrChangeEvnt, UsrCntChange);
+        //pubs.UnSubscribe($"UT:{UsrId}", UsrPostBox);
+
+    }
+    public async ValueTask DisposeAsync()
+    {
+        UsrHub.UsrExit(UsrId);
+        Console.WriteLine($"User exit: {UsrId}");
         pubs.UnSubscribe(Cnst.UsrChangeEvnt, UsrCntChange);
         pubs.UnSubscribe($"UT:{UsrId}", UsrPostBox);
-
-        UsrHub.UsrExit(UsrId);
     }
-
 }

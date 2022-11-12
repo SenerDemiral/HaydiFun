@@ -13,17 +13,18 @@
 
 @if (USP.UsrId != 0)
 {
-    <div style="max-height:90vh; overflow:auto; display: grid; grid-template-columns:minmax(min-content,0.6fr); justify-content: center;">
+    <div style=" display: grid; grid-template-columns:minmax(min-content,1fr); justify-content: center;">
 
         @*<div style="margin:auto; width:fit-content; ">*@
-        <div style="position:relative">
-            <textarea rows="@tar" style="width:100%;font-weight:bold;resize: vertical;" placeholder="Mesaj..."
+        <div style="position:relative" >
+            <textarea rows="@tar"  style="width:100%;font-weight:bold;resize: vertical;" placeholder="Mesaj..."
             @bind="ChatText"
             @onkeypress="@KeyHandler"
             @bind:event="oninput" />
-            <div class="txtBaslik">Chat Grup #@ETid</div>
+            <div class="txtBaslik">Etkinlik #@ETid</div>
         </div>
-        <table>
+        <div style="max-height:78vh; overflow:auto; display:grid" >
+            <table id="star_wars">
             @*<caption style="background-color: burlywood;">Chat Grup #@ETid</caption>*@
             <colgroup>
                 <col>
@@ -49,8 +50,8 @@
                     <tr @key="e.ECid">
                         @if (isOwn)
                         {
-                            <td class="info" data-kim="@kim">
-                                <textarea rows="2" disabled style="width:100%;font-weight:bold;resize:vertical; ">@e.Info</textarea>
+                            <td class="info ml-4" data-kim="@kim">
+                                <textarea rows="@e.InfoNOL" disabled class="txta">@e.Info</textarea>
                                 <div class="saat">@e.EXD.ToString("HH:mm")</div>
                             </td>
 
@@ -59,7 +60,7 @@
                         {
                             <td class="info" data-kim="@kim">
                                 <div class="usr" @onclick="(()=> UsrInfo(e.UTid))">@kim</div>
-                                <div>@e.Info</div>
+                                <textarea rows="@e.InfoNOL" disabled class="txta">@e.Info</textarea>
                                 <div class="saat">@e.EXD.ToString("HH:mm")</div>
 
                             </td>
@@ -68,6 +69,9 @@
                 }
             </tbody>
         </table>
+            <button class="btn btn-link" onclick="document.getElementById('star_wars').scrollIntoView()">Başa dön</button>
+        </div>
+
     </div>
 }
 
@@ -210,6 +214,14 @@
 
 }
 
+
+@*<button class="btn btn-link" onclick="document.getElementById('star_wars').scrollIntoView({behavior:'smooth'})">Star Wars</button>
+
+... lots of other text
+
+<p id="star_wars">Star Wars is an American epic...</p>
+*@
+
 <style>
     .ug {
         display: grid;
@@ -222,7 +234,11 @@
         /*height: 100px;*/
         /*overflow: auto;*/
     }
-
+    .txta {
+        width:100%;
+        resize:vertical;
+        background-color: inherit;
+    }
     .txt {
         border: 1px solid burlywood;
         width: 100%;
@@ -254,9 +270,9 @@
         cursor: pointer;
     }
 
-        .usr:hover {
+        /*.usr:hover {
             font-size: large;
-        }
+        }*/
 
     [data-kim="Ben"] {
         background-color: beige;

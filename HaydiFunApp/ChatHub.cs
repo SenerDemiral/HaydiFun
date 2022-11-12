@@ -74,7 +74,21 @@ public class ChatHub
         public int ETid;
         public int UTid;
         public DateTime EXD;
-        public string? Info;
+        private string _Info;
+        public string? Info
+        {
+            get => _Info;
+            set
+            {
+                _Info = value;
+                InfoNOL = _Info.Count(x => x == '\n') + 1;
+                if (InfoNOL > 5)
+                {
+                    InfoNOL = 5;
+                }
+            }
+        }
+        public int InfoNOL;
     }
 
 }
