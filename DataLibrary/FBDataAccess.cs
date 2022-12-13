@@ -62,6 +62,8 @@ namespace DataLibrary
         {
             using IDbConnection cnct = new FbConnection(cnctStr);
             return await cnct.QueryAsync<T>(sql, parameters); //.ConfigureAwait(false); bunu bekliyorsun
+            //var bbb = aaa.ToList();
+            //return aaa;
         }
 
         public IEnumerable<T> LoadData<T, U>(string sql, U parameters)

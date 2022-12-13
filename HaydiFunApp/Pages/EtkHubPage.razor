@@ -16,8 +16,8 @@
     }
 
     .O {
-        background-color: maroon;
-        color: whitesmoke;
+        background-color: palegoldenrod;
+        /*color: whitesmoke;*/
     }
 
     .box {
@@ -27,16 +27,19 @@
         padding: 20px;
         font-size: 100%;
     }
-
+    img {
+        border-radius: 50%;
+    }
     .wrapper {
         display: grid;
         align-items: center;
         grid-gap: 4px;
         grid-template-columns: 1fr 50px 50px 50px 50px;
-        /*grid-template-rows: min-content;*/
+        /*grid-auto-rows: 1fr;*/
+        grid-template-rows: 52px 26px 80px 26px 26px;
         grid-template-areas:
             "IDE  MBRE OWNA STU  CHAT"
-            "OWN  OWN  OWNA STU  CHAT"
+            "OWN  OWN  OWN  ...  ..."
             "INF  INF  INF  INF  INF"
             "LBLS LBLS LBLS LBLS LBLS"
             "MBRS MBRS MBRS MBRS MBRS";
@@ -45,6 +48,7 @@
         /*padding: 4px;*/
         margin: 0 12px 0 0;
         box-shadow: 4px 4px 8px grey;
+        /*box-shadow: inset 10px 10px 36px 20px #9b9b9b;*/
     }
 
     .main {
@@ -52,7 +56,7 @@
         overflow: auto;
         display: flex;
         flex-direction: column;
-        row-gap: 10px;
+        row-gap: 20px;
     }
 
     @@media only screen and (width > 500px) { /* Level4 */
@@ -74,6 +78,7 @@
     .MBRE {
         grid-area: MBRE;
         cursor: pointer;
+        font-size: x-large;
     }
 
     .OWN {
@@ -83,19 +88,20 @@
 
     .OWNA {
         grid-area: OWNA;
+        /*font-size: x-large;*/
         cursor: pointer;
     }
 
     .STU {
         grid-area: STU;
-        font-size: large;
+        font-size: x-large;
         text-align: center;
         cursor: pointer;
     }
 
     .CHAT {
         grid-area: CHAT;
-        font-size: large;
+        font-size: x-large;
         text-align: center;
         cursor: pointer;
     }
@@ -112,13 +118,19 @@
 
     .LBLS {
         grid-area: LBLS;
-        padding: 0 4px;
+        /*padding: 0 4px;*/
+        overflow-x: auto;
+        white-space: nowrap;
+        margin: 0 8px;
     }
 
     .MBRS {
         grid-area: MBRS;
-        padding: 0 4px;
+        /*padding: 0 4px;*/
         text-align: right;
+        overflow-x: auto;
+        white-space: nowrap;
+        margin: 0 8px;
     }
 
 
@@ -142,14 +154,20 @@
     .txta {
         /*box-shadow: rgba(14, 30, 37, 0.12) 0px 2px 4px 0px, rgba(14, 30, 37, 0.32) 0px 2px 16px 0px;*/
         /*box-shadow: rgba(0, 0, 0, 0.45) 0px 25px 20px -20px;*/
-        box-shadow: 4px 4px 8px grey;
+        /*box-shadow: 4px 4px 8px grey;*/
+        box-shadow: inset 10px 10px 36px 10px lightgray;
+        /*background-color: inherit;*/
         padding: 4px;
         width: 100%;
+        height: 80px;
         font-weight: bold;
         resize: vertical;
-        background-color: inherit;
-        color: inherit;
+        /*color: inherit;*/
         /*scrollbar-color: whitesmoke transparent;*/
+        /*border-left-width:4px;*/
+        /*border-style:groove;*/
+        /*border-color:brown;*/
+        border: 1px solid;
     }
 
 </style>
@@ -183,7 +201,6 @@
                 </div>
                 <div class="MBRS">@e.OnlineMbrs</div>
                 <div class="LBLS">@e.LblAds</div>
-
 
             </div>
         }

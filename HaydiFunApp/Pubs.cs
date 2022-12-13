@@ -40,7 +40,7 @@ public sealed class Pubs : IPubs
 
     public void UnSubscribe(string key, Action<dynamic> handler)
     {
-        if (DynEvent.ContainsKey(key) && DynEvent[key] != null)
+        if (DynEvent.ContainsKey(key)) // && DynEvent[key] != null)
         {
             DynEvent[key] -= handler!;
             if (DynEvent[key] == null)

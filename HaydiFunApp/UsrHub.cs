@@ -26,6 +26,10 @@ public sealed class UsrHub
     }
     public void LoadAll()
     {
+        //string ds = "select * from T_DOWN(@nId);";
+        //Task<IEnumerable<dynamic>> dnm = db.LoadDataAsync<dynamic, dynamic>(ds, new { nId = 1});
+        //var aaa = dnm;
+
         UsrD.Clear();
         Task<IEnumerable<UsrMdl>> res = db.LoadDataAsync<UsrMdl, dynamic>("select * from UT_GETALL", new { });
 
@@ -115,8 +119,8 @@ public sealed class UsrHub
             UsrD[usrId].Cnt++;
         }
         //pubs.UsrRaise();
-
-        pubs.Publish(key: Cnst.UsrChangeEvnt, new { NOU = UsrD.Count, Sbj = $"#of Online Users : {UsrD.Count}" });
+        int nou = UsrD.Count(x => x.Value.isOnline);
+        pubs.Publish(key: Cnst.UsrChangeEvnt, new { NOU = nou, Sbj = $"#of Online Users : {UsrD.Count}" });
 
     }
     public void UsrRemove(int usrId)
@@ -134,7 +138,8 @@ public sealed class UsrHub
                 }
             }
             //pubs.UsrRaise();
-            pubs.Publish(key: Cnst.UsrChangeEvnt, new { NOU = UsrD.Count, Sbj = $"#of Online Users : {UsrD.Count}" });
+            int nou = UsrD.Count(x => x.Value.isOnline);
+            pubs.Publish(key: Cnst.UsrChangeEvnt, new { NOU = nou, Sbj = $"#of Online Users : {UsrD.Count}" });
 
         }
     }
@@ -209,7 +214,8 @@ public sealed class UsrHub
     }
     public int UsrCnt()
     {
-        return UsrD.Count();
+        return UsrD.Count(x => x.Value.isOnline);
+
     }
     public sealed class UsrMdl
     {
@@ -222,7 +228,7 @@ public sealed class UsrHub
         public string? Lbls;
         public string? LblAds;
         public string? Fans;
-        public string ImgUrl => $"uploads/{Avatar}?width=50";
+        public string ImgUrl => $"uploads/{Avatar}?width=50&height=50";
         public string ImgUrlBig => $"uploads/{Avatar}?width=200";
 
         public bool isOnline => Cnt == 0 ? false : true;
